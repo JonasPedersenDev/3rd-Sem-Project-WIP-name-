@@ -1,7 +1,18 @@
 import logo from './logo.svg';
 import './App.css';
+import React, {useEffect, useState} from 'react';
+import axios from 'axios';
 
 function App() {
+
+  const [greeting, setGreeting] = useState('');
+
+  useEffect(() => {
+    axios.get('/api/greeting?name=ReactUser')
+      .then(response => setGreeting(response.data))
+      .catch(error => console.log(error));
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -15,7 +26,9 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Learn How
+
+          <p>{greeting}</p>
         </a>
       </header>
     </div>
