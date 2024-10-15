@@ -1,11 +1,16 @@
 import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.css';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import LoginPage from './pages/LoginPage';
 import SidePanel from './components/SidePanel';
 import HomePage from './pages/HomePage';
+
+
+export default App;
+
 
 function App() {
 
@@ -18,15 +23,18 @@ function App() {
   }, []);
 
   return (
-    <div className="App" style={{ display: 'flex' }}>
-      <SidePanel />
-      <div style={{ marginLeft: '250px', padding: '20px', flex: 1 }}>
-        <HomePage />
-      </div>
-    </div>
+    <Router>
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route 
+        path="/HomePage" 
+        element={
+          <div style={{ marginLeft: '250px', padding: '20px', flex: 1 }}>
+            <HomePage />
+          </div>
+        } 
+      />
+    </Routes>
+  </Router>
   );
-
-
 }
-
-export default App;

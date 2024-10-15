@@ -3,7 +3,7 @@ import React, { useState } from "react";
 function SidePanel() {
 
     return (
-        <div className="sidebar">
+        <div className="sidebar" style={{ display: 'flex' }}>
             <ul className="sidebar-list">
                 <li className="sidebar-item">Hjem</li>
                 <li className="sidebar-item">Evt andre1</li>

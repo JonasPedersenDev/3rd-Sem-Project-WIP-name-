@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-const CheckoutPage = () => {
+const AccountPage = () => {
 
     return (
         <div>
-            <h1>CheckoutPage</h1>
+            <h1>AccountPage</h1>
         </div>
     );
 };
 
-export default CheckoutPage;
+export default AccountPage;
