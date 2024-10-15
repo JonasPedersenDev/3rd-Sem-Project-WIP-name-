@@ -1,7 +1,10 @@
 import logo from './logo.svg';
-import './App.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import NavBar from './components/NavBar';
+import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 
 function App() {
 
@@ -13,26 +16,11 @@ function App() {
       .catch(error => console.log(error));
   }, []);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn How
+  return <div>
+    <HomePage />
+  </div>
 
-          <p>{greeting}</p>
-        </a>
-      </header>
-    </div>
-  );
+
 }
 
 export default App;
