@@ -4,6 +4,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import NavBar from './components/NavBar';
 import LoginPage from './pages/LoginPage';
+import SidePanel from './components/SidePanel';
 import HomePage from './pages/HomePage';
 
 function App() {
@@ -16,9 +17,14 @@ function App() {
       .catch(error => console.log(error));
   }, []);
 
-  return <div>
-    <HomePage />
-  </div>
+  return (
+    <div className="App" style={{ display: 'flex' }}>
+      <SidePanel />
+      <div style={{ marginLeft: '250px', padding: '20px', flex: 1 }}>
+        <HomePage />
+      </div>
+    </div>
+  );
 
 
 }
