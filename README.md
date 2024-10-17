@@ -15,8 +15,11 @@ Third semester group project for AAU
 - **React Component Creation**: Use the ES7+ extension for quickly creating new React components.
   - **Tip**: Write `rafce` when creating a component.
 - **Browser Extension**: React Developer Tools
-- **Linting**: ESLint (configuration needed)
-- **Testing**: TBD
+- **Linting**: ESLint
+- **Testing**: Vitest + JSDOM for react components
+  - To view test results, type the following in the terminal:
+    - cd frontend
+    - npm test
 
 ## Backend
 
