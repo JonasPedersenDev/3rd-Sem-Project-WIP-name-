@@ -18,6 +18,7 @@ Third semester group project for AAU
 - **Linting**: ESLint
 - **Testing**: Vitest + JSDOM for react components
   - To view test results, type the following in the terminal:
+    - npm install  
     - cd frontend
     - npm test
 
