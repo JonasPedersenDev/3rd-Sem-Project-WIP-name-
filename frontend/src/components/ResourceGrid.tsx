@@ -1,34 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ResourceCard from "./ResourceCard";
 
-function ResourceGrid() {
+interface Resource {
+  name: string;
+  img: string;
+  description: string;
+  status: string;
+}
 
-    // Just an example to set up the grid. Replace with actual data from the database.
-    const ResourceCards = () => {
-        const [resources] = useState(['Boremaskine', 'Sav', 'Hammer', 'Skruetrækker', 'Målebånd']);
+const ResourceGrid: React.FC = () => {
+  const [resources, setResources] = useState<Resource[]>([]);
 
-        return (
-            <div className="row">
-                {resources.map((equipment, index) => (
-                    <div className="col-sm-2 mb-4 mb-sm-0" key={index}>
-                        <div className="card">
-                            <img src={`/img/${equipment}.jpg`} className="card-img-top" alt={`${equipment} image`} />
-                            <div className="card-body">
-                                <h5 className="card-title">{equipment}</h5>
-                                <p className="card-text">Evt tekst</p>
-                                <a href="#" className="btn btn-primary">Book</a>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/resources");
+        setResources(response.data);
+      } catch (error) {
+        console.error("Error fetching resources:", error);
+      }
     };
 
-    return (
-        <div>
-            <ResourceCards />
-        </div>
-    );
-}
+    fetchResources();
+  }, []);
+
+  return (
+    <div className="row">
+      {resources.map((resource, index) => (
+        <ResourceCard key={index} resource={resource} />
+      ))}
+    </div>
+  );
+};
 
 export default ResourceGrid;
