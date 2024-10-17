@@ -7,7 +7,7 @@
     "setup": "npm install && cd frontend && npm install && cd ../backend && gradlew.bat build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "frontend": "cd frontend && npm run dev",
-    "backend": "cd backend && cross-env-shell 'if [ \"$OS\" = \"Windows_NT\" ]; then gradlew.bat bootRun; else ./gradlew bootRun; fi'",
+    "backend": "node run-backend.js",
     "start": "concurrently \"npm run frontend\" \"npm run backend\""
   },
   "keywords": [],
