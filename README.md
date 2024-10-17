@@ -32,7 +32,11 @@ Third semester group project for AAU
 
 ### Prerequisites
 
-Make sure you have Node.js and Java version 17 or newer installed.
+Must have installed:
+  - Node.js
+  - Java version 17
+For Java, you probably have a newer version installed, but you need to have version 17 installed as well.
+Link to download Java version 17 (https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html).
 
 ### Development Setup
 
