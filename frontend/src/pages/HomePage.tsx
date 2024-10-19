@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ResourceGrid from "../components/ResourceGrid";
 import { Link } from "react-router-dom";
-import SidePanel from "../components/SidePanel";
+import SidePanel from "../components/BothView/SidePanel";
 
 const HomePage = () => {
   return (

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ResourceCard from "./ResourceCard";
+import ResourceCard from "./TenantView/ResourceCard";
 
 interface Resource {
   name: string;
