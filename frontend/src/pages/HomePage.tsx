@@ -10,6 +10,7 @@ const HomePage = () => {
       <SidePanel />
       <NavBar />
       <ResourceGrid />
+      
       <Link to="/">Go to LoginPage</Link>
     </div>
   );

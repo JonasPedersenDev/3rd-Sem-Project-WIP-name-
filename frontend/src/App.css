@@ -29,7 +29,7 @@
 }
 
 .sidebar-item:hover {
-  background-color: #ffffff;
+  background-color: #acacac;
 }
 
 /* NavBar */
@@ -44,5 +44,6 @@
 }
 
 .navbar .nav-link:hover {
-  color: #f0f0f0 !important;
+  background-color: #acacac !important;
 }
+
