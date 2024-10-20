@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,6 +40,12 @@ public class ResourceController {
         } else {
             return ResponseEntity.ok(resources);
         }
+    }
+
+    @PostMapping("/api/resources")
+    public ResponseEntity<Resource> addResource(@RequestBody Resource resource) {
+        resourceService.addResource(resource);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resource);
     }
 
 }

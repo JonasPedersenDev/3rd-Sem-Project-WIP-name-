@@ -44,4 +44,9 @@ public class ResourceService {
         return resourceList;
     }
 
+  public void addResource(Resource resource) {
+    resourceList.add(resource);
+}
+
+
 }
