@@ -16,7 +16,7 @@ interface ResourceCardProps {
 
 const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   return (
-    <div className="col-sm-2 mb-4 mb-sm-0">
+    <div className="col-sm-2 mb-4 mb-sm-0 mt-5">
       <div className="card">
         <CardImage img={resource.img} name={resource.name} />
         <CardBody
