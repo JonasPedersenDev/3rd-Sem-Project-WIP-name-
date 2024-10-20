@@ -1,49 +1,144 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
-public class User {
+import java.util.Set;
 
-    private int id;
-    private String name;
-    private String email;
-    private String mobileNumber;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-    public User(int id, String name, String email, String mobileNumber) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.mobileNumber = mobileNumber;
-    }
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-    public int getId() {
-        return id;
-    }
+@MappedSuperclass
+public abstract class User {
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "Unique identifier of the user", accessMode = Schema.AccessMode.READ_ONLY)
+  private long id;
 
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
+  @NotNull(message = "Name cannot be null")
+  @Size(min = 3, message = "Name should have at least 3 characters")
+  @Schema(description = "The user's name")
+  private String name;
 
-    public String getEmail() {
-        return email;
-    }
+  @NotNull(message = "Email cannot be null")
+  @Email(message = "Email should be valid")
+  @Schema(description = "The user's email address")
+  private String email;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  @Pattern(regexp = "\\+?[0-9. ()-]{7,25}", message = "Mobile number is invalid")
+  @Schema(description = "The user's mobile phone number")
+  private String mobileNumber;
 
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
+  @NotNull(message = "Username cannot be null")
+  @Size(min = 3, message = "Username should have at least 3 characters")
+  @Schema(description = "The user's username")
+  private String username;
 
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
+  @NotNull(message = "Password cannot be null")
+  @Size(min = 8, message = "Password should have at least 8 characters")
+  @JsonIgnore
+  @Schema(description = "The user's password (encrypted)", accessMode = Schema.AccessMode.WRITE_ONLY)
+  private String password;
+
+  @Schema(description = "Path to the user's profile picture", accessMode = Schema.AccessMode.READ_ONLY)
+  private String profilePicturePath;
+
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+  @Column(name = "role")
+  private Set<String> roles; // e.g., ["ROLE_TENANT", "ROLE_ADMIN"]
+
+
+  // Default no-argument constructor (required by JPA)
+  public User() {
+  }
+
+  public User(long id, String name, String email, String mobileNumber, String username, String password,
+      String profilePicturePath) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.mobileNumber = mobileNumber;
+    this.username = username;
+    this.password = password;
+    this.profilePicturePath = profilePicturePath;
+    this.roles = Set.of("ROLE_USER");
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getMobileNumber() {
+    return mobileNumber;
+  }
+
+  public void setMobileNumber(String mobileNumber) {
+    this.mobileNumber = mobileNumber;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getProfilePicturePath() {
+    return profilePicturePath;
+  }
+
+  public void setProfilePicturePath(String profilePicturePath) {
+    this.profilePicturePath = profilePicturePath;
+  }
+
+  public Set<String> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(Set<String> roles) {
+    this.roles = roles;
+  }
 
 }

@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class StaticResourceController {
-
-    private final String resourcesPath = "src/database/img/resources/";
+    private final String resourcesPath = "src/main/resources/database/img/resources/";
 
     @GetMapping("/resources/{filename:.+}")
     public ResponseEntity<byte[]> serveStaticResource(@PathVariable String filename) {

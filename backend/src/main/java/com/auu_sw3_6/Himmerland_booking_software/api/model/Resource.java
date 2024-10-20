@@ -2,15 +2,15 @@ package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
 public class Resource {
 
-    private int id;
+    private long id;
     private String name;
     private String description;
     private String img;
     private String type;
-    private int capacity;
+    private long capacity;
     private String status;
 
-    public Resource(int id, String name, String description, String img, String type, int capacity, String status) {
+    public Resource(long id, String name, String description, String img, String type, long capacity, String status) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -20,11 +20,11 @@ public class Resource {
         this.status = status;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -60,11 +60,11 @@ public class Resource {
         this.type = type;
     }
 
-    public int getCapacity() {
+    public long getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(long capacity) {
         this.capacity = capacity;
     }
 

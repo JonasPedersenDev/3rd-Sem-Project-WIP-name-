@@ -16,7 +16,7 @@ import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
 @RestController
 public class ResourceController {
 
-    private ResourceService resourceService;
+    private final ResourceService resourceService;
 
     @Autowired
     public ResourceController(ResourceService resourceService) {
@@ -24,7 +24,7 @@ public class ResourceController {
     }
 
     @GetMapping("/api/resource")
-    public ResponseEntity<Resource> getResource(@RequestParam Integer id) {
+    public ResponseEntity<Resource> getResource(@RequestParam Long id) {
         Optional<Resource> resource = resourceService.getResource(id);
         return resource.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
