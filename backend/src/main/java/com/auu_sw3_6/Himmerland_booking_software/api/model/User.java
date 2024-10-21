@@ -48,7 +48,7 @@ public abstract class User {
 
   @NotNull(message = "Password cannot be null")
   @Size(min = 8, message = "Password should have at least 8 characters")
-  @JsonIgnore
+  @JsonIgnore(false)  // This allows it to be serialized during requests
   @Schema(description = "The user's password (encrypted)", accessMode = Schema.AccessMode.WRITE_ONLY)
   private String password;
 
@@ -58,6 +58,8 @@ public abstract class User {
   @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
   @Column(name = "role")
+  @JsonIgnore
+  @Schema(description = "User roles, managed internally", accessMode = Schema.AccessMode.READ_ONLY)
   private Set<String> roles; // e.g., ["ROLE_TENANT", "ROLE_ADMIN"]
 
 

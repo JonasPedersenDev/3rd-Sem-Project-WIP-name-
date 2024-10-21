@@ -87,4 +87,16 @@ public abstract class UserService<T extends User> {
     public void deleteUser(Long id) {
         repository.deleteById(id);
     }
+
+    public Optional<byte[]> getProfilePictureByUsername(String username) {
+        Optional<T> user = getUserByUsername(username); // This method should be implemented
+        return user.flatMap(u -> getProfilePictureByUserId(u.getId())); // Assuming getProfilePictureByUserId exists
+    }
+
+    public Optional<T> getUserByUsername(String username) {
+        return repository.findAll().stream()
+                .filter(u -> u.getUsername().equals(username))
+                .findFirst();
+    }
+    
 }

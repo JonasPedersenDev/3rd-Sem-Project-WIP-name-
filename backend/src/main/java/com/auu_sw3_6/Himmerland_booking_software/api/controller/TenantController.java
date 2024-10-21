@@ -16,6 +16,7 @@ import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 
 @RestController
@@ -29,6 +30,7 @@ public class TenantController extends UserController<Tenant> {
         super(tenantService);
     }
 
+    @PermitAll
     @PostMapping(value = "register", consumes = { "multipart/form-data" })
     @Operation(summary = "Register a new user", 
             description = "This endpoint allows you to add a new user to the system. " +

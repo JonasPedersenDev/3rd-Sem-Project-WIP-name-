@@ -17,7 +17,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
     // Generate a secure random secret key. The key should be at least 32 bytes for HS256.
-    private SecretKey SECRET_KEY = Keys.hmacShaKeyFor("secret-key123secret-key123secret-key123!".getBytes());
+    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("secret-key123secret-key123secret-key123!".getBytes());
 
     // Generate a token with claims and the username as the subject
     public String generateToken(String username) {

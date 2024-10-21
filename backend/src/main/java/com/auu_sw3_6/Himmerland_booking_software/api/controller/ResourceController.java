@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
 
+import jakarta.annotation.security.PermitAll;
+
 @RestController
 public class ResourceController {
 
@@ -24,7 +26,8 @@ public class ResourceController {
     public ResourceController(ResourceService resourceService) {
         this.resourceService = resourceService;
     }
-
+    
+    @PermitAll
     @GetMapping("/api/resource")
     public ResponseEntity<Resource> getResource(@RequestParam Long id) {
         Optional<Resource> resource = resourceService.getResource(id);
@@ -32,6 +35,7 @@ public class ResourceController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @PermitAll
     @GetMapping("/api/resources")
     public ResponseEntity<List<Resource>> getResources() {
         List<Resource> resources = resourceService.getResources();
@@ -42,6 +46,7 @@ public class ResourceController {
         }
     }
 
+    @PermitAll
     @PostMapping("/api/resources")
     public ResponseEntity<Resource> addResource(@RequestBody Resource resource) {
         resourceService.addResource(resource);
