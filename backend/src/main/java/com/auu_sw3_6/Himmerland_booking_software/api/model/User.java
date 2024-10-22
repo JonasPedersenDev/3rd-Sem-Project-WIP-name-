@@ -1,18 +1,11 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -48,20 +41,12 @@ public abstract class User {
 
   @NotNull(message = "Password cannot be null")
   @Size(min = 8, message = "Password should have at least 8 characters")
-  @JsonIgnore(false)  // This allows it to be serialized during requests
+  @JsonIgnore(false) // This allows it to be serialized during requests
   @Schema(description = "The user's password (encrypted)", accessMode = Schema.AccessMode.WRITE_ONLY)
   private String password;
 
   @Schema(description = "Path to the user's profile picture", accessMode = Schema.AccessMode.READ_ONLY)
   private String profilePicturePath;
-
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-  @Column(name = "role")
-  @JsonIgnore
-  @Schema(description = "User roles, managed internally", accessMode = Schema.AccessMode.READ_ONLY)
-  private Set<String> roles; // e.g., ["ROLE_TENANT", "ROLE_ADMIN"]
-
 
   // Default no-argument constructor (required by JPA)
   public User() {
@@ -76,7 +61,6 @@ public abstract class User {
     this.username = username;
     this.password = password;
     this.profilePicturePath = profilePicturePath;
-    this.roles = Set.of("ROLE_USER");
   }
 
   public long getId() {
@@ -133,14 +117,6 @@ public abstract class User {
 
   public void setProfilePicturePath(String profilePicturePath) {
     this.profilePicturePath = profilePicturePath;
-  }
-
-  public Set<String> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(Set<String> roles) {
-    this.roles = roles;
   }
 
 }

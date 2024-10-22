@@ -34,7 +34,7 @@ public abstract class UserController<T extends User> {
 
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_TENANT')")
-    @GetMapping("")
+    @GetMapping(value = "", produces = "application/json")
     public ResponseEntity<T> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName(); // Get the username of the authenticated user

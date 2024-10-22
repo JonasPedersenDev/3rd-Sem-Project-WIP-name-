@@ -1,8 +1,10 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
+import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,8 +16,11 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
 
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
     private final TenantRepository tenantRepository;
     private final AdminRepository adminRepository;
@@ -28,22 +33,30 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         Optional<? extends User> user = tenantRepository.findByUsername(username);
-        
+
+        String role = "ROLE_TENANT";
+
+        // If user is not found in the tenant repository, search in the admin repository
         if (user.isEmpty()) {
             user = adminRepository.findByUsername(username);
+            if (user.isPresent()) {
+                role = "ROLE_ADMIN";
+            }
         }
 
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
 
+        logger.info("User found: {} with roles: {}", user.get().getUsername(), role);
+
+
         return new org.springframework.security.core.userdetails.User(
             user.get().getUsername(),
             user.get().getPassword(),
-            user.get().getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role))
-                .collect(Collectors.toList())
+            Collections.singletonList(new SimpleGrantedAuthority(role))
         );
     }
 }
