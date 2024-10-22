@@ -6,6 +6,7 @@
   color: white;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   padding-top: 20px;
   position: fixed;
@@ -28,6 +29,11 @@
   transition: background-color 0.3s;
 }
 
+.sidebar .sidebar-list .form-switch{
+  position:relative;
+  left:30px;
+ }
+
 .sidebar-item:hover {
   background-color: #acacac;
 }
@@ -35,4 +41,11 @@
 /* Navbar */
 .bg-custom {
   background-color: #333;
+}
+
+/* Sidepanel calendar */
+.react-calendar {
+  width: 225px !important;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
