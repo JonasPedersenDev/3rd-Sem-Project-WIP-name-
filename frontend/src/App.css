@@ -32,18 +32,7 @@
   background-color: #acacac;
 }
 
-/* NavBar */
-#root div nav{
-  transform:translatex(0px) translatey(0px);
-  background-color:#333 !important;
-  width: 100%;
- }
-
-.navbar .nav-link {
-  color: white !important;
+/* Navbar */
+.bg-custom {
+  background-color: #333;
 }
-
-.navbar .nav-link:hover {
-  background-color: #acacac !important;
-}
-
