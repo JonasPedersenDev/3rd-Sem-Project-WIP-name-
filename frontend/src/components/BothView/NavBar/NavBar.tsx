@@ -31,7 +31,7 @@ function Navbar() {
                             <a href="#pricing" className="nav-link">Bookings</a>
                         </li>
                         <li className="nav-item">
-                            <a href="#about" className="nav-link">Navn</a>
+                            <a href="#AccountPage" className="nav-link">Navn</a>
                         </li>
                     </ul>
                 </div>
