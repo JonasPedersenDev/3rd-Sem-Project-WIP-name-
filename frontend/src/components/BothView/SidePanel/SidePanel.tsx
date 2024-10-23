@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SidePanelCalendar from "./Calendar";
 
 function SidePanel() {
   return (
@@ -56,6 +57,9 @@ function SidePanel() {
           </label>
         </div>
       </ul>
+      <div>
+        <SidePanelCalendar />
+      </div>
     </div>
   );
 }

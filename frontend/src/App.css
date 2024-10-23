@@ -6,6 +6,7 @@
   color: white;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   padding-top: 20px;
   position: fixed;
@@ -28,22 +29,35 @@
   transition: background-color 0.3s;
 }
 
+.sidebar .sidebar-list .form-switch{
+  position:relative;
+  left:30px;
+ }
+
 .sidebar-item:hover {
   background-color: #acacac;
 }
 
-/* NavBar */
-#root div nav{
-  transform:translatex(0px) translatey(0px);
-  background-color:#333 !important;
-  width: 100%;
- }
-
-.navbar .nav-link {
-  color: white !important;
+/* Navbar */
+.bg-custom {
+  background-color: #333;
 }
 
-.navbar .nav-link:hover {
-  background-color: #acacac !important;
+/* Sidepanel calendar */
+.react-calendar {
+  width: 225px !important;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.heading {
+  font-size: 24px;
+  font-weight: bold;
 }
 
+.underline {
+  width: 95%; 
+  height: 1px; 
+  background-color: #333; 
+  margin-top: 0px;
+  margin-bottom: 20px;
+}

@@ -16,6 +16,7 @@ interface AddResourceModalProps {
 const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdded, onClose }) => {
   const [resourceData, setResourceData] = useState({
     name: "",
+    type: "",
     img: "",
     description: "",
     status: "available",
@@ -51,6 +52,16 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdd
               type="text"
               name="name"
               value={resourceData.name}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="type">
+            <Form.Label>Type:</Form.Label>
+            <Form.Control
+              type="text"
+              name="type"
+              value={resourceData.type}
               onChange={handleChange}
               required
             />
