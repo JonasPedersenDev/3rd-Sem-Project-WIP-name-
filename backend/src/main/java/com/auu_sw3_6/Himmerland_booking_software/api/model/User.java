@@ -41,26 +41,26 @@ public abstract class User {
 
   @NotNull(message = "Password cannot be null")
   @Size(min = 8, message = "Password should have at least 8 characters")
-  @JsonIgnore(false) // This allows it to be serialized during requests
+  @JsonIgnore(false)
   @Schema(description = "The user's password (encrypted)", accessMode = Schema.AccessMode.WRITE_ONLY)
   private String password;
 
-  @Schema(description = "Path to the user's profile picture", accessMode = Schema.AccessMode.READ_ONLY)
-  private String profilePicturePath;
+  @Schema(description = "File name of the user's profile picture", accessMode = Schema.AccessMode.READ_ONLY)
+  private String profilePictureFileName;
 
   // Default no-argument constructor (required by JPA)
   public User() {
   }
 
   public User(long id, String name, String email, String mobileNumber, String username, String password,
-      String profilePicturePath) {
+      String profilePictureFileName) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.mobileNumber = mobileNumber;
     this.username = username;
     this.password = password;
-    this.profilePicturePath = profilePicturePath;
+    this.profilePictureFileName = profilePictureFileName;
   }
 
   public long getId() {
@@ -111,12 +111,12 @@ public abstract class User {
     this.password = password;
   }
 
-  public String getProfilePicturePath() {
-    return profilePicturePath;
+  public String getprofilePictureFileName() {
+    return profilePictureFileName;
   }
 
-  public void setProfilePicturePath(String profilePicturePath) {
-    this.profilePicturePath = profilePicturePath;
+  public void setprofilePictureFileName(String profilePictureFileName) {
+    this.profilePictureFileName = profilePictureFileName;
   }
 
 }

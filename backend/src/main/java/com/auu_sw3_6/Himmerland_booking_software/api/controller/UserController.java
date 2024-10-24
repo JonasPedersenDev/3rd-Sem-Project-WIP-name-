@@ -37,7 +37,7 @@ public abstract class UserController<T extends User> {
     @GetMapping(value = "", produces = "application/json")
     public ResponseEntity<T> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName(); // Get the username of the authenticated user
+        String username = authentication.getName();
 
         Optional<T> user = userService.getUserByUsername(username);
         return user.map(ResponseEntity::ok)
@@ -69,7 +69,7 @@ public abstract class UserController<T extends User> {
     @GetMapping("profilePicture")
     public ResponseEntity<byte[]> getProfilePicture() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName(); // Get the username of the authenticated user
+        String username = authentication.getName();
 
         Optional<byte[]> imageBytesOptional = userService.getProfilePictureByUsername(username);
 

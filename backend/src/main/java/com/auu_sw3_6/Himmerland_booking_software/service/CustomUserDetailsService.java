@@ -16,7 +16,6 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
 
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -52,11 +51,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         logger.info("User found: {} with roles: {}", user.get().getUsername(), role);
 
-
         return new org.springframework.security.core.userdetails.User(
-            user.get().getUsername(),
-            user.get().getPassword(),
-            Collections.singletonList(new SimpleGrantedAuthority(role))
-        );
+                user.get().getUsername(),
+                user.get().getPassword(),
+                Collections.singletonList(new SimpleGrantedAuthority(role)));
     }
 }
