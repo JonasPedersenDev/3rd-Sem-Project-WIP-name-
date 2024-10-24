@@ -11,7 +11,8 @@ const HomePage = () => {
       <NavBar />
       <ResourceGrid />
       
-      <Link to="/">Go to LoginPage</Link>
+      <Link to="/">Go to LoginPage</Link> <br />
+      <Link to="/Checkoutpage">Go to CheckoutPage</Link>
     </div>
   );
 };

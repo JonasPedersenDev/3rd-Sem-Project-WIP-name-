@@ -4,6 +4,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
+import CheckoutPage from "./pages/CheckoutPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             </div>
           }
         />
+        <Route path ="/Checkoutpage" element ={<CheckoutPage />} />
       </Routes>
     </Router>
   );
