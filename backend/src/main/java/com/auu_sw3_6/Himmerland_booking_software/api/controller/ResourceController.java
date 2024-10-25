@@ -47,7 +47,7 @@ public class ResourceController {
     }
 
     @PermitAll
-    @PostMapping("/api/resources")
+    @PostMapping("/api/resource")
     public ResponseEntity<Resource> addResource(@RequestBody Resource resource) {
         resourceService.addResource(resource);
         return ResponseEntity.status(HttpStatus.CREATED).body(resource);

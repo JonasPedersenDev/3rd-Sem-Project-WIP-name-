@@ -1,7 +1,14 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
-public class Resource {
+@MappedSuperclass
+public abstract class Resource {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
     private String description;
@@ -9,6 +16,9 @@ public class Resource {
     private String type;
     private long capacity;
     private String status;
+
+    public Resource() {
+    }
 
     public Resource(long id, String name, String description, String img, String type, long capacity, String status) {
         this.id = id;
