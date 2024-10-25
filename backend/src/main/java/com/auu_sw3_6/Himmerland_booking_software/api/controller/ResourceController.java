@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,27 +19,28 @@ import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
 import jakarta.annotation.security.PermitAll;
 
 @RestController
-public class ResourceController {
+@RequestMapping("api/resource")
+public abstract class ResourceController <T extends Resource> {
 
-    private final ResourceService resourceService;
+    protected final ResourceService<T> resourceService;
 
     @Autowired
-    public ResourceController(ResourceService resourceService) {
+    public ResourceController(ResourceService<T> resourceService) {
         this.resourceService = resourceService;
     }
     
     @PermitAll
     @GetMapping("/api/resource")
-    public ResponseEntity<Resource> getResource(@RequestParam Long id) {
-        Optional<Resource> resource = resourceService.getResource(id);
+    public ResponseEntity<T> getResourceById(@RequestParam Long id) {
+        Optional<T> resource = resourceService.getResourceById(id);
         return resource.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PermitAll
     @GetMapping("/api/resources")
-    public ResponseEntity<List<Resource>> getResources() {
-        List<Resource> resources = resourceService.getResources();
+    public ResponseEntity<List<T>> getResources() {
+        List<T> resources = resourceService.getAllResources();
         if (resources.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
@@ -48,8 +50,8 @@ public class ResourceController {
 
     @PermitAll
     @PostMapping("/api/resource")
-    public ResponseEntity<Resource> addResource(@RequestBody Resource resource) {
-        resourceService.addResource(resource);
+    public ResponseEntity<T> addResource(@RequestBody T resource) {
+        resourceService.createResource(resource, null);
         return ResponseEntity.status(HttpStatus.CREATED).body(resource);
     }
 

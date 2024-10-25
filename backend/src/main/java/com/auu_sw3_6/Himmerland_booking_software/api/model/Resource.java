@@ -12,7 +12,7 @@ public abstract class Resource {
     private long id;
     private String name;
     private String description;
-    private String img;
+    private String resourcePictureFileName;
     private String type;
     private long capacity;
     private String status;
@@ -20,11 +20,11 @@ public abstract class Resource {
     public Resource() {
     }
 
-    public Resource(long id, String name, String description, String img, String type, long capacity, String status) {
+    public Resource(long id, String name, String description, String resourcePictureFileName, String type, long capacity, String status) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.img = img;
+        this.resourcePictureFileName = resourcePictureFileName;
         this.type = type;
         this.capacity = capacity;
         this.status = status;
@@ -54,14 +54,6 @@ public abstract class Resource {
         this.description = description;
     }
 
-    public String getImg() {
-        return img;
-    }
-
-    public void setImg(String img) {
-        this.img = img;
-    }
-
     public String getType() {
         return type;
     }
@@ -85,5 +77,13 @@ public abstract class Resource {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getResourcePictureFileName() {
+        return resourcePictureFileName;
+    }
+    
+      public void setResourcePictureFileName(String resourcePictureFileName) {
+        this.resourcePictureFileName = resourcePictureFileName;
+      }
 
 }
