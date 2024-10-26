@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 const Login = () => {
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate("/homepage");
+  };
+
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
-        <form className="w-25 p-4 border rounded shadow">
+        <form className="w-25 p-4 border rounded shadow" onSubmit={handleSubmit}>
           <h4 className="text-center mb-4">Login</h4>
           <div className="mb-3 mt-5">
             <label htmlFor="username">Username</label>

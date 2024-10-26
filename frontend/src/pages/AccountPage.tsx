@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import NavBar from "../components/BothView/NavBar/NavBar.tsx";
 
 const AccountPage = () => {
   // State to hold user input
@@ -27,6 +28,8 @@ const AccountPage = () => {
   };
 
   return (
+    <>
+    <NavBar />
     <div className="container mt-5">
       <h2 className="mb-4">Account Settings</h2>
       <form onSubmit={handleSubmit}>
@@ -104,6 +107,7 @@ const AccountPage = () => {
         </button>
       </form>
     </div>
+    </>
   );
 };
 
