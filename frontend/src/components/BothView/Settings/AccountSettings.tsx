@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Form, Button, Modal, Row, Col } from "react-bootstrap";
-import axios from "axios"; // Axios to send HTTP requests
 
 const SettingsForm: React.FC = () => {
   const [userInfo, setUserInfo] = useState({
@@ -36,16 +35,27 @@ const SettingsForm: React.FC = () => {
       formData.append("profilePicture", file);
 
       try {
-        const response = await axios.post("http://localhost:5000/api/upload-profile-picture", formData, {
+        const response = await fetch("http://localhost:5173/api/upload-profile-picture", {
+          method: "POST",
+          body: formData,
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Accept": "application/json",
           },
         });
-        
-        // Set the profile picture preview
-        setProfilePicture(URL.createObjectURL(file));
 
-        console.log("Image uploaded successfully:", response.data);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+
+        // Assuming the backend returns the path to the uploaded image
+        const imagePath = data.path;
+
+        // Set the profile picture preview
+        setProfilePicture(`http://localhost:5173/backend/src/main/resources/profilepicture/${imagePath}`);
+
+        console.log("Image uploaded successfully:", data);
       } catch (error) {
         console.error("Error uploading the image:", error);
       }
