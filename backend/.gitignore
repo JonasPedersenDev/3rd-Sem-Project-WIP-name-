@@ -6,7 +6,11 @@ build/
 !**/src/test/**/build/
 
 ### Database ###
-.db
+
+*.db
+!**/src/main/**/database/
+!**/src/test/**/database/
+
 
 ### STS ###
 .apt_generated
