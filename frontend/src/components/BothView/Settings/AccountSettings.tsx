@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Form, Button, Modal } from "react-bootstrap";
+import { Form, Button, Modal, Row, Col } from "react-bootstrap";
+import axios from "axios"; // Axios to send HTTP requests
 
 const SettingsForm: React.FC = () => {
   const [userInfo, setUserInfo] = useState({
@@ -11,6 +12,7 @@ const SettingsForm: React.FC = () => {
     password: ""
   });
 
+  const [profilePicture, setProfilePicture] = useState<string | null>("https://placehold.co/150");
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -19,29 +21,35 @@ const SettingsForm: React.FC = () => {
     setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
   };
 
-const handleEditToggle = () => {
-  if (isEditing) {
-    console.log("Opdatered Bruger Information:", userInfo);
-    setShowSuccessModal(true);
-  }
-  setIsEditing(!isEditing);
-}
+  const handleEditToggle = () => {
+    if (isEditing) {
+      console.log("Updated User Information:", userInfo);
+      setShowSuccessModal(true);
+    }
+    setIsEditing(!isEditing);
+  };
 
-  const handleSave = () => {
-    console.log("Updated User Information:", userInfo);
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("profilePicture", file);
 
-    // Show success message modal
-    setShowSuccessModal(true);
+      try {
+        const response = await axios.post("http://localhost:5000/api/upload-profile-picture", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        
+        // Set the profile picture preview
+        setProfilePicture(URL.createObjectURL(file));
 
-    // Clear input fields
-    setUserInfo({
-      username: "",
-      name: "",
-      houseAddress: "",
-      email: "",
-      phoneNumber: "",
-      password: ""
-    });
+        console.log("Image uploaded successfully:", response.data);
+      } catch (error) {
+        console.error("Error uploading the image:", error);
+      }
+    }
   };
 
   const handleCloseModal = () => {
@@ -49,102 +57,125 @@ const handleEditToggle = () => {
   };
 
   return (
-    <>
-      <Form>
-        <Form.Group controlId="formUsername">
-          <Form.Label>Brugernavn</Form.Label>
-          {isEditing ? (
-            <Form.Control
-            type="text"
-            name="username"
-            value={userInfo.username}
-            onChange={handleInputChange}
-            placeholder="Skriv nyt brugernavn"
-          />
-        ) : (
-          <p>{userInfo.username}</p>
-        )}
-        </Form.Group>
+    <div className="settings-container" style={{ marginLeft: '250px' }}>
+      <Row>
+        {/* User Information Form */}
+        <Col md={9}>
+          <Form>
+            {/* Form fields for user info */}
+            <Form.Group controlId="formUsername">
+              <Form.Label>Brugernavn</Form.Label>
+              {isEditing ? (
+                <Form.Control
+                  type="text"
+                  name="username"
+                  value={userInfo.username}
+                  onChange={handleInputChange}
+                  placeholder="Skriv nyt brugernavn"
+                />
+              ) : (
+                <p>{userInfo.username}</p>
+              )}
+            </Form.Group>
+            {/* Other fields follow the same structure */}
+            <Form.Group controlId="formName">
+              <Form.Label>Navn</Form.Label>
+              {isEditing ? (
+                <Form.Control
+                  type="text"
+                  name="name"
+                  value={userInfo.name}
+                  onChange={handleInputChange}
+                  placeholder="Skriv nyt navn"
+                />
+              ) : (
+                <p>{userInfo.name}</p>
+              )}
+            </Form.Group>
 
-        <Form.Group controlId="formName">
-          <Form.Label>Navn</Form.Label>
-          {isEditing ? (
-            <Form.Control
-            type="text"
-            name="name"
-            value={userInfo.name}
-            onChange={handleInputChange}
-            placeholder="Skriv nyt navn"
-          />
-          ) : (
-            <p>{userInfo.name}</p>
-          )}
-        </Form.Group>
+            <Form.Group controlId="formHouseAddress">
+              <Form.Label>Addresse</Form.Label>
+              {isEditing ? (
+                <Form.Control
+                  type="text"
+                  name="houseAddress"
+                  value={userInfo.houseAddress}
+                  onChange={handleInputChange}
+                  placeholder="Skriv ny addresse"
+                />
+              ) : (
+                <p>{userInfo.houseAddress}</p>
+              )}
+            </Form.Group>
 
-        <Form.Group controlId="formHouseAddress">
-          <Form.Label>Addresse</Form.Label>
-          {isEditing ? (
-             <Form.Control
-            type="text"
-            name="houseAddress"
-            value={userInfo.houseAddress}
-            onChange={handleInputChange}
-            placeholder="Skriv ny addresse"
-          />
-          ) : (
-            <p>{userInfo.houseAddress}</p>
-          )}
-        </Form.Group>
+            <Form.Group controlId="formEmail">
+              <Form.Label>Email</Form.Label>
+              {isEditing ? (
+                <Form.Control
+                  type="email"
+                  name="email"
+                  value={userInfo.email}
+                  onChange={handleInputChange}
+                  placeholder="Skriv nyt email"
+                /> 
+              ) : (
+                <p>{userInfo.email}</p>
+              )}
+            </Form.Group>
 
-        <Form.Group controlId="formEmail">
-          <Form.Label>Email</Form.Label>
-          {isEditing ? (
-            <Form.Control
-            type="email"
-            name="email"
-            value={userInfo.email}
-            onChange={handleInputChange}
-            placeholder="Skriv nyt email"
-          /> 
-          ) : (
-            <p>{userInfo.email}</p>
-          )}
-        </Form.Group>
+            <Form.Group controlId="formPhoneNumber">
+              <Form.Label>Telefon nummer</Form.Label>
+              {isEditing ? (
+                <Form.Control
+                  type="text"
+                  name="phoneNumber"
+                  value={userInfo.phoneNumber}
+                  onChange={handleInputChange}
+                  placeholder="Skriv nyt telefon nummer"
+                />
+              ) : (
+                <p>{userInfo.phoneNumber}</p>
+              )}
+            </Form.Group>
 
-        <Form.Group controlId="formPhoneNumber">
-          <Form.Label>Telefon nummer</Form.Label>
-          {isEditing ? (
-            <Form.Control
-            type="text"
-            name="phoneNumber"
-            value={userInfo.phoneNumber}
-            onChange={handleInputChange}
-            placeholder="Skriv nyt telefon nummer"
-          />
-          ) : (
-            <p>{userInfo.phoneNumber}</p>
-          )}
-        </Form.Group>
+            <Form.Group controlId="formPassword">
+              <Form.Label>Adgangskode</Form.Label>
+              {isEditing ? (
+                <Form.Control
+                  type="password"
+                  name="password"
+                  value={userInfo.password}
+                  onChange={handleInputChange}
+                  placeholder="Skriv ny adgangskode"
+                />
+              ) : (
+                <p>*********</p>
+              )}
+            </Form.Group>
 
-        <Form.Group controlId="formPassword">
-          <Form.Label>Adgangskode</Form.Label>
-          {isEditing ? (
-            <Form.Control
-            type="password"
-            name="password"
-            value={userInfo.password}
-            onChange={handleInputChange}
-            placeholder="Skriv ny adganskode"
-          />
-          ) : (
-            <p>*********</p>
-          )}
-        </Form.Group>
+            <Button variant="primary" onClick={handleEditToggle} className="mt-3">
+              {isEditing ? "Gem Ændringer" : "Ændre"}
+            </Button>
+          </Form>
+        </Col>
 
-        <Button variant="primary" onClick={handleEditToggle} className="mt-3">
-          {isEditing ? "Gem Ændringer" : "Ændre"}
-        </Button>
-      </Form>
+        {/* Profile Picture Section on the Right */}
+        <Col md={3} className="text-center">
+          <div style={{ marginBottom: '20px' }}>
+            <img
+              src={profilePicture}
+              alt="Profile"
+              style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+            />
+            {isEditing && (
+              <Form.Group controlId="formProfilePicture" className="mt-3">
+                <Form.Label>Skift profilbillede</Form.Label>
+                <Form.Control type="file" onChange={handleFileChange} />
+              </Form.Group>
+            )}
+          </div>
+        </Col>
+      </Row>
 
       {/* Success Modal */}
       <Modal show={showSuccessModal} onHide={handleCloseModal} centered>
@@ -158,7 +189,7 @@ const handleEditToggle = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </>
+    </div>
   );
 };
 
