@@ -45,7 +45,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-// To see logs of tests uncomment
+// To see logs of tests uncomment the following code
 /* test {
     testLogging {
         events "passed", "skipped", "failed"

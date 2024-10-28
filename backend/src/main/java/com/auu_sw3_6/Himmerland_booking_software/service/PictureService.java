@@ -8,15 +8,14 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PictureService {
 
-  @Value("${profile.picture.directory}")
-  protected String profilePictureDirectory;
+  // @Value("${profile.picture.directory}") <- Lavede problemer med tests, så hardcoded
+  private String profilePictureDirectory = "src/main/resources/database/img/profilePictures/";
 
   // Hardcoded for now, should properly be changed to a more dynamic solution,
   // maybe
@@ -70,6 +69,10 @@ public class PictureService {
 
   public void setProfilePictureDirectory(String profilePictureDirectory) {
     this.profilePictureDirectory = profilePictureDirectory;
+  }
+
+  public String getProfilePictureDirectory() {
+    return profilePictureDirectory;
   }
 
 }

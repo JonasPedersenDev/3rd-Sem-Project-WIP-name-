@@ -7,9 +7,9 @@ build/
 
 ### Database ###
 
-*.db
-!**/src/main/**/database/
-!**/src/test/**/database/
+# *.db
+!**/src/main/**/database/*
+# !**/src/test/**/database/
 
 
 ### STS ###

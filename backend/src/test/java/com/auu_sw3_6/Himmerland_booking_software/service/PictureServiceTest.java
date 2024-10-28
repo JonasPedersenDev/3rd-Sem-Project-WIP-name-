@@ -1,4 +1,4 @@
-/* package com.auu_sw3_6.Himmerland_booking_software.service;
+package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,20 +28,19 @@ public class PictureServiceTest {
   private PictureService pictureService;
 
   @Mock
-  private MultipartFile profilePicture;
+  private MultipartFile profilePictureTest;
 
   @BeforeEach
   public void setUp() {
     pictureService = new PictureService();
-    pictureService.setProfilePictureDirectory("src/main/resources/database/img/profilePictures/");
   }
 
   @Test
   public void testSaveProfilePicture_shouldSavePictureAndReturnUniqueFileName() throws Exception {
     // Arrange
     String originalFileName = "testProfile.jpg";
-    when(profilePicture.getOriginalFilename()).thenReturn(originalFileName);
-    when(profilePicture.isEmpty()).thenReturn(false);
+    MockMultipartFile profilePicture = new MockMultipartFile("file", originalFileName, "image/jpeg",
+        new byte[] { 1, 2, 3, 4 });
 
     // Act
     String savedFileName = pictureService.saveProfilePicture(profilePicture);
@@ -50,10 +50,8 @@ public class PictureServiceTest {
     assertTrue(savedFileName.endsWith(".jpg") || savedFileName.endsWith(".png"));
 
     // Check if the file was saved
-    System.out.println("savedFileName: " + savedFileName);
-    System.out.println("profilePictureDirectory: " + pictureService.profilePictureDirectory);
-    File savedFile = new File(Paths.get(pictureService.profilePictureDirectory, savedFileName).toString());
-    System.out.println("savedFile: " + savedFile);
+    System.out.println("Profile picture directory: " + pictureService.getProfilePictureDirectory());
+    File savedFile = new File(Paths.get(pictureService.getProfilePictureDirectory(), savedFileName).toString());
     assertTrue(savedFile.exists());
 
     // Cleanup
@@ -65,7 +63,7 @@ public class PictureServiceTest {
     // Arrange
     String fileName = "existingPicture.jpg";
     // Create a temporary file to simulate an existing picture
-    File tempFile = new File(pictureService.profilePictureDirectory, fileName);
+    File tempFile = new File(pictureService.getProfilePictureDirectory(), fileName);
     Files.write(tempFile.toPath(), new byte[] { 1, 2, 3, 4 }); // Dummy bytes
 
     // Act
@@ -93,16 +91,16 @@ public class PictureServiceTest {
 
   @Test
   public void testSaveProfilePicture_shouldThrowExceptionWhenIOExceptionOccurs() throws Exception {
+
     // Arrange
-    when(profilePicture.getOriginalFilename()).thenReturn("testProfile.jpg");
-    when(profilePicture.isEmpty()).thenReturn(false);
-    doThrow(new IOException("Disk error")).when(profilePicture).transferTo(any(File.class));
+    lenient().when(profilePictureTest.getOriginalFilename()).thenReturn("testProfile.jpg");
+    lenient().when(profilePictureTest.isEmpty()).thenReturn(false);
+    doThrow(new IOException("Disk error")).when(profilePictureTest).transferTo(any(File.class));
 
     // Act & Assert
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-      pictureService.saveProfilePicture(profilePicture);
+      pictureService.saveProfilePicture(profilePictureTest);
     });
     assertEquals("Failed to save profile picture", exception.getMessage());
   }
 }
- */
