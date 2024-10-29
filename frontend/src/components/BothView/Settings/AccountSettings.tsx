@@ -173,7 +173,7 @@ const SettingsForm: React.FC = () => {
         <Col md={3} className="text-center">
           <div style={{ marginBottom: '20px' }}>
             <img
-              src={profilePicture}
+              src={profilePicture ?? "https://placehold.co/150"}
               alt="Profile"
               style={{ width: "150px", height: "150px", borderRadius: "50%" }}
             />
