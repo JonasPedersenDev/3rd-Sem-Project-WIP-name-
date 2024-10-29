@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+interface Credentials {
+  username: string;
+  password: string;
+}
+
+const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [credentials, setCredentials] = useState<Credentials>({ username: "", password: "" });
+  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // Valider brugernavn og adgangskode
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const { username, password } = credentials;
     if (!username || !password) {
       setErrorMessage("Udfyld venligst alle felter.");
@@ -18,8 +22,7 @@ const Login = () => {
     return true;
   };
 
-  // Handle input change for both username and password fields
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { id, value } = e.target;
     setCredentials((prevCredentials) => ({
       ...prevCredentials,
@@ -27,10 +30,9 @@ const Login = () => {
     }));
   };
 
-  // Submit form data
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    setErrorMessage(""); // Clear any previous error messages
+    setErrorMessage("");
 
     if (!validateForm()) return;
 
@@ -38,14 +40,11 @@ const Login = () => {
       const response = await axios.post("location where we check dat shit", credentials);
 
       if (response.data.success) {
-        // Naviger til hjemmesiden på succes, husk at spørg hvad hjemmesidelinket er og hvorfor det linker gennem min computer
-        navigate("/C:\Users\cvm08\Himmerland-booking-system\frontend\src\components\TenantView");
+        navigate("/Homepage");
       } else {
-        // fejlbesked i tilfælde af fejl
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }
     } catch (error) {
-      // fejlbeskeder
       if (axios.isAxiosError(error)) {
         if (error.response && error.response.status === 401) {
           setErrorMessage("Forkert brugernavn eller adgangskode.");
@@ -63,7 +62,7 @@ const Login = () => {
       <form className="w-25 p-4 border rounded shadow" onSubmit={handleSubmit}>
         <h4 className="text-center mb-4">Login</h4>
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-        
+
         <div className="mb-3 mt-5">
           <label htmlFor="username">Brugernavn</label>
           <input
@@ -76,7 +75,7 @@ const Login = () => {
             required
           />
         </div>
-        
+
         <div className="form-group mt-3">
           <label htmlFor="password">Adgangskode</label>
           <div className="input-group">
@@ -105,9 +104,13 @@ const Login = () => {
         </button>
 
         <div className="text-center mt-3">
-          <Link to="/sign-up">
-            <button className="btn btn-secondary btn-lg">Lav bruger</button>
-          </Link>
+          <button
+            type="button"
+            className="btn btn-secondary btn-lg"
+            onClick={() => navigate("/sign-up")}
+          >
+            Lav bruger
+          </button>
         </div>
       </form>
     </div>
@@ -115,7 +118,3 @@ const Login = () => {
 };
 
 export default Login;
-
-//spørgsmål: når jeg kopierer paths, linker den gennem mine computer filer, fix hvordan?
-//spørgsmål: jeg sender nu en axiom request ud
-//spørgsmål: hvor i koden skal jeg sende axios requesten hen?

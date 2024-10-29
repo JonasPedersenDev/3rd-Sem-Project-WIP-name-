@@ -4,6 +4,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
 import AccountPage from "./pages/AccountPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CToverviewPage from "./pages/CTOverviewPage";
@@ -18,6 +19,7 @@ function App() {
     <Routes>
       <>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/sign-up" element={<SignUpPage />} />
 
         <Route path="/homepage" element={
             <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
