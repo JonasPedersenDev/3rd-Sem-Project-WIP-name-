@@ -1,7 +1,7 @@
 
-function Footer() {
+function Footer({ style = {} }) {
     return (
-        <footer className="bg-dark text-white py-2">
+        <footer className="bg-dark text-white py-2" style={style}>
             <div className="container">
                 <div className="row">
                     <div className="col-md-4">
