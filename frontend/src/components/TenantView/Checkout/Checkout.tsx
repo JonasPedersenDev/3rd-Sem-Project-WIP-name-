@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BookingCard from './BookingCard';
 
 interface Booking {
@@ -6,36 +6,46 @@ interface Booking {
   resourceName: string;
   bookStartTime: Date;
   bookEndTime: Date;
-  pickupTime: Date;
-  dropoffTime: Date;
+  pickup: string;
+  dropoff: string;
 }
 
 const Checkout: React.FC = () => {
 
-  //Sample Data
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: '1',
-      resourceName: 'Boremaskine',
-      bookStartTime: new Date('2024-11-01T10:00:00'),
-      bookEndTime: new Date('2024-11-01T12:00:00'),
-      pickupTime: new Date('2024-11-01T09:30:00'),
-      dropoffTime: new Date('2024-11-01T12:30:00'),
-    },
-    {
-      id: '2',
-      resourceName: 'Gæstehus',
-      bookStartTime: new Date('2024-12-01T14:00:00'),
-      bookEndTime: new Date('2024-12-02T10:00:00'),
-      pickupTime: new Date('2024-12-01T13:00:00'),
-      dropoffTime: new Date('2024-12-02T11:00:00'),
-    },
-  ]);
+  
+  let [bookings, setBookings] = useState<Booking[]>([]);
+  
+  //Load bookings from session storage
+  useEffect(() => {
+    const bookingsString = window.sessionStorage.getItem("bookingList");
+    if (bookingsString) {
+      const loadedBookings: Booking[] = JSON.parse(bookingsString).map((booking: any) => ({
+        ...booking,
+        bookStartTime: new Date(booking.bookStartTime), // Convert back to Date
+        bookEndTime: new Date(booking.bookEndTime),     // Convert back to Date
+      }));
+      setBookings(loadedBookings);
+    }
+  }, []); // Empty, so it only loads once
+
+  console.log(bookings.length)
 
   const handleEdit = (id: string, updatedBooking: Booking) => {
-    setBookings(prevBookings =>
-      prevBookings.map(booking => (booking.id === id ? updatedBooking : booking))
-    );
+    setBookings(prevBookings => {
+      const updatedBookings = prevBookings.map(booking => 
+        booking.id === id ? updatedBooking : booking
+      );
+      window.sessionStorage.setItem("bookingList", JSON.stringify(updatedBookings));
+      return updatedBookings; 
+    });
+  };
+
+  const handleRemove = (id: string) => {
+    setBookings(prevBookings => {
+      const updatedBookings = prevBookings.filter(booking => booking.id !== id);
+      window.sessionStorage.setItem("bookingList", JSON.stringify(updatedBookings));
+      return updatedBookings;
+    });
   };
 
   const handleFinalize = () => {
@@ -45,17 +55,23 @@ const Checkout: React.FC = () => {
 
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded">
-      <h2 className="text-center mb-4">Dine Bookings</h2> {/*Bad name, need to change */}
-      {bookings.map(booking => (
+      <h2 className="text-center mb-4">Dine Ubekræftede Reservationer</h2> {/*Bad name, need to change */}
+      {bookings.length === 0 ? (
+        <p>Ingen reservationer endnu</p>
+      ) :
+        bookings.map(booking => (
         <BookingCard
           key={booking.id}
           booking={booking}
           onEdit={handleEdit}
+          onRemove={handleRemove}
         />
       ))}
-      <button onClick={handleFinalize} className="btn btn-primary w-100 mt-3">
+      {bookings.length !== 0 && (
+        <button onClick={handleFinalize} className="btn btn-primary w-100 mt-3">
         Bekræft
-      </button>
+        </button>
+      )}
     </div>
   );
 };
