@@ -5,21 +5,22 @@ interface Booking {
   resourceName: string;
   bookStartTime: Date;
   bookEndTime: Date;
-  pickupTime: Date;
-  dropoffTime: Date;
+  pickup: string;
+  dropoff: string;
 }
 
 interface BookingCardProps {
   booking: Booking;
   onEdit: (id: string, updatedBooking: Booking) => void;
+  onRemove: (id: string) => void; 
 }
 
-const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit }) => {
+const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit, onRemove }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking>(booking);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setEditedBooking({
       ...editedBooking,
       [name]: name.includes('Time') ? new Date(value) : value,
@@ -55,20 +56,24 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit }) => {
               onChange={handleChange}
               className="form-control mb-2"
             />
-            <input
-              type="datetime-local"
-              name="pickupTime"
-              value={editedBooking.pickupTime.toISOString().substring(0, 16)}
-              onChange={handleChange}
+            <select
+              name="pickup"
+              value={editedBooking.pickup}
               className="form-control mb-2"
-            />
-            <input
-              type="datetime-local"
-              name="dropoffTime"
-              value={editedBooking.dropoffTime.toISOString().substring(0, 16)}
-              onChange={handleChange}
+              onChange= {handleChange}
+            >
+              <option value="7:00-7:30">7:00 - 7:30</option>
+              <option value="11:00-12:00">11:00 - 12:00</option>
+            </select>
+            <select
+              name="dropoff"
+              value={editedBooking.dropoff}
               className="form-control mb-2"
-            />
+              onChange= {handleChange}
+            >
+              <option value="7:00-7:30">7:00 - 7:30</option>
+              <option value="11:00-12:00">11:00 - 12:00</option>
+            </select>
             <button onClick={handleSave} className="btn btn-success me-2">
               Gem
             </button>
@@ -81,10 +86,13 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit }) => {
             <h5 className="card-title">{booking.resourceName}</h5>
             <p className="card-text">Booking Start: {booking.bookStartTime.toLocaleString()}</p>
             <p className="card-text">Booking Slut: {booking.bookEndTime.toLocaleString()}</p>
-            <p className="card-text">Afhenting: {booking.pickupTime.toLocaleString()}</p>
-            <p className="card-text">Aflevering: {booking.dropoffTime.toLocaleString()}</p>
+            <p className="card-text">Afhenting: {booking.pickup}</p>
+            <p className="card-text">Aflevering: {booking.dropoff}</p>
             <button onClick={() => setIsEditing(true)} className="btn btn-secondary">
               Rediger
+            </button>
+            <button onClick={() => onRemove(booking.id)} className="btn btn-danger">
+              Fjern
             </button>
           </div>
         )}

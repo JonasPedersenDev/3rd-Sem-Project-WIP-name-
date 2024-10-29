@@ -111,11 +111,11 @@ public abstract class User {
     this.password = password;
   }
 
-  public String getprofilePictureFileName() {
+  public String getProfilePictureFileName() {
     return profilePictureFileName;
   }
 
-  public void setprofilePictureFileName(String profilePictureFileName) {
+  public void setProfilePictureFileName(String profilePictureFileName) {
     this.profilePictureFileName = profilePictureFileName;
   }
 

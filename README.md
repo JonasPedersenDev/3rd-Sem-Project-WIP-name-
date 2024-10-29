@@ -4,32 +4,34 @@ Third semester group project for AAU
 
 ## Frontend
 
-- **Framework**: React with TypeScript
-- **Build Tool**: Vite
-- **Type**: Single Page Application (SPA) with Client-Side Rendering (CSR)
-- **CSS Framework**: Bootstrap v5 (already set up)
-  - **Documentation**: [Bootstrap v5 Documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-- **Code Formatting**: Use the Prettier extension in Visual Studio Code for formatting TypeScript/React files. 
+- **Framework**: React with TypeScript.
+- **Build Tool**: Vite.
+- **Type**: Single Page Application (SPA) with Client-Side Rendering (CSR).
+- **CSS Framework**: Bootstrap v5.
+  - **Documentation**: [Bootstrap v5 Documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/).
+- **Code Formatting**: Use the Prettier extension in Visual Studio Code for formatting TypeScript/React files.
   - **Installation**: Install Prettier and use it frequently.
-  - **Shortcut**: `ALT + SHIFT + F` (Windows)
+  - **Shortcut**: `ALT + SHIFT + F` (Windows).
 - **React Component Creation**: Use the ES7+ extension for quickly creating new React components.
   - **Tip**: Write `rafce` when creating a component.
-- **Browser Extension**: React Developer Tools
-- **Linting**: ESLint
-- **Testing**: Vitest + JSDOM for react components
+- **Browser Extension**: React Developer Tools.
+- **Linting**: ESLint.
+- **Testing**: Vitest + JSDOM for react components.
 
 ## Backend
 
-- **Framework**: Spring Boot with Java
-- **Build Tool**: Gradle wrapper
-- **Development Database**: JPA interface with SQLite
+- **Framework**: Spring Boot with Java.
+- **Build Tool**: Gradle wrapper.
+- **Development Database**: JPA interface with SQLite.
   - **Extension**: Browse database from within Visual Studio Code using SQLite Viewer extension.
   - **Application**: Or browse database externally using [DB Broswer (SQLite)](https://sqlitebrowser.org/dl/).
-- **API Documentation**: OpenAPI available at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
-- **Security**: Spring Security with Bcrypt password hashing
-- **User Authentication**: JWT system (Mostly implimented)
-- **Session Management**: JWT system (Mostly implimented)
-- **Testing**: TBD
+- **API Documentation**: OpenAPI available at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html).
+- **Security**: Spring Security with Bcrypt password hashing.
+- **User Authentication**: Managed through a JWT system.
+- **Session Management**: Utilizes JWT for managing user sessions.
+- **Testing**: Spring Boot Test.
+  - **Unit Testing**: JUnit Jupiter for service methods.
+  - **Integration Testing**: API endpoints tested using MockMvc
 - **Postman**: TBD
 
 ## Setup Instructions
@@ -63,7 +65,15 @@ To run both:
 ```bash
 npm start
 ```
-To view test results:
+To run tests for frontend:
+```bash
+npm run test:frontend
+```
+To run tests for backend:
+```bash
+npm run test:backend
+```
+To run tests for both:
 ```bash
 npm run test
 ```

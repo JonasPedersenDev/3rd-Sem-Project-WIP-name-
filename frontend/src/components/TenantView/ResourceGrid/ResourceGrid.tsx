@@ -10,17 +10,18 @@ interface ResourceProps {
   img: string;
   description: string;
   status: string;
+  bookedDates: Date[];
 }
 
 const resources: ResourceProps[] = [
-  { id: 1, name: "Boremaskine", type: "tool", description: "En boremaskine", img: "Boremaskine.jpg", status: "available" },
-  { id: 2, name: "Hammer", type: "tool", description: "En hammer", img: "Hammer.jpg", status: "available" },
-  { id: 3, name: "Målebånd", type: "tool", description: "Et målebånd", img: "Målebånd.jpg", status: "unavailable" },
-  { id: 4, name: "Sav", type: "tool", description: "En sav", img: "Sav.jpg", status: "maintenance" },
-  { id: 5, name: "Skruetrækker", type: "tool", description: "En skruetrækker", img: "Skruetrækker.jpg", status: "available" },
-  { id: 6, name: "Gæstehus A", type: "guestHouse", description: "Et gæstehus", img: "GuestHouseA.jpg", status: "available" },
-  { id: 7, name: "Gæstehus B", type: "guestHouse", description: "Et andet gæstehus", img: "GuestHouseB.jpg", status: "unavailable" },
-  { id: 8, name: "Trailer", type: "other", description: "En stor trailer", img: "Trailer.jpg", status: "available" }
+  { id: 1, name: "Boremaskine", type: "tool", description: "En boremaskine", img: "Boremaskine.jpg", status: "available", bookedDates: [new Date(2024, 10, 1), new Date(2024, 10, 5)]},
+  { id: 2, name: "Hammer", type: "tool", description: "En hammer", img: "Hammer.jpg", status: "available", bookedDates: [new Date(2024, 10, 11), new Date(2024, 10, 13)]},
+  { id: 3, name: "Målebånd", type: "tool", description: "Et målebånd", img: "Målebånd.jpg", status: "unavailable", bookedDates: [new Date(2024, 10, 14), new Date(2024, 10, 16)]},
+  { id: 4, name: "Sav", type: "tool", description: "En sav", img: "Sav.jpg", status: "maintenance", bookedDates: [new Date(2024, 10, 1), new Date(2024, 10, 5)]},
+  { id: 5, name: "Skruetrækker", type: "tool", description: "En skruetrækker", img: "Skruetrækker.jpg", status: "available", bookedDates: [new Date(2024, 10, 11), new Date(2024, 10, 13)]},
+  { id: 6, name: "Gæstehus A", type: "guestHouse", description: "Et gæstehus", img: "GuestHouseA.jpg", status: "available", bookedDates: [new Date(2024, 10, 21), new Date(2024, 10, 22)]},
+  { id: 7, name: "Gæstehus B", type: "guestHouse", description: "Et andet gæstehus", img: "GuestHouseB.jpg", status: "unavailable", bookedDates: [new Date(2024, 10, 22), new Date(2024, 10, 24)]},
+  { id: 8, name: "Trailer", type: "other", description: "En stor trailer", img: "Trailer.jpg", status: "available", bookedDates: [new Date(2024, 10, 28), new Date(2024, 10, 29)]}
 ];
 
 const ResourceGrid: React.FC = () => {

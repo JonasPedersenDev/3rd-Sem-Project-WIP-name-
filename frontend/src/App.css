@@ -91,3 +91,16 @@ h1 {
 .NotFoundButton:hover {
   background-color: #0056b3;
 }
+
+/* Booking Calendar */
+.booked-tile {
+  color: red;
+}
+
+.free-tile {
+  color: grey;
+}
+
+.weekend-tile {
+  color: grey;
+}
