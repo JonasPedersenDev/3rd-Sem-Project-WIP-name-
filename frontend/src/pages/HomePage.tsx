@@ -6,12 +6,17 @@ import NavBar from "../components/BothView/NavBar/NavBar.tsx";
 import Footer from "../components/BothView/Footer/Footer.tsx";
 
 const HomePage = () => {
+  const footerStyle = {
+    marginLeft: "250px",
+    padding: "20px",
+    flex: 1
+  }; 
   return (
     <div>
       <SidePanel />
       <NavBar />
       <ResourceGrid />
-      <Footer />
+      <Footer style={footerStyle} />
       <Link to="/">Go to LoginPage</Link> <br />
       <Link to="/Checkoutpage">Go to CheckoutPage</Link>
     </div>
