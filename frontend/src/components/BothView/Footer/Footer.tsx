@@ -1,7 +1,7 @@
 
 function Footer() {
     return (
-        <footer className="bg-dark text-white py-2">
+        <footer className="bg-dark text-white py-2" style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
             <div className="container">
                 <div className="row">
                     <div className="col-md-4">
