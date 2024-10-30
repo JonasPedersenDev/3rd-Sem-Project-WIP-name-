@@ -1,5 +1,4 @@
 import React from 'react';
-import BookingCard from '../../TenantView/Checkout/BookingCard';
 
 interface LogoutButtonProps {
   onLogout?: () => void;
