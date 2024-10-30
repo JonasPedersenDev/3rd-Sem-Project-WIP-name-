@@ -13,7 +13,7 @@ const ContactPage = () => {
       <h1>KONTAKT INFO</h1>
       <button
         className="NotFoundButton"
-        onClick={() => navigate("/homepage")}
+        onClick={() => navigate("/hjem")}
       >
         Tilbage til hjem
       </button>

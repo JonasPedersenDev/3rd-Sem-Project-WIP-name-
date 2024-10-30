@@ -9,7 +9,7 @@ const NotFoundPage = () => {
     <h1>{`404 Siden findes ikke :(`}</h1>
       <button
         className="NotFoundButton"
-        onClick={() => navigate("/homepage")}
+        onClick={() => navigate("/hjem")}
       >
         Tilbage til hjem
       </button>
