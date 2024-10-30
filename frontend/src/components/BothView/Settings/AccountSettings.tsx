@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Modal, Row, Col } from "react-bootstrap";
+import LogoutButton from "../../BothView/Logout/Logout";
 
 const SettingsForm: React.FC = () => {
   const [userInfo, setUserInfo] = useState({
@@ -71,103 +72,106 @@ const SettingsForm: React.FC = () => {
       <Row>
         {/* User Information Form */}
         <Col md={9}>
-          <Form>
+            <Form>
             {/* Form fields for user info */}
             <Form.Group controlId="formUsername">
               <Form.Label>Brugernavn</Form.Label>
               {isEditing ? (
-                <Form.Control
-                  type="text"
-                  name="username"
-                  value={userInfo.username}
-                  onChange={handleInputChange}
-                  placeholder="Skriv nyt brugernavn"
-                />
+              <Form.Control
+                type="text"
+                name="username"
+                value={userInfo.username}
+                onChange={handleInputChange}
+                placeholder="Skriv nyt brugernavn"
+              />
               ) : (
-                <p>{userInfo.username}</p>
+              <p>{userInfo.username}</p>
               )}
             </Form.Group>
             {/* Other fields follow the same structure */}
             <Form.Group controlId="formName">
               <Form.Label>Navn</Form.Label>
               {isEditing ? (
-                <Form.Control
-                  type="text"
-                  name="name"
-                  value={userInfo.name}
-                  onChange={handleInputChange}
-                  placeholder="Skriv nyt navn"
-                />
+              <Form.Control
+                type="text"
+                name="name"
+                value={userInfo.name}
+                onChange={handleInputChange}
+                placeholder="Skriv nyt navn"
+              />
               ) : (
-                <p>{userInfo.name}</p>
+              <p>{userInfo.name}</p>
               )}
             </Form.Group>
 
             <Form.Group controlId="formHouseAddress">
               <Form.Label>Addresse</Form.Label>
               {isEditing ? (
-                <Form.Control
-                  type="text"
-                  name="houseAddress"
-                  value={userInfo.houseAddress}
-                  onChange={handleInputChange}
-                  placeholder="Skriv ny addresse"
-                />
+              <Form.Control
+                type="text"
+                name="houseAddress"
+                value={userInfo.houseAddress}
+                onChange={handleInputChange}
+                placeholder="Skriv ny addresse"
+              />
               ) : (
-                <p>{userInfo.houseAddress}</p>
+              <p>{userInfo.houseAddress}</p>
               )}
             </Form.Group>
 
             <Form.Group controlId="formEmail">
               <Form.Label>Email</Form.Label>
               {isEditing ? (
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={userInfo.email}
-                  onChange={handleInputChange}
-                  placeholder="Skriv nyt email"
-                /> 
+              <Form.Control
+                type="email"
+                name="email"
+                value={userInfo.email}
+                onChange={handleInputChange}
+                placeholder="Skriv nyt email"
+              /> 
               ) : (
-                <p>{userInfo.email}</p>
+              <p>{userInfo.email}</p>
               )}
             </Form.Group>
 
             <Form.Group controlId="formPhoneNumber">
               <Form.Label>Telefon nummer</Form.Label>
               {isEditing ? (
-                <Form.Control
-                  type="text"
-                  name="phoneNumber"
-                  value={userInfo.phoneNumber}
-                  onChange={handleInputChange}
-                  placeholder="Skriv nyt telefon nummer"
-                />
+              <Form.Control
+                type="text"
+                name="phoneNumber"
+                value={userInfo.phoneNumber}
+                onChange={handleInputChange}
+                placeholder="Skriv nyt telefon nummer"
+              />
               ) : (
-                <p>{userInfo.phoneNumber}</p>
+              <p>{userInfo.phoneNumber}</p>
               )}
             </Form.Group>
 
             <Form.Group controlId="formPassword">
               <Form.Label>Adgangskode</Form.Label>
               {isEditing ? (
-                <Form.Control
-                  type="password"
-                  name="password"
-                  value={userInfo.password}
-                  onChange={handleInputChange}
-                  placeholder="Skriv ny adgangskode"
-                />
+              <Form.Control
+                type="password"
+                name="password"
+                value={userInfo.password}
+                onChange={handleInputChange}
+                placeholder="Skriv ny adgangskode"
+              />
               ) : (
-                <p>*********</p>
+              <p>*********</p>
               )}
             </Form.Group>
 
-            <Button variant="primary" onClick={handleEditToggle} className="mt-3">
+            <div className="d-flex justify-content-between align-items-center mt-3"></div>
+              <Button variant="primary" onClick={handleEditToggle}>
               {isEditing ? "Gem Ændringer" : "Ændre"}
-            </Button>
-          </Form>
-        </Col>
+              </Button>
+                <LogoutButton />
+              </Form>
+            </Col>
+        
 
         {/* Profile Picture Section on the Right */}
         <Col md={3} className="text-center">

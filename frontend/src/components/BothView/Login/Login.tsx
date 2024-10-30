@@ -49,7 +49,7 @@ const Login: React.FC = () => {
       console.log(response.data);
 
       if (response.status === 200) {
-        navigate("/Homepage");
+        navigate("/hjem");
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }
@@ -119,7 +119,7 @@ const Login: React.FC = () => {
           <button
             type="button"
             className="btn btn-secondary btn-lg"
-            onClick={() => navigate("/sign-up")}
+            onClick={() => navigate("/opret-konto")}
           >
             Lav bruger
           </button>

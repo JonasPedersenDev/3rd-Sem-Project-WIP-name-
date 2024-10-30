@@ -9,7 +9,7 @@ const CheckoutPage = () => {
     <div>
       <NavBar />
       <Checkout /> <br />
-      <Link to="/Homepage">Go to HomePage</Link>
+      <Link to="/Hjem">Go to HomePage</Link>
     </div>
   );
 };

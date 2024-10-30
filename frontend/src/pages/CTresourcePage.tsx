@@ -8,7 +8,7 @@ const CTresourcePage = () => {
     <NavBar />
     <div>
       <h1>CTresourcePage</h1>
-      <Link to="/Homepage">Go to HomePage</Link>
+      <Link to="/Hjem">Go to HomePage</Link>
     </div>
     </>
   );

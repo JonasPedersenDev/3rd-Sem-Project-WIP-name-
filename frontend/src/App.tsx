@@ -18,22 +18,22 @@ function App() {
   return (
     <Routes>
       <>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/opret-konto" element={<SignUpPage />} />
 
-        <Route path="/" element={
+        <Route path="/hjem" element={
             <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
               <HomePage />
             </div>
           } />
 
-        <Route path="/accountpage" element={<AccountPage />} />
-        <Route path="/checkoutpage" element={<CheckoutPage />} />
-        <Route path="/ctoverviewpage" element={<CToverviewPage />} />
-        <Route path="/ctresourcepage" element={<CTresourcePage />} />
-        <Route path="/cttenantoverview" element={<CTtenantOverview />} />
-        <Route path="/ownbookingspage" element={<OwnBookingsPage />} />
-        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/konto" element={<AccountPage />} />
+        <Route path="/reservation-overblik" element={<CheckoutPage />} />
+        <Route path="/admin-overblik" element={<CToverviewPage />} />
+        <Route path="/ressource-overblik" element={<CTresourcePage />} />
+        <Route path="/beboer-overblik" element={<CTtenantOverview />} />
+        <Route path="/mine-reservationer" element={<OwnBookingsPage />} />
+        <Route path="/kontakt" element={<ContactPage />} />
         <Route path="*" element={<NotFoundPage />} />
 
       </>
