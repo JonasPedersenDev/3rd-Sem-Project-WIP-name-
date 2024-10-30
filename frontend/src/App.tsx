@@ -18,10 +18,10 @@ function App() {
   return (
     <Routes>
       <>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/sign-up" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
 
-        <Route path="/homepage" element={
+        <Route path="/" element={
             <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
               <HomePage />
             </div>

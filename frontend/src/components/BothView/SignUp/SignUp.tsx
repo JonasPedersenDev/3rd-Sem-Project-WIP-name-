@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import ApiService from "../../../services/ApiService";
 interface SignUpDetails {
   username: string;
   password: string;
   email: string;
+  name: string;
 }
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  const [details, setDetails] = useState<SignUpDetails>({ username: "", password: "", email: "" });
+  const [details, setDetails] = useState<SignUpDetails>({ username: "", password: "", email: "", name: "" });
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Valider om det er en mail
@@ -27,8 +27,8 @@ const SignUp: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const { username, password, email } = details;
-    if (!username || !password || !email) {
+    const { username, password, email, name } = details;
+    if (!username || !password || !email || !name) {
       setErrorMessage("Udfyld venligst alle felter.");
       return false;
     }
@@ -58,9 +58,12 @@ const SignUp: React.FC = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post("location where we handle signups", details);
+      const response = await ApiService.signUp({user: details});
 
-      if (response.data.success) {
+      console.log(response);
+      console.log(response.data);
+
+      if (response.status === 201) {
         navigate("/login"); // succes: tilbage til login
       } else {
         setErrorMessage("Kunne ikke oprette bruger.");
@@ -73,18 +76,18 @@ const SignUp: React.FC = () => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <form className="w-25 p-4 border rounded shadow" onSubmit={handleSubmit}>
-        <h4 className="text-center mb-4">Opret en Konto</h4>
+        <h4 className="text-center mb-4">Opret en bruger</h4>
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
         <div className="mb-3 mt-5">
-          <label htmlFor="username">Brugernavn</label>
+          <label htmlFor="name">Navn</label>
           <input
             type="text"
             className="form-control form-control-lg"
-            id="username"
-            value={details.username}
+            id="name"
+            value={details.name}
             onChange={handleChange}
-            placeholder="Skriv brugernavn"
+            placeholder="Skriv name"
             required
           />
         </div>
@@ -98,6 +101,19 @@ const SignUp: React.FC = () => {
             value={details.email}
             onChange={handleChange}
             placeholder="Skriv email"
+            required
+          />
+        </div>
+
+        <div className="mb-3 mt-5">
+          <label htmlFor="username">Brugernavn</label>
+          <input
+            type="text"
+            className="form-control form-control-lg"
+            id="username"
+            value={details.username}
+            onChange={handleChange}
+            placeholder="Skriv brugernavn"
             required
           />
         </div>
