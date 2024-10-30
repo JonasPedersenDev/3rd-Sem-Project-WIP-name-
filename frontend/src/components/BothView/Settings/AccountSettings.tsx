@@ -68,8 +68,8 @@ const SettingsForm: React.FC = () => {
   };
 
   return (
-    <div className="settings-container" style={{ marginLeft: '250px' }}>
-      <Row>
+    <div style={{ width: '600px', height: '600px', margin: '20px auto', border: '1px solid #ccc', padding: '20px', borderRadius: '10px', position: 'relative' }}>
+      <Row style={{ width: '100%' }}>
         {/* User Information Form */}
         <Col md={9}>
             <Form>
@@ -179,7 +179,7 @@ const SettingsForm: React.FC = () => {
             <img
               src={profilePicture ?? "https://placehold.co/150"}
               alt="Profile"
-              style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+              style={{ width: "150px", height: "150px", borderRadius: "50%", border: '1px solid #ccc', padding: '5px' }}
             />
             {isEditing && (
               <Form.Group controlId="formProfilePicture" className="mt-3">
