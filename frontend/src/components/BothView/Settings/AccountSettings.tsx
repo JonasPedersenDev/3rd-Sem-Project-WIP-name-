@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Modal, Row, Col } from "react-bootstrap";
+import LogoutButton from "../../BothView/Logout/Logout";
 
 const SettingsForm: React.FC = () => {
   const [userInfo, setUserInfo] = useState({
@@ -27,15 +28,6 @@ const SettingsForm: React.FC = () => {
     }
     setIsEditing(!isEditing);
   };
-  // Function to log out the user
-  const logOut = () => {
-    // Mangler user-object før den er 100% færdig
-    console.log(userInfo);
-    sessionStorage.removeItem("user");
-    localStorage.removeItem("user");
-    console.log("User logged out");
-    window.location.href = "/";
-  }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -175,7 +167,7 @@ const SettingsForm: React.FC = () => {
             <Button variant="primary" onClick={handleEditToggle} className="mt-3">
               {isEditing ? "Gem Ændringer" : "Ændre"}
             </Button>
-            <Button variant="primary" onClick={logOut} className="mt-3 mx-2">Log ud</Button>
+            <LogoutButton />
           </Form>
         </Col>
 
