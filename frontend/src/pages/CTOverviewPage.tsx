@@ -8,7 +8,7 @@ const CToverviewPage = () => {
     <NavBar />
     <div>
       <h1>CToverviewPage</h1>
-      <Link to="/Homepage">Go to HomePage</Link>
+      <Link to="/Hjem">Go to HomePage</Link>
     </div>
     </>
   );

@@ -5,7 +5,7 @@ const OwnBookingsPage = () => {
   return (
     <div>
       <h1>OwnBookingsPage</h1>
-      <Link to="/Homepage">Go to HomePage</Link>
+      <Link to="/Hjem">Go to HomePage</Link>
     </div>
   );
 };

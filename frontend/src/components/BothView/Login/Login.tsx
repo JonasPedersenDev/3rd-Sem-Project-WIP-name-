@@ -40,7 +40,7 @@ const Login: React.FC = () => {
       const response = await axios.post("location where we check dat shit", credentials);
 
       if (response.data.success) {
-        navigate("/Homepage");
+        navigate("/hjem");
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }
@@ -107,7 +107,7 @@ const Login: React.FC = () => {
           <button
             type="button"
             className="btn btn-secondary btn-lg"
-            onClick={() => navigate("/sign-up")}
+            onClick={() => navigate("/opret-konto")}
           >
             Lav bruger
           </button>

@@ -32,7 +32,7 @@ function Navbar() {
             <li className="nav-item">
               <button
                 className="nav-link btn btn-link"
-                onClick={() => navigate("/homepage")}
+                onClick={() => navigate("/hjem")}
               >
                 Hjem
               </button>
@@ -40,7 +40,7 @@ function Navbar() {
             <li className="nav-item">
             <button
                 className="nav-link btn btn-link"
-                onClick={() => navigate("/contact")}
+                onClick={() => navigate("/kontakt")}
               >
                 Kontakt
               </button>
@@ -48,7 +48,7 @@ function Navbar() {
             <li className="nav-item">
             <button
                 className="nav-link btn btn-link"
-                onClick={() => navigate("/OwnBookingsPage")}
+                onClick={() => navigate("/mine-reservationer")}
               >
                 Reservationer
               </button>
@@ -56,9 +56,9 @@ function Navbar() {
             <li className="nav-item">
               <button
                 className="nav-link btn btn-link"
-                onClick={() => navigate("/accountpage")}
+                onClick={() => navigate("/konto")}
               >
-                Navn
+                Konto
               </button>
             </li>
           </ul>

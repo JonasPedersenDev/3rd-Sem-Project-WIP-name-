@@ -61,7 +61,7 @@ const SignUp: React.FC = () => {
       const response = await axios.post("location where we handle signups", details);
 
       if (response.data.success) {
-        navigate("/login"); // succes: tilbage til login
+        navigate("/"); // succes: tilbage til login
       } else {
         setErrorMessage("Kunne ikke oprette bruger.");
       }
@@ -123,7 +123,7 @@ const SignUp: React.FC = () => {
           <button
             type="button"
             className="btn btn-secondary btn-lg"
-            onClick={() => navigate("/LoginPage")}
+            onClick={() => navigate("/")}
           >
             Allerede en bruger? Login
           </button>

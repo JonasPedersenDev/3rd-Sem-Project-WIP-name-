@@ -8,7 +8,7 @@ const CTtenantOverview = () => {
     <NavBar />
     <div>
       <h1>CTtenantOverview</h1>
-      <Link to="/Homepage">Go to HomePage</Link>
+      <Link to="/Hjem">Go to HomePage</Link>
     </div>
     </>
   );

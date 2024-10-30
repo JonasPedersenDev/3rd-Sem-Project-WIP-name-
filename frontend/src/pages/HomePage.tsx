@@ -18,7 +18,7 @@ const HomePage = () => {
       <ResourceGrid />
       <Footer style={footerStyle} />
       <Link to="/">Go to LoginPage</Link> <br />
-      <Link to="/Checkoutpage">Go to CheckoutPage</Link>
+      <Link to="/reservation-overblik">Go to CheckoutPage</Link>
     </div>
   );
 };
