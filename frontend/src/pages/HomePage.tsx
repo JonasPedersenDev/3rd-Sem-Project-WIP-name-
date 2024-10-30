@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import ResourceGrid from "../components/TenantView/ResourceGrid/ResourceGrid.tsx";
 import { Link } from "react-router-dom";
 import SidePanel from "../components/BothView/SidePanel/SidePanel.tsx";
