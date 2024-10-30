@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ResourceCard from "./ResourceCard";
 import AddResourceModal from "../../CaretakerView/AddResourceModal/AddResourceModal";
+import Placeholder from "../../BothView/Placeholder/Placeholder";
 
 // Fake data
 interface ResourceProps {
@@ -26,6 +27,17 @@ const resources: ResourceProps[] = [
 
 const ResourceGrid: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+
+  // Simulerer loading effekt
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000); // 2 sekunder
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleResourceAdded = () => {
     setIsModalOpen(false);
@@ -37,37 +49,62 @@ const ResourceGrid: React.FC = () => {
 
   return (
     <div>
-      {/*Viser kun værktøj*/}
-      {toolResources.length > 0 && (
-        <div className="row">
-          <h3 className="resourceHeading">Værktøj</h3>
-          <div className="underline"></div>
-          {toolResources.map(resource => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
-      )}
+      {loading ? (
+        <>
+          <div className="row">
+            <h3 className="resourceHeading">Værktøj</h3>
+            <div className="underline"></div>
+            <ResourceCard resource={{} as ResourceProps} loading={true} /> 
+            <ResourceCard resource={{} as ResourceProps} loading={true} /> 
+            <ResourceCard resource={{} as ResourceProps} loading={true} /> 
+          </div>
+          <div className="row">
+            <h3 className="resourceHeading">Gæstehuse</h3>
+            <div className="underline"></div>
+            <ResourceCard resource={{} as ResourceProps} loading={true} /> 
+            <ResourceCard resource={{} as ResourceProps} loading={true} />
+          </div>
+          <div className="row">
+            <h3 className="resourceHeading">Andet</h3>
+            <div className="underline"></div>
+            <ResourceCard resource={{} as ResourceProps} loading={true} />
+          </div>
+        </>
+      ) : (
+        <>
+          {/*Viser kun værktøj*/}
+          {toolResources.length > 0 && (
+            <div className="row">
+              <h3 className="resourceHeading">Værktøj</h3>
+              <div className="underline"></div>
+              {toolResources.map(resource => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))}
+            </div>
+          )}
 
-      {/*Viser gæstehuse*/}
-      {guestHouseResources.length > 0 && (
-        <div className="row">
-          <h3 className="resourceHeading">Gæstehuse</h3>
-          <div className="underline"></div>
-          {guestHouseResources.map(resource => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
-      )}
+          {/*Viser gæstehuse*/}
+          {guestHouseResources.length > 0 && (
+            <div className="row">
+              <h3 className="resourceHeading">Gæstehuse</h3>
+              <div className="underline"></div>
+              {guestHouseResources.map(resource => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))}
+            </div>
+          )}
 
-      {/*Viser andet*/}
-      {otherResources.length > 0 && (
-        <div className="row">
-          <h3 className="resourceHeading">Andet</h3>
-          <div className="underline"></div>
-          {otherResources.map(resource => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
+          {/*Viser andet*/}
+          {otherResources.length > 0 && (
+            <div className="row">
+              <h3 className="resourceHeading">Andet</h3>
+              <div className="underline"></div>
+              {otherResources.map(resource => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Add Resource Modal */}
@@ -75,8 +112,8 @@ const ResourceGrid: React.FC = () => {
       {isModalOpen && (
         <AddResourceModal
           show={isModalOpen}
-          onResourceAdded={handleResourceAdded}
           onClose={() => setIsModalOpen(false)}
+          onResourceAdded={handleResourceAdded}
         />
       )}
     </div>
