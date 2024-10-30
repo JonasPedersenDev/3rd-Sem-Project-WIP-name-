@@ -30,6 +30,17 @@ class ApiService {
         }
     }
 
+    public async login(credentials: { username: string, password: string }): Promise<AxiosResponse<any>> {
+        try {
+            const response = await axios.post(`${this.baseUrl}login`, credentials);
+            return response;
+
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
     public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
         try {
             return await axios.get<T>(this.baseUrl + endpoint);

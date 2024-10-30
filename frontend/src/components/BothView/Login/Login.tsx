@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import ApiService from "../../../services/ApiService";
+import { isAxiosError } from "axios";
 
 interface Credentials {
   username: string;
@@ -9,7 +10,10 @@ interface Credentials {
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState<Credentials>({ username: "", password: "" });
+  const [credentials, setCredentials] = useState<Credentials>({
+    username: "",
+    password: "",
+  });
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -30,22 +34,28 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     setErrorMessage("");
 
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post("location where we check dat shit", credentials);
+      const response = await ApiService.login(credentials);
 
-      if (response.data.success) {
+      console.log(response);
+      console.log(response.data);
+
+      if (response.status === 200) {
         navigate("/Homepage");
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+
+      if (isAxiosError(error)) {
         if (error.response && error.response.status === 401) {
           setErrorMessage("Forkert brugernavn eller adgangskode.");
         } else {
@@ -61,7 +71,9 @@ const Login: React.FC = () => {
     <div className="d-flex justify-content-center align-items-center vh-100">
       <form className="w-25 p-4 border rounded shadow" onSubmit={handleSubmit}>
         <h4 className="text-center mb-4">Login</h4>
-        {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+        {errorMessage && (
+          <div className="alert alert-danger">{errorMessage}</div>
+        )}
 
         <div className="mb-3 mt-5">
           <label htmlFor="username">Brugernavn</label>
