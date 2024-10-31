@@ -4,22 +4,22 @@ import BookingItem from './BookingItem';
 function BookingsOverview({ bookings }) {
   return (
     <div>
-      <h2>Your Bookings</h2>
+      <h2>Dine Bookings</h2>
       <section>
-        <h3>Current Bookings</h3>
-        {bookings.current.map(booking => (
+        <h3>Nuværende Bookings</h3>
+        {bookings.nuværende.map(booking => (
           <BookingItem key={booking.id} booking={booking} />
         ))}
       </section>
       <section>
-        <h3>Upcoming Bookings</h3>
-        {bookings.upcoming.map(booking => (
+        <h3>Kommende Bookings</h3>
+        {bookings.kommende.map(booking => (
           <BookingItem key={booking.id} booking={booking} />
         ))}
       </section>
       <section>
-        <h3>Past Bookings</h3>
-        {bookings.past.map(booking => (
+        <h3>Tidligere Bookings</h3>
+        {bookings.tidligere.map(booking => (
           <BookingItem key={booking.id} booking={booking} />
         ))}
       </section>
