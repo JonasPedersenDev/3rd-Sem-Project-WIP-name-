@@ -27,7 +27,7 @@ public class ValidationExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         
-        ErrorResponse errorResponse = new ErrorResponse("Validation errors occurred", 400);
+        ErrorResponse errorResponse = new ErrorResponse("Validation errors occurred", HttpStatus.FORBIDDEN);
         errorResponse.setDetails(errors);
         
         return ResponseEntity.badRequest()

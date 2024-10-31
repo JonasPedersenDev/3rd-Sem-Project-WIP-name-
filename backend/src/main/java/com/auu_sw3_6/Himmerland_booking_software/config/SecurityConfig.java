@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private JwtAuthorizationFilter jwtAuthorizationFilter;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -44,7 +44,7 @@ public class SecurityConfig {
                 // Allow access for all other requests: .permitAll()
 
             )
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

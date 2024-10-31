@@ -32,7 +32,9 @@ class ApiService {
 
     public async login(credentials: { username: string, password: string }): Promise<AxiosResponse<any>> {
         try {
-            const response = await axios.post(`${this.baseUrl}login`, credentials);
+            const response = await axios.post(`${this.baseUrl}login`, credentials, {
+                withCredentials: true,
+            });
             return response;
 
         }

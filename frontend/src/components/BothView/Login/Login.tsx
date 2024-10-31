@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiService from "../../../services/ApiService";
+import ApiService from "../../../utils/ApiService";
 import { isAxiosError } from "axios";
 
 interface Credentials {
@@ -49,6 +49,8 @@ const Login: React.FC = () => {
       console.log(response.data);
 
       if (response.status === 200) {
+        console.log("Login successful");
+      
         navigate("/hjem");
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
@@ -130,3 +132,7 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+function sleep(arg0: number) {
+  throw new Error("Function not implemented.");
+}
+

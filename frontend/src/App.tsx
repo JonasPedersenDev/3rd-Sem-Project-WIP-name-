@@ -1,7 +1,11 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { getUserRole, defaultHomePages, UserRole } from "./utils/authConfig";
+
+// Pages
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -14,29 +18,40 @@ import OwnBookingsPage from "./pages/OwnBookingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ContactPage from "./pages/ContactPage";
 
+const routesConfig: { path: string; component: JSX.Element; allowedRoles: UserRole[] }[] = [
+  // Tenant routes
+  { path: "/hjem", component: <HomePage />, allowedRoles: ["ROLE_TENANT"] },
+  { path: "/konto", component: <AccountPage />, allowedRoles: ["ROLE_TENANT"] },
+  { path: "/reservation-overblik", component: <CheckoutPage />, allowedRoles: ["ROLE_TENANT"] },
+  { path: "/mine-reservationer", component: <OwnBookingsPage />, allowedRoles: ["ROLE_TENANT"] },
+  { path: "/kontakt", component: <ContactPage />, allowedRoles: ["ROLE_TENANT"] },
+  // Admin routes
+  { path: "/admin-overblik", component: <CToverviewPage />, allowedRoles: ["ROLE_ADMIN"] },
+  { path: "/ressource-overblik", component: <CTresourcePage />, allowedRoles: ["ROLE_ADMIN"] },
+  { path: "/beboer-overblik", component: <CTtenantOverview />, allowedRoles: ["ROLE_ADMIN"] },
+];
+
 function App() {
+  const role = getUserRole();
+
   return (
     <Routes>
-      <>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/opret-konto" element={<SignUpPage />} />
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/opret-konto" element={<SignUpPage />} />
+      <Route path="/" element={<Navigate to={role ? defaultHomePages[role] : "/login"} replace />} />
 
-        <Route path="/hjem" element={
-            <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
-              <HomePage />
-            </div>
-          } />
+      {/* Protected Routes */}
+      {routesConfig.map(({ path, component, allowedRoles }) => (
+        <Route
+          key={path}
+          path={path}
+          element={<ProtectedRoute allowedRoles={allowedRoles}>{component}</ProtectedRoute>}
+        />
+      ))}
 
-        <Route path="/konto" element={<AccountPage />} />
-        <Route path="/reservation-overblik" element={<CheckoutPage />} />
-        <Route path="/admin-overblik" element={<CToverviewPage />} />
-        <Route path="/ressource-overblik" element={<CTresourcePage />} />
-        <Route path="/beboer-overblik" element={<CTtenantOverview />} />
-        <Route path="/mine-reservationer" element={<OwnBookingsPage />} />
-        <Route path="/kontakt" element={<ContactPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-
-      </>
+      {/* Fallback for undefined routes */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

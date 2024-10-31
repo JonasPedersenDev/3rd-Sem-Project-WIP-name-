@@ -7,10 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
+import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
+import com.auu_sw3_6.Himmerland_booking_software.security.CustomUserDetails;
 
 public abstract class UserService<T extends User> {
 
@@ -19,7 +23,6 @@ public abstract class UserService<T extends User> {
   private final JpaRepository<T, Long> repository;
   private final PictureService profilePictureService;
   private final PasswordEncoder passwordEncoder;
-
 
   @Autowired
   public UserService(JpaRepository<T, Long> repository, PictureService profilePictureService,
@@ -70,5 +73,23 @@ public abstract class UserService<T extends User> {
         .filter(u -> u.getUsername().equals(username))
         .findFirst();
   }
+
+  public User getAuthenticatedUser() throws UserNotFoundException {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+        throw new UserNotFoundException("User not authenticated");
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    User user = userDetails.toUser();
+
+    if (user == null) {
+        throw new UserNotFoundException("User not found");
+    }
+
+    return user;
+}
+
 
 }

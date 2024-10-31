@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
+import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.UserService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,16 +36,16 @@ public abstract class UserController<T extends User> {
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_TENANT')")
   @GetMapping(produces = "application/json")
   public ResponseEntity<Object> getUser() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String username = authentication.getName();
-
-    Optional<T> user = userService.getUserByUsername(username);
-    if (user.isPresent()) {
-      return ResponseEntity.ok(user.get());
+    try {
+      User user = userService.getAuthenticatedUser();
+      return ResponseEntity.ok(user);
+    } catch (UserNotFoundException e) {
+      System.out.println("User not found" + e.getMessage());
+      return new ErrorResponse("User not found", HttpStatus.NOT_FOUND).send();
+    } catch (Exception e) {
+      System.out.println("An unexpected error occurred" + e.getMessage());
+      return new ErrorResponse("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR).send();
     }
-    ErrorResponse errorResponse = new ErrorResponse("User not found", 404);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -54,8 +55,7 @@ public abstract class UserController<T extends User> {
     if (user.isPresent()) {
       return ResponseEntity.ok(user.get());
     }
-    ErrorResponse errorResponse = new ErrorResponse("User not found", 404);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    return new ErrorResponse("User not found", HttpStatus.NOT_FOUND).send();
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -67,8 +67,7 @@ public abstract class UserController<T extends User> {
           .contentType(MediaType.IMAGE_JPEG)
           .body(imageBytesOptional.get());
     }
-    ErrorResponse errorResponse = new ErrorResponse("Profile picture not found", 404);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    return new ErrorResponse("Profile picture not found", HttpStatus.NOT_FOUND).send();
   }
 
   @SecurityRequirement(name = "bearerAuth")
@@ -84,9 +83,7 @@ public abstract class UserController<T extends User> {
           .contentType(MediaType.IMAGE_JPEG)
           .body(imageBytesOptional.get());
     }
-
-    ErrorResponse errorResponse = new ErrorResponse("Profile picture not found", 404);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    return new ErrorResponse("Profile picture not found", HttpStatus.NOT_FOUND).send();
   }
 
 }

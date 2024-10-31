@@ -1,4 +1,4 @@
-package com.auu_sw3_6.Himmerland_booking_software.config;
+/* package com.auu_sw3_6.Himmerland_booking_software.config;
 
 import java.io.IOException;
 
@@ -54,3 +54,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 }
+ */

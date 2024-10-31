@@ -35,7 +35,7 @@ public class AppConfig {
             if (toolService.getAllResources().isEmpty()) {
                 Tool tool = new Tool();
                 tool.setName("Boremaskine");
-                tool.setDescription("This is a boremaskine");
+                tool.setDescription("Det er en elektrisk boremaskine");
                 tool.setId(1);
                 tool.setResourcePictureFileName("boremaskine.jpg");
                 tool.setType("Tool");

@@ -42,19 +42,28 @@ public class AuthController {
 
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
+      String role = authentication.getAuthorities().stream().findFirst().get().getAuthority();
       String token = jwtUtil.generateToken(loginRequest.getUsername());
 
-      // Create HTTP-only cookie with JWT
       ResponseCookie jwtCookie = ResponseCookie.from("jwt", token)
           .httpOnly(true)
           .secure(true)
           .path("/")
-          .maxAge(24 * 60 * 60) // 1 day expiration
-          .sameSite("Strict")
+          .maxAge(60 * 60 * 5) // 5 hours
+          .sameSite("none") // only for development, maybe
           .build();
 
-      response.addHeader("Set-Cookie", jwtCookie.toString());
+      ResponseCookie authIndicatorCookie = ResponseCookie.from("authIndicator", role)
+          .httpOnly(false)
+          .secure(true)
+          .path("/")
+          .maxAge(60 * 60 * 5) // 5 hours
+          .sameSite("none") // only for development, maybe
+          .build();
 
+          response.addHeader("Set-Cookie", jwtCookie.toString());
+          response.addHeader("Set-Cookie", authIndicatorCookie.toString());
+    
       return ResponseEntity.ok(Map.of("message", "Login successful"));
 
     } catch (AuthenticationException e) {

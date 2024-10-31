@@ -2,16 +2,20 @@ package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 public class ErrorResponse {
     private String message;
+    private HttpStatus httpStatus;
     private int status;
     private String timestamp;
     private Map<String, String> details;
 
-    // Constructor
-    public ErrorResponse(String message, int status) {
+    public ErrorResponse(String message, HttpStatus httpStatus) {
         this.message = message;
-        this.status = status;
+        this.httpStatus = httpStatus;
+        this.status = httpStatus.value();
         this.timestamp = String.valueOf(System.currentTimeMillis());
     }
 
@@ -45,6 +49,18 @@ public class ErrorResponse {
 
     public void setDetails(Map<String, String> details) {
         this.details = details;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public void setHttpStatus(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
+    }
+
+    public ResponseEntity<Object> send() {
+        return ResponseEntity.status(httpStatus).body(this);
     }
 
 }

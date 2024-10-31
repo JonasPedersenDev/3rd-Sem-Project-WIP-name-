@@ -1,11 +1,12 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
+import com.auu_sw3_6.Himmerland_booking_software.security.CustomUserDetails;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -34,7 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<? extends User> user = tenantRepository.findByUsername(username);
-
         String role = "ROLE_TENANT";
 
         // If user is not found in the tenant repository, search in the admin repository
@@ -51,9 +52,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         logger.info("User found: {} with roles: {}", user.get().getUsername(), role);
 
-        return new org.springframework.security.core.userdetails.User(
-                user.get().getUsername(),
-                user.get().getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(role)));
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+
+        return new CustomUserDetails(user.get(), authorities);
     }
 }

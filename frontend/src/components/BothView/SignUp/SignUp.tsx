@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiService from "../../../services/ApiService";
+import ApiService from "../../../utils/ApiService";
 interface SignUpDetails {
   username: string;
   password: string;
