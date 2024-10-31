@@ -1,22 +1,15 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import NavBar from "../components/BothView/NavBar/NavBar.tsx";
-
+import Contact from "../components/TenantView/Contact/Contact.tsx";
+import Footer from "../components/BothView/Footer/Footer.tsx";
 
 const ContactPage = () => {
 
-    const navigate = useNavigate();
 
   return (
     <div>
       <NavBar />
-      <h1>KONTAKT INFO</h1>
-      <button
-        className="NotFoundButton"
-        onClick={() => navigate("/hjem")}
-      >
-        Tilbage til hjem
-      </button>
+      <Contact />
+      <Footer />
     </div>
   );
 };
