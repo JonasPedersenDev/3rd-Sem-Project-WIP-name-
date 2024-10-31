@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.auu_sw3_6.Himmerland_booking_software.security.JwtAuthorizationFilter;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

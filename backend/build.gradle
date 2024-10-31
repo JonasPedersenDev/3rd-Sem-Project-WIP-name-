@@ -46,9 +46,9 @@ tasks.named('test') {
 }
 
 // To see logs of tests uncomment the following code
-test {
+/* test {
     testLogging {
         events "passed", "skipped", "failed"
         showStandardStreams = true
     }
-}
+} */
