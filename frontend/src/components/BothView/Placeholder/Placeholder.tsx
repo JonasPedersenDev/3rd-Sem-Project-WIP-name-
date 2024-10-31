@@ -13,7 +13,7 @@ const Placeholder: React.FC<PlaceholderProps> = ({
   height = '1rem',
   color = 'light',
   text = '',
-  loadingDuration = 2000, // Default to 2 seconds
+  loadingDuration = 1000, // Default to 2 seconds
 }) => {
   const [isLoading, setIsLoading] = useState(true);
 
