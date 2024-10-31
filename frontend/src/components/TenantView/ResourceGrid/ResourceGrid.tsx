@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ResourceCard from "./ResourceCard";
-import AddResourceModal from "../../CaretakerView/AddResourceModal/AddResourceModal";
-import Placeholder from "../../BothView/Placeholder/Placeholder";
+//import AddResourceModal from "../../CaretakerView/AddResourceModal/AddResourceModal";
 
 // Fake data
 interface ResourceProps {
@@ -28,6 +28,7 @@ const resources: ResourceProps[] = [
 const ResourceGrid: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
 
   // Simulerer loading effekt
@@ -72,6 +73,7 @@ const ResourceGrid: React.FC = () => {
         </>
       ) : (
         <>
+        
           {/*Viser kun værktøj*/}
           {toolResources.length > 0 && (
             <div className="row">
@@ -102,12 +104,13 @@ const ResourceGrid: React.FC = () => {
               {otherResources.map(resource => (
                 <ResourceCard key={resource.id} resource={resource} />
               ))}
+              <button className="fortsætButton" type="button" onClick={() => navigate("/reservation-overblik")}>Fortsæt</button>
             </div>
           )}
         </>
       )}
 
-      {/* Add Resource Modal */}
+      {/* Add Resource Modal 
       <button onClick={() => setIsModalOpen(true)}>Add new resource</button>
       {isModalOpen && (
         <AddResourceModal
@@ -116,8 +119,11 @@ const ResourceGrid: React.FC = () => {
           onResourceAdded={handleResourceAdded}
         />
       )}
+        */}
     </div>
+    
   );
+  
 };
 
 export default ResourceGrid;

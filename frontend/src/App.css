@@ -104,3 +104,35 @@ h1 {
 .weekend-tile {
   color: grey;
 }
+
+#root div footer{
+  position: flex;
+  bottom: 0;
+  width: 100%;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding-top: 10px;
+ }
+ 
+ #root div .row{
+  padding: 20px;
+ }
+
+ #root div .fortsætButton {
+  margin-top: 20px;
+  width: 1;
+  background-color: #28a745; /* Green background */
+  color: #ffffff; /* White text */
+  padding: 10px 20px; /* Padding for the button */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Font size */
+  font-weight: bold; /* Bold text */
+  transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+#root div .fortsætButton:hover {
+  background-color: #218838; /* Darker green on hover */
+}

@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
+import Navbar from "../components/BothView/NavBar/NavBar.tsx";
 import Footer from "../components/BothView/Footer/Footer.tsx";
 
 const OwnBookingsPage = () => {
   return (
     <div>
-      <h1>OwnBookingsPage</h1>
-      <Link to="/Hjem">Go to HomePage</Link>
-      <Footer style={footerStyle} />
+      <Navbar />
+      <h1>Own Bookings Page</h1>
+      <Footer />
     </div>
   );
 };

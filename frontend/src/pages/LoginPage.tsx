@@ -5,7 +5,7 @@ const LoginPage = () => {
   return (
     <div>
       <Login />
-      <Footer style={footerStyle} />
+      <Footer />
     </div>
   );
 };

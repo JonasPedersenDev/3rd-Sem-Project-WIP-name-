@@ -9,7 +9,7 @@ const CToverviewPage = () => {
     <div>
       <h1>CToverviewPage</h1>
       <Link to="/Hjem">Go to HomePage</Link>
-      <Footer style={footerStyle} />
+      <Footer />
     </div>
     </>
   );

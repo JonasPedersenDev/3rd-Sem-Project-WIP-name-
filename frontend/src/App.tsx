@@ -22,7 +22,7 @@ function App() {
         <Route path="/opret-konto" element={<SignUpPage />} />
 
         <Route path="/hjem" element={
-            <div style={{ marginLeft: "250px", padding: "20px", flex: 1 }}>
+            <div style={{ marginLeft: "250px", padding: "0px", flex: 1 }}>
               <HomePage />
             </div>
           } />

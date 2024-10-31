@@ -7,7 +7,7 @@ const SignUpPage = () => {
     <div>
       <SignUp />
       <Link to="/reservation-overblik">Go to CheckoutPage</Link> //sneaky workaround when it doesn't work
-      <Footer style={footerStyle} />
+      <Footer />
     </div>
   );
 };

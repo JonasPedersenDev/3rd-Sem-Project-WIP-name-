@@ -9,7 +9,7 @@ const ContactPage = () => {
     <div>
       <NavBar />
       <Contact />
-      <Footer style={footerStyle} />
+      <Footer />
     </div>
   );
 };
