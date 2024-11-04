@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Tool;
 import com.auu_sw3_6.Himmerland_booking_software.service.ToolService;
 
 @RestController
 @RequestMapping("api/tool")
-public class ToolController extends ResourceController {
+public class ToolController extends ResourceController<Tool> {
 
     @Autowired
     public ToolController(ToolService ToolService) {

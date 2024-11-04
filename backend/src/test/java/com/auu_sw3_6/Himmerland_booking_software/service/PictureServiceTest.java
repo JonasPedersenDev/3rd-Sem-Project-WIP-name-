@@ -103,4 +103,20 @@ public class PictureServiceTest {
     });
     assertEquals("Failed to save profile picture", exception.getMessage());
   }
+
+  @Test
+  public void testSaveProfilePicture_shouldThrowExceptionForUnsupportedFileType() {
+      // Arrange
+      MockMultipartFile unsupportedFile = new MockMultipartFile("file", "unsupportedFile.txt", "text/plain", new byte[] {1, 2, 3, 4});
+      
+      // Act & Assert
+      IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+          pictureService.saveProfilePicture(unsupportedFile);
+      });
+      assertEquals("Unsupported file type", exception.getMessage());
+  }
+
+
+
+
 }
