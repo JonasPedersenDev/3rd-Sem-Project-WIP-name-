@@ -10,8 +10,12 @@ import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 @RequestMapping("api/booking")
 
 public class BookingController {
+
+    private final BookingService BookingService;
+
     @Autowired
     public BookingController(BookingService BookingService) {
-
+        this.BookingService = BookingService;
     }
+
 }
