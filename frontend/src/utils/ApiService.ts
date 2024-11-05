@@ -44,13 +44,16 @@ class ApiService {
     }
 
     public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
-        try {
-            return await axios.get<T>(this.baseUrl + endpoint);
-        }
-        catch (error) {
-            throw error;
-        }
-    }
+      try {
+          return await axios.get<T>(this.baseUrl + endpoint, {
+              withCredentials: true
+          });
+      }
+      catch (error) {
+          throw error;
+      }
+  }
+  
 
 
 }

@@ -35,16 +35,14 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/tenant/register").permitAll()
-                .requestMatchers("/api/login").permitAll()
+                .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/tenant/**").hasRole("TENANT")
-                .requestMatchers("/api/tools/**", "/api/resource/**").hasAnyRole("TENANT", "ADMIN")
+                .requestMatchers("/api/tool/**", "/api/resource/**").hasAnyRole("TENANT", "ADMIN")
                 .anyRequest().authenticated()
                 // Require JWT for all other requests: .authenticated()
                 // Allow access for all other requests: .permitAll()
-
             )
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
