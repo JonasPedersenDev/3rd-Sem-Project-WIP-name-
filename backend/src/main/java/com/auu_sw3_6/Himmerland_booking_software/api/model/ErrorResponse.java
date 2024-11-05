@@ -5,62 +5,75 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ErrorResponse {
-    private String message;
-    private HttpStatus httpStatus;
-    private int status;
-    private String timestamp;
-    private Map<String, String> details;
 
-    public ErrorResponse(String message, HttpStatus httpStatus) {
-        this.message = message;
-        this.httpStatus = httpStatus;
-        this.status = httpStatus.value();
-        this.timestamp = String.valueOf(System.currentTimeMillis());
-    }
+  @JsonProperty("message")
+  private String message;
 
-    public String getMessage() {
-        return message;
-    }
+  @JsonProperty("status")
+  private int status;
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  @JsonProperty("timestamp")
+  private String timestamp;
 
-    public int getStatus() {
-        return status;
-    }
+  @JsonProperty("details")
+  private Map<String, String> details;
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
+  private HttpStatus httpStatus;
 
-    public String getTimestamp() {
-        return timestamp;
-    }
+  public ErrorResponse(String message, HttpStatus httpStatus) {
+    this.message = message;
+    this.httpStatus = httpStatus;
+    this.status = httpStatus.value();
+    this.timestamp = String.valueOf(System.currentTimeMillis());
+  }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public Map<String, String> getDetails() {
-        return details;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-    public void setDetails(Map<String, String> details) {
-        this.details = details;
-    }
+  public int getStatus() {
+    return status;
+  }
 
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
+  public void setStatus(int status) {
+    this.status = status;
+  }
 
-    public void setHttpStatus(HttpStatus httpStatus) {
-        this.httpStatus = httpStatus;
-    }
+  public String getTimestamp() {
+    return timestamp;
+  }
 
-    public ResponseEntity<Object> send() {
-        return ResponseEntity.status(httpStatus).body(this);
-    }
+  public void setTimestamp(String timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public Map<String, String> getDetails() {
+    return details;
+  }
+
+  public void setDetails(Map<String, String> details) {
+    this.details = details;
+  }
+
+  public HttpStatus getHttpStatus() {
+    return httpStatus;
+  }
+
+  public void setHttpStatus(HttpStatus httpStatus) {
+    this.httpStatus = httpStatus;
+  }
+
+  public ResponseEntity<Object> send() {
+    return ResponseEntity.status(httpStatus)
+        .header("Content-Type", "application/json")
+        .body(this);
+  }
 
 }

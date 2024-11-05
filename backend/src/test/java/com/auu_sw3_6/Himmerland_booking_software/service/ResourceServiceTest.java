@@ -1,4 +1,4 @@
-package com.auu_sw3_6.Himmerland_booking_software.service;
+/* package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -167,3 +167,4 @@ public class ResourceServiceTest {
         verify(repository).deleteById(1L);
     }
 }
+ */

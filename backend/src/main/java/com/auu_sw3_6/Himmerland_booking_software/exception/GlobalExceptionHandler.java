@@ -3,8 +3,11 @@ package com.auu_sw3_6.Himmerland_booking_software.exception;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,37 +15,58 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
+import com.auu_sw3_6.Himmerland_booking_software.service.UserService;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+      private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
 
     // API error exception handling
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        log.error("Access denied: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("Access denied", HttpStatus.FORBIDDEN);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
-    // Generic error exception handling
+    @ExceptionHandler(RestrictedUsernameException.class)
+    public ResponseEntity<ErrorResponse> handleRestrictedUsernameException(RestrictedUsernameException ex) {
+        log.error("Username: " + ex.getMessage() + " is not allowed"); 
+        ErrorResponse errorResponse = new ErrorResponse("Username: \"" + ex.getMessage() + "\" is not allowed",
+                HttpStatus.CONFLICT);
+        return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        log.error("User with username " + ex.getMessage() + " already exists"); 
+        ErrorResponse errorResponse = new ErrorResponse("User with username: \"" + ex.getMessage() + "\" already exists",
+                HttpStatus.CONFLICT);
+        return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        log.error("Validation error occurred: " + ex.getMessage());
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON).body(errors);
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<String> handleDatabaseExceptions(DataAccessException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        log.error("Database error occurred: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON)
                 .body("Database error occurred: " + ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericExceptions(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        log.error("An error occurred: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON)
                 .body("An error occurred: " + ex.getMessage());
     }
 

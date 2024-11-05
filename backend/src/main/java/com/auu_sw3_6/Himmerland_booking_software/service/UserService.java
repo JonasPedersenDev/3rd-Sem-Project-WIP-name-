@@ -78,18 +78,17 @@ public abstract class UserService<T extends User> {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (authentication == null || !authentication.isAuthenticated()) {
-        throw new UserNotFoundException("User not authenticated");
+      throw new UserNotFoundException("User not authenticated");
     }
 
     CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
     User user = userDetails.toUser();
 
     if (user == null) {
-        throw new UserNotFoundException("User not found");
+      throw new UserNotFoundException("User not found");
     }
 
     return user;
-}
-
+  }
 
 }

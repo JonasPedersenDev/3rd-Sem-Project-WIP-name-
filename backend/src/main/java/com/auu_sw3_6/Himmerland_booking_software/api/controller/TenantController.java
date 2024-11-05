@@ -23,30 +23,28 @@ import jakarta.validation.Valid;
 @RequestMapping("api/tenant")
 public class TenantController extends UserController<Tenant> {
 
-    private static final Logger log = LoggerFactory.getLogger(TenantController.class);
+  private static final Logger log = LoggerFactory.getLogger(TenantController.class);
 
-    @Autowired
-    public TenantController(TenantService tenantService) {
-        super(tenantService);
-    }
+  private final TenantService tenantService;
 
-    @PermitAll
-    @PostMapping(value = "register", consumes = { "multipart/form-data" })
-    @Operation(summary = "Register a new user", 
-            description = "This endpoint allows you to add a new user to the system. " +
-                          "You must provide the user's name, email, and mobile number. " +
-                          "The id and profile picture path will be handled automatically.")
-    public ResponseEntity<Tenant> createUser(
-            @Parameter(description = "User details")
-            @RequestPart("user") @Valid Tenant user,
-            @Parameter(description = "User's profile picture (optional)")
-            @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
-        try {
-            Tenant createdUser = userService.createUser(user, profilePicture);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } catch (Exception e) {
-            log.error("Error occurred while adding user: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
+  @Autowired
+  public TenantController(TenantService tenantService) {
+    super(tenantService);
+    this.tenantService = tenantService;
+  }
+
+  @PermitAll
+  @PostMapping(value = "register", consumes = { "multipart/form-data" })
+  @Operation(summary = "Register a new user", description = "This endpoint allows you to add a new user to the system. "
+      +
+      "You must provide the user's name, email, and mobile number. " +
+      "The id and profile picture path will be handled automatically.")
+  public ResponseEntity<Object> createUser(
+      @Parameter(description = "User details") @RequestPart("user") @Valid Tenant user,
+      @Parameter(description = "User's profile picture (optional)") @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
+
+    Tenant createdUser = tenantService.createTenant(user, profilePicture);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+
+  }
 }
