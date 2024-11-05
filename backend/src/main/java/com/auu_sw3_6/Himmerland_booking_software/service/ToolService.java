@@ -16,6 +16,11 @@ public class ToolService extends ResourceService<Tool> {
     }
 
     public Tool createTool(Tool tool, MultipartFile resourcePictures) {
+        if (tool.getName() == null || tool.getName().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+
         return createResource(tool, resourcePictures);
     }
+    
 }
