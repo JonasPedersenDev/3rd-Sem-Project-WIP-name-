@@ -1,4 +1,6 @@
-import React from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 interface LogoutButtonProps {
   onLogout?: () => void;
@@ -9,17 +11,34 @@ interface LogoutButtonProps {
 const LogoutButton: React.FC<LogoutButtonProps> = ({
   onLogout,
   buttonText = 'Log ud',
-  className = 'btn btn-danger', // Default Bootstrap button styling
+  className = 'btn btn-danger', 
 }) => {
-  
-  const handleLogout = () => {
-    // Perform logout actions here (e.g., clear session, remove tokens)
-    console.log('User logged out');
-    window.sessionStorage.clear();
-    // Trigger any additional logout actions passed as a prop
-    if (onLogout) {
-      onLogout();
+  // Remove comment when CORS has been fixed
+  // const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    
+    try {
+      // API call to the logout endpoint
+      await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
+      
+      console.log('User logged out');
+      
+      // Delete authIndicator from cookies
+      document.cookie = 'authIndicator=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+      // Clears session storage
+      window.sessionStorage.clear();
+      
+      if (onLogout) {
+        onLogout();
+      }
+    } catch (error) {
+      console.error('Error logging out', error);
     }
+
+   // navigate('/login');
+
   };
 
   return (
