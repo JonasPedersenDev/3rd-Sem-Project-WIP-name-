@@ -185,3 +185,9 @@ h1 {
 #root div .fortsætButton:hover {
   background-color: #218838; /* Darker green on hover */
 }
+
+.homePage {
+  margin-left: 250px;
+  padding: 20px;
+  flex: 1;
+}

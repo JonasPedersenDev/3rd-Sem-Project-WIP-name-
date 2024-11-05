@@ -16,6 +16,15 @@ public class UtilityService extends ResourceService<Utility> {
     }
 
     public Utility createUtility(Utility utility, MultipartFile resourcePictures) {
+        if (utility.getName() == null || utility.getName().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+
         return createResource(utility, resourcePictures);
     }
+
+    public void deleteUtility(Long id) {
+        deleteResource(id);
+    }
+    
 }

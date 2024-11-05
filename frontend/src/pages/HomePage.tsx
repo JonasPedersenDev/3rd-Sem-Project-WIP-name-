@@ -6,7 +6,7 @@ import Footer from "../components/BothView/Footer/Footer.tsx";
 const HomePage = () => {
 
   return (
-    <div>
+    <div className="homePage">
       <SidePanel />
       <NavBar />
       <ResourceGrid />
