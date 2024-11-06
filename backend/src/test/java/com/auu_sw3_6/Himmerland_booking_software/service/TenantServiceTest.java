@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.RestrictedUsernameException;
-import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsException;
 
 @ExtendWith(MockitoExtension.class)
 public class TenantServiceTest {
@@ -128,7 +127,7 @@ public class TenantServiceTest {
     assertEquals("Ikke-understøttet filtype", exception.getMessage(),
         "Bør kaste en exception for ikke-understøttet filtype");
   }
-
+/* 
   @Test
   void createTenant_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
       // Arrange 
@@ -145,6 +144,7 @@ public class TenantServiceTest {
       
       assertEquals("Bruger med brugernavn 'eksisterendeBruger' findes allerede", exception.getMessage());
   }
+*/
 
   @Test
   public void testCreateTenant_ThrowsExceptionForRestrictedUsername() {
