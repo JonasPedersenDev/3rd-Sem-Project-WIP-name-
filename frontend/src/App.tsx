@@ -21,10 +21,10 @@ import ContactPage from "./pages/ContactPage";
 const routesConfig: { path: string; component: JSX.Element; allowedRoles: UserRole[] }[] = [
   // Tenant routes
   { path: "/hjem", component: <HomePage />, allowedRoles: ["ROLE_TENANT"] },
-  { path: "/konto", component: <AccountPage />, allowedRoles: ["ROLE_TENANT"] },
+  { path: "/konto", component: <AccountPage />, allowedRoles: ["ROLE_TENANT", "ROLE_ADMIN"] },
   { path: "/reservation-overblik", component: <CheckoutPage />, allowedRoles: ["ROLE_TENANT"] },
   { path: "/mine-reservationer", component: <OwnBookingsPage />, allowedRoles: ["ROLE_TENANT"] },
-  { path: "/kontakt", component: <ContactPage />, allowedRoles: ["ROLE_TENANT"] },
+  { path: "/kontakt", component: <ContactPage />, allowedRoles: ["ROLE_TENANT", "ROLE_ADMIN"] },
   // Admin routes
   { path: "/admin-overblik", component: <CToverviewPage />, allowedRoles: ["ROLE_ADMIN"] },
   { path: "/ressource-overblik", component: <CTresourcePage />, allowedRoles: ["ROLE_ADMIN"] },
