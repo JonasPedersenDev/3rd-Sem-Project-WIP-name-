@@ -13,8 +13,8 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   buttonText = 'Log ud',
   className = 'btn btn-danger', 
 }) => {
-  // Remove comment when CORS has been fixed
-  // const navigate = useNavigate();
+  
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     
@@ -37,7 +37,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
       console.error('Error logging out', error);
     }
 
-   // navigate('/login');
+   navigate('/login');
 
   };
 

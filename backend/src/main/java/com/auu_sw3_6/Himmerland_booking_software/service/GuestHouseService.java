@@ -15,7 +15,16 @@ public class GuestHouseService extends ResourceService<GuestHouse> {
         super(ResourceRepository);
     }
 
-    public GuestHouse createGuestHouse(GuestHouse guesthouse, MultipartFile resourcePictures) {
-        return createResource(guesthouse, resourcePictures);
+    public GuestHouse createGuestHouse(GuestHouse guestHouse, MultipartFile resourcePictures) {
+        if (guestHouse.getName() == null || guestHouse.getName().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+
+        return createResource(guestHouse, resourcePictures);
     }
+
+    public void deleteGuestHouse(Long id) {
+        deleteResource(id);
+    }
+    
 }

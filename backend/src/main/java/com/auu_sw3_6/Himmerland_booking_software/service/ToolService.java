@@ -22,5 +22,9 @@ public class ToolService extends ResourceService<Tool> {
 
         return createResource(tool, resourcePictures);
     }
+
+    public void deleteTool(Long id) {
+        deleteResource(id);
+    }
     
 }
