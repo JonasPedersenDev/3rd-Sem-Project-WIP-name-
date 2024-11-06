@@ -9,22 +9,22 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.GuestHouseReposi
 
 @Service
 public class GuestHouseService extends ResourceService<GuestHouse> {
-    
-    @Autowired
-    public GuestHouseService(GuestHouseRepository ResourceRepository) {
-        super(ResourceRepository);
+
+  @Autowired
+  public GuestHouseService(GuestHouseRepository ResourceRepository) {
+    super(ResourceRepository);
+  }
+
+  public GuestHouse createGuestHouse(GuestHouse guestHouse, MultipartFile resourcePictures) {
+    if (guestHouse.getName() == null || guestHouse.getName().isEmpty()) {
+      throw new IllegalArgumentException("Name cannot be null or empty.");
     }
 
-    public GuestHouse createGuestHouse(GuestHouse guestHouse, MultipartFile resourcePictures) {
-        if (guestHouse.getName() == null || guestHouse.getName().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
+    return createResource(guestHouse, resourcePictures);
+  }
 
-        return createResource(guestHouse, resourcePictures);
-    }
+  public void deleteGuestHouse(Long id) {
+    deleteResource(id);
+  }
 
-    public void deleteGuestHouse(Long id) {
-        deleteResource(id);
-    }
-    
 }

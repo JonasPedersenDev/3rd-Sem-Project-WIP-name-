@@ -14,18 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tool;
+import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ToolService;
+import com.auu_sw3_6.Himmerland_booking_software.service.UtilityService;
 
 @RestController
 @RequestMapping("api/tool")
 public class ToolController extends ResourceController<Tool> {
 
     private final ToolService toolService;
+    private final BookingService bookingService;
 
     @Autowired
-    public ToolController(ToolService toolService) {
-        super(toolService);
+    public ToolController(ToolService toolService, BookingService bookingService) {
+        super(toolService, bookingService);
         this.toolService = toolService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping(value = "/all", produces = "application/json")

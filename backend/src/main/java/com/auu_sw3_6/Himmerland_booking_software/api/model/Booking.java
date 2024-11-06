@@ -1,100 +1,119 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Booking {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private long tenantId;
-    private long resourceId;
-    private String bookingStart;
-    private String bookingEnd;
-    private String status;
-    private String bookingPictureFileName;
-    private String bookingDescription;
 
-    public Booking() {
-    }
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
-    public Booking(long id, long tenantId, long resourceId, String bookingStart, String bookingEnd, String status,
-            String bookingPictureFileName, String bookingDescription) {
-        this.id = id;
-        this.tenantId = tenantId;
-        this.resourceId = resourceId;
-        this.bookingStart = bookingStart;
-        this.bookingEnd = bookingEnd;
-        this.status = status;
-        this.bookingPictureFileName = bookingPictureFileName;
-        this.bookingDescription = bookingDescription;
-    }
+  @ManyToOne
+  @JoinColumn(name = "resource_id", nullable = false)
+  private Resource resource;
 
-    public long getId() {
-        return id;
-    }
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  private LocalDate startDate;
+  private LocalDate endDate;
 
-    public long getTenantId() {
-        return tenantId;
-    }
+  private LocalTime pickupTime;
+  private LocalTime dropoffTime;
 
-    public void setTenantId(long tenantId) {
-        this.tenantId = tenantId;
-    }
+  @Enumerated(EnumType.STRING)
+  private BookingStatus status;
 
-    public long getResourceId() {
-        return resourceId;
-    }
+  public Booking() {
+  }
 
-    public void setResourceId(long resourceId) {
-        this.resourceId = resourceId;
-    }
+  public Booking(Resource resource, User user, LocalDate startDate, LocalDate endDate,
+      LocalTime pickupTime, LocalTime dropoffTime, BookingStatus status) {
+    this.resource = resource;
+    this.user = user;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.pickupTime = pickupTime;
+    this.dropoffTime = dropoffTime;
+    this.status = status;
+  }
 
-    public String getBookingStart() {
-        return bookingStart;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setBookingStart(String bookingStart) {
-        this.bookingStart = bookingStart;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public String getBookingEnd() {
-        return bookingEnd;
-    }
+  public Resource getResource() {
+    return resource;
+  }
 
-    public void setBookingEnd(String bookingEnd) {
-        this.bookingEnd = bookingEnd;
-    }
+  public void setResource(Resource resource) {
+    this.resource = resource;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public User getUser() {
+    return user;
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-    public String getBookingPictureFileName() {
-        return bookingPictureFileName;
-    }
+  public LocalDate getStartDate() {
+    return startDate;
+  }
 
-    public void setBookingPictureFileName(String bookingPictureFileName) {
-        this.bookingPictureFileName = bookingPictureFileName;
-    }
+  public void setStartDate(LocalDate startDate) {
+    this.startDate = startDate;
+  }
 
-    public String getBookingDescription() {
-        return bookingDescription;
-    }
+  public LocalDate getEndDate() {
+    return endDate;
+  }
 
-    public void setBookingDescription(String bookingDescription) {
-        this.bookingDescription = bookingDescription;
-    }
+  public void setEndDate(LocalDate endDate) {
+    this.endDate = endDate;
+  }
+
+  public LocalTime getPickupTime() {
+    return pickupTime;
+  }
+
+  public void setPickupTime(LocalTime pickupTime) {
+    this.pickupTime = pickupTime;
+  }
+
+  public LocalTime getDropoffTime() {
+    return dropoffTime;
+  }
+
+  public void setDropoffTime(LocalTime dropoffTime) {
+    this.dropoffTime = dropoffTime;
+  }
+
+  public BookingStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(BookingStatus status) {
+    this.status = status;
+  }
 
 }
