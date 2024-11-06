@@ -1,4 +1,4 @@
-package com.auu_sw3_6.Himmerland_booking_software.config;
+package com.auu_sw3_6.Himmerland_booking_software.security;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(subject)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 5)) // 5 hours
                 .signWith(SECRET_KEY, SIG.HS256)
                 .compact();
     }

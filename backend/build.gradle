@@ -36,6 +36,7 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
 	//Testing dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -43,3 +44,11 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// To see logs of tests uncomment the following code
+/* test {
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+} */

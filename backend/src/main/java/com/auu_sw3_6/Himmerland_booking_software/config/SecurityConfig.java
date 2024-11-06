@@ -13,12 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.auu_sw3_6.Himmerland_booking_software.security.JwtAuthorizationFilter;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private JwtAuthorizationFilter jwtAuthorizationFilter;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -33,17 +35,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/tenant/register").permitAll()
-                .requestMatchers("/api/login").permitAll()
+                .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/tenant/**").hasRole("TENANT")
+                .requestMatchers("/api/tool/**", "/api/resource/**").hasAnyRole("TENANT", "ADMIN")
                 .anyRequest().authenticated()
                 // Require JWT for all other requests: .authenticated()
                 // Allow access for all other requests: .permitAll()
-
             )
-            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

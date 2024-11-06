@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Tool;
 import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
+import com.auu_sw3_6.Himmerland_booking_software.service.ToolService;
 
 @Configuration
 public class AppConfig {
@@ -25,4 +27,5 @@ public class AppConfig {
             }
         };
     }
+
 }

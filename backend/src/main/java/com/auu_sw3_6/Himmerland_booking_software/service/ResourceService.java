@@ -1,52 +1,113 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 
-@Service
-public class ResourceService {
+public abstract class ResourceService<T extends Resource> {
 
-    private final List<Resource> resourceList;
+    private static final Logger log = LoggerFactory.getLogger(ResourceService.class);
 
-    public ResourceService() {
-        resourceList = new ArrayList<>();
+    private final JpaRepository<T, Long> repository;
 
-        Resource boremaskine = new Resource(1, "Boremaskine", "En boremaskine", "Boremaskine.jpg", "Værktøj", 1, "available");
-        Resource hammer = new Resource(2, "Hammer", "En hammer", "Hammer.jpg", "Værktøj", 1, "available");
-        Resource målebånd = new Resource(3, "Målebånd", "Et målebånd", "Målebånd.jpg", "Værktøj", 1, "unavailable");
-        Resource sav = new Resource(4, "Sav", "En sav", "Sav.jpg", "Værktøj", 1, "maintenance");
-        Resource skruetrækker = new Resource(5, "Skruetrækker", "En skruetrækker", "Skruetrækker.jpg", "Værktøj", 1, "available");
+    @Value("${resource.pictures.directory}")
+    private String resourcePicturesDirectory;
 
-        resourceList.addAll(Arrays.asList(boremaskine, hammer, målebånd, sav, skruetrækker));
+    @Autowired
+    public ResourceService(JpaRepository<T, Long> repository) {
+        this.repository = repository;
     }
 
-    public Optional<Resource> getResource(Long id) {
-      if (id == null) {
-          return Optional.empty(); // Return empty if id is null
-      }
-      
-      for (Resource resource : resourceList) {
-          if (resource.getId() == id) {
-              return Optional.of(resource);
-          }
-      }
-      return Optional.empty();
-  }
-  
+    public T createResource(T resource, MultipartFile resourcePictures) {
+        if (resourcePictures != null && !resourcePictures.isEmpty()) {
+            try {
+                // Hardcoded for now, should be changed to a more dynamic solution, maybe
+                String directoryPath = Paths.get("src", "main", "resources", "database", "img", "resourcePicturess")
+                        .toAbsolutePath().toString();
 
-    public List<Resource> getResources() {
-        return resourceList;
+                File directory = new File(directoryPath);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                String originalFileName = resourcePictures.getOriginalFilename();
+                String extension = "";
+                
+                if (originalFileName != null) {
+                    int index = originalFileName.lastIndexOf('.');
+                    if (index > 0) {
+                        extension = originalFileName.substring(index);
+                    }
+                }
+
+                String uniqueFileName = UUID.randomUUID().toString() + extension;
+                Path imagePath = Paths.get(directoryPath, uniqueFileName);
+
+                resourcePictures.transferTo(imagePath.toFile());
+
+                resource.setResourcePictureFileName(uniqueFileName);
+            } catch (IOException e) {
+                log.error("Failed to save resource picture: {}", e.getMessage());
+                throw new RuntimeException("Failed to save resource picture", e);
+            }
+        }
+
+        return repository.save(resource);
     }
 
-  public void addResource(Resource resource) {
-    resourceList.add(resource);
-}
+    public List<T> getAllResources() {
+        return repository.findAll();
+    }
 
+    public Optional<T> getResourceById(Long id) {
+        return repository.findById(id);
+    }
+
+    public Optional<byte[]> getresourcePicturesByResourceId(long resourceId) {
+        Optional<T> resourceOptional = repository.findById(resourceId);
+        if (resourceOptional.isPresent() && resourceOptional.get().getResourcePictureFileName() != null) {
+            String picturePath = resourcePicturesDirectory + resourceOptional.get().getResourcePictureFileName();
+            try {
+                Path path = Paths.get(picturePath);
+                return Optional.of(Files.readAllBytes(path));
+            } catch (IOException e) {
+                log.error("Error reading picture for resource {}: {}", resourceId, e.getMessage());
+            }
+        }
+        return Optional.empty();
+    }
+
+    public T updateResource(T updatedResource) {
+        return repository.save(updatedResource);
+    }
+
+    public void deleteResource(Long id) {
+        repository.deleteById(id);
+    }
+
+    public Optional<byte[]> getResourcePictureByResourcename(String resourceName) {
+        Optional<T> resource = getResourceByResourceName(resourceName);
+        return resource.flatMap(u -> getresourcePicturesByResourceId(u.getId()));
+    }
+
+    public Optional<T> getResourceByResourceName(String resourceName) {
+        return repository.findAll().stream()
+                .filter(u -> u.getName().equals(resourceName))
+                .findFirst();
+    }
 
 }

@@ -3,16 +3,19 @@ package com.auu_sw3_6.Himmerland_booking_software.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 
   @Id
@@ -111,11 +114,11 @@ public abstract class User {
     this.password = password;
   }
 
-  public String getprofilePictureFileName() {
+  public String getProfilePictureFileName() {
     return profilePictureFileName;
   }
 
-  public void setprofilePictureFileName(String profilePictureFileName) {
+  public void setProfilePictureFileName(String profilePictureFileName) {
     this.profilePictureFileName = profilePictureFileName;
   }
 
