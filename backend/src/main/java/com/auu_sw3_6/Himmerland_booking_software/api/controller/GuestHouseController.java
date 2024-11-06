@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.GuestHouse;
+import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.GuestHouseService;
 
 @RestController
@@ -21,11 +22,13 @@ import com.auu_sw3_6.Himmerland_booking_software.service.GuestHouseService;
 public class GuestHouseController extends ResourceController<GuestHouse> {
 
     private final GuestHouseService guestHouseService;
-
+    private final BookingService bookingService;
+    
     @Autowired
-    public GuestHouseController(GuestHouseService guestHouseService) {
-        super(guestHouseService);
+    public GuestHouseController(GuestHouseService guestHouseService, BookingService bookingService) {
+        super(guestHouseService, bookingService);
         this.guestHouseService = guestHouseService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping(value = "/all", produces = "application/json")

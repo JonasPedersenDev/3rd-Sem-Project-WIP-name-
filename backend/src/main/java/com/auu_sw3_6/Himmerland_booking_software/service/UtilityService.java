@@ -9,22 +9,22 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.UtilityRepositor
 
 @Service
 public class UtilityService extends ResourceService<Utility> {
-    
-    @Autowired
-    public UtilityService(UtilityRepository ResourceRepository) {
-        super(ResourceRepository);
+
+  @Autowired
+  public UtilityService(UtilityRepository ResourceRepository) {
+    super(ResourceRepository);
+  }
+
+  public Utility createUtility(Utility utility, MultipartFile resourcePictures) {
+    if (utility.getName() == null || utility.getName().isEmpty()) {
+      throw new IllegalArgumentException("Name cannot be null or empty.");
     }
 
-    public Utility createUtility(Utility utility, MultipartFile resourcePictures) {
-        if (utility.getName() == null || utility.getName().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
+    return createResource(utility, resourcePictures);
+  }
 
-        return createResource(utility, resourcePictures);
-    }
+  public void deleteUtility(Long id) {
+    deleteResource(id);
+  }
 
-    public void deleteUtility(Long id) {
-        deleteResource(id);
-    }
-    
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Utility;
+import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.UtilityService;
 
 @RestController
@@ -21,11 +22,13 @@ import com.auu_sw3_6.Himmerland_booking_software.service.UtilityService;
 public class UtilityController extends ResourceController<Utility> {
 
     private final UtilityService utilityService;
+    private final BookingService bookingService;
 
     @Autowired
-    public UtilityController(UtilityService utilityService) {
-        super(utilityService);
+    public UtilityController(UtilityService utilityService, BookingService bookingService) {
+        super(utilityService, bookingService);
         this.utilityService = utilityService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping(value = "/all", produces = "application/json")

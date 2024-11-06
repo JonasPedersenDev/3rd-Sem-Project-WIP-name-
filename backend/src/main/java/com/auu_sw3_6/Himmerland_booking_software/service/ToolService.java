@@ -9,22 +9,22 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.ToolRepository;
 
 @Service
 public class ToolService extends ResourceService<Tool> {
-    
-    @Autowired
-    public ToolService(ToolRepository ResourceRepository) {
-        super(ResourceRepository);
+
+  @Autowired
+  public ToolService(ToolRepository ResourceRepository) {
+    super(ResourceRepository);
+  }
+
+  public Tool createTool(Tool tool, MultipartFile resourcePictures) {
+    if (tool.getName() == null || tool.getName().isEmpty()) {
+      throw new IllegalArgumentException("Name cannot be null or empty.");
     }
 
-    public Tool createTool(Tool tool, MultipartFile resourcePictures) {
-        if (tool.getName() == null || tool.getName().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
+    return createResource(tool, resourcePictures);
+  }
 
-        return createResource(tool, resourcePictures);
-    }
+  public void deleteTool(Long id) {
+    deleteResource(id);
+  }
 
-    public void deleteTool(Long id) {
-        deleteResource(id);
-    }
-    
 }
