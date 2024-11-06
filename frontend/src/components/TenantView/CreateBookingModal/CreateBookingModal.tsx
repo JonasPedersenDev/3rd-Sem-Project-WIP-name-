@@ -3,63 +3,58 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import BookingModalCalendar from "./BookingModalCalendar";
 
 interface Resource {
-    name: string;
-    img: string;
-    description: string;
-    status: string;
-    bookedDates: Date[];
+  name: string;
+  img: string;
+  description: string;
+  status: string;
+  bookedDates: Date[];
 }
 
 interface Booking {
-    id: string;
-    resourceName: string;
-    bookStartTime: Date;
-    bookEndTime: Date;
-    pickup: string;
-    dropoff: string;
+  id: string;
+  resourceName: string;
+  bookStartTime: Date | null;
+  bookEndTime: Date | null;
+  pickup: string;
+  dropoff: string;
 }
 
 interface CreateBookingModalProps {
-    resource: Resource
-    show: boolean;
-    onBookingAdded: () => void;
-    onClose: () => void;
+  resource: Resource;
+  show: boolean;
+  onBookingAdded: () => void;
+  onClose: () => void;
 }
 
+const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show, onBookingAdded, onClose }) => {
+  let bookingList: Booking[] = [];
 
-const CreateBookingModal: React.FC<CreateBookingModalProps> = ({resource, show, onBookingAdded, onClose }) => {
-    let bookingList: Booking[] = []
-    const [bookingFormData, setBookingData] = useState<Booking>({
-    id: (Math.floor(Math.random() * 10000) + 1).toString(), //filler -> match object fra checkout
+  const [bookingFormData, setBookingData] = useState<Booking>({
+    id: (Math.floor(Math.random() * 10000) + 1).toString(),
     resourceName: resource.name,
-    bookStartTime: new Date('2024-11-01T10:00:00'),
-    bookEndTime: new Date('2024-11-01T12:00:00'),
+    bookStartTime: null,
+    bookEndTime: null,
     pickup: "7:00-7:30",
     dropoff: "7:00-7:30",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const {name, value} = e.target
+  const handleDateChange = (start: Date | null, end: Date | null) => {
     setBookingData({
       ...bookingFormData,
-      [name]: name.includes('Time') ? new Date(value) : value,
+      bookStartTime: start,
+      bookEndTime: end,
     });
   };
 
-
   const handleSubmit = () => {
-    const bookingListString = window.sessionStorage.getItem("bookingList")
+    const bookingListString = window.sessionStorage.getItem("bookingList");
     if (bookingListString) {
-        bookingList = JSON.parse(bookingListString)
+      bookingList = JSON.parse(bookingListString);
     }
-    console.log("object for checkout:", bookingFormData)
     bookingList.push(bookingFormData);
-    console.log("bookingList: ", bookingList)
-    window.sessionStorage.setItem('bookingList', JSON.stringify(bookingList));
-    console.log("bookings in storage: " + window.sessionStorage.getItem("bookingList"))
-    console.log("length: " + window.sessionStorage.length)
-    onBookingAdded()
-  }
+    window.sessionStorage.setItem("bookingList", JSON.stringify(bookingList));
+    onBookingAdded();
+  };
 
   return (
     <Modal show={show} onHide={onClose}>
@@ -69,52 +64,58 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({resource, show, 
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <div className="d-flex justify-content-center mt-3">
-            <BookingModalCalendar bookedDates={resource.bookedDates}/>
+            <BookingModalCalendar
+              bookedDates={resource.bookedDates}
+              onDateChange={handleDateChange}
+            />
           </div>
+          
           <Form.Group controlId="bookstart">
             <Form.Label>Reservation Start:</Form.Label>
             <Form.Control
-              type="datetime-local"
-              name="bookStartTime"
-              value={bookingFormData.bookStartTime.toISOString().substring(0, 16)}
-              onChange={handleChange}
-              required
+              type="text"
+              readOnly
+              value={bookingFormData.bookStartTime ? bookingFormData.bookStartTime.toDateString() : ""}
+              placeholder="Vælg en afhentingsdato"
             />
           </Form.Group>
+
           <Form.Group controlId="bookend">
             <Form.Label>Reservation Slut:</Form.Label>
             <Form.Control
-              type="datetime-local"
-              name="bookEndTime"
-              value={bookingFormData.bookEndTime.toISOString().substring(0, 16)}
-              onChange={handleChange}
-              required
+              type="text"
+              readOnly
+              value={bookingFormData.bookEndTime ? bookingFormData.bookEndTime.toDateString() : ""}
+              placeholder="Vælg en afleveringsdato"
             />
           </Form.Group>
+
           <Form.Group controlId="pickup">
             <Form.Label>Afhenting:</Form.Label>
             <Form.Control
               as="select"
               name="pickup"
-              value={bookingFormData.pickup.toLocaleString()}
-              onChange={handleChange}
+              value={bookingFormData.pickup}
+              onChange={(e) => setBookingData({ ...bookingFormData, pickup: e.target.value })}
             >
               <option value="7:00-7:30">7:00 - 7:30</option>
               <option value="11:00-12:00">11:00 - 12:00</option>
             </Form.Control>
           </Form.Group>
+
           <Form.Group controlId="dropoff">
             <Form.Label>Aflevering:</Form.Label>
             <Form.Control
               as="select"
               name="dropoff"
               value={bookingFormData.dropoff}
-              onChange={handleChange}
+              onChange={(e) => setBookingData({ ...bookingFormData, dropoff: e.target.value })}
             >
               <option value="7:00-7:30">7:00 - 7:30</option>
               <option value="11:00-12:00">11:00 - 12:00</option>
             </Form.Control>
           </Form.Group>
+
           <Button variant="primary" type="submit">
             Tilføj Booking
           </Button>
