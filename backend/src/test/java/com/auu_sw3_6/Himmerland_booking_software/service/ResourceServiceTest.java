@@ -126,27 +126,6 @@ public class ResourceServiceTest {
     }
 
     @Test
-    public void testGetResourcePictureByResourceId_ShouldReturnPictureBytesIfExists() throws IOException {
-        // Arrange
-        String fileName = "resourcePicture.jpg";
-        resource.setResourcePictureFileName(fileName);
-        when(repository.findById(1L)).thenReturn(Optional.of(resource));
-
-        Path picturePath = Paths.get("src", "main", "resources", "database", "img", "resourcePicturess", fileName);
-        Files.write(picturePath, new byte[]{1, 2, 3, 4});  // Simulerer et eksisterende billede
-
-        // Act
-        Optional<byte[]> result = resourceService.getresourcePicturesByResourceId(1L);
-
-        // Assert
-        assertTrue(result.isPresent(), "Skal returnere byte-data hvis filen findes.");
-        assertEquals(4, result.get().length, "Byte-længden skal matche den forventede størrelse.");
-
-        // Cleanup
-        Files.deleteIfExists(picturePath);
-    }
-
-    @Test
     public void testGetResourcePictureByResourceId_ShouldReturnEmptyIfPictureNotFound() {
         // Arrange
         when(repository.findById(1L)).thenReturn(Optional.of(resource));

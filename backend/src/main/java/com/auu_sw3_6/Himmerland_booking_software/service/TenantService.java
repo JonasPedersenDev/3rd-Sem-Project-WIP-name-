@@ -70,6 +70,6 @@ public class TenantService extends UserService<Tenant> {
 
   public void setRestrictedUsernamesSet(Set<String> restrictedUsernames) {
     this.restrictedUsernamesSet = restrictedUsernames;
-  }
+}
 
 }

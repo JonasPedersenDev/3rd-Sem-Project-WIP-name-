@@ -52,22 +52,22 @@ public class TenantServiceTest {
   public void setUp() {
     tenant = new Tenant();
     tenant.setId(1L);
-    tenant.setUsername("tenantUser");
-    tenant.setPassword("rawPassword123");
+    tenant.setUsername("lejerBruger");
+    tenant.setPassword("kodeord123");
 
-    // Initialize the restricted user names set
-    tenantService.setRestrictedUsernamesSet(new HashSet<>(Arrays.asList("admin", "root")));
+    tenantService.setRestrictedUsernamesSet(new HashSet<>(Arrays.asList("administrator", "rod")));
   }
 
   @Test
   public void testCreateTenant_CallsSaveMethodOnRepository() {
-    // Arrange
+    // Arrange 
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+    when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act
+    // Act 
     tenantService.createTenant(tenant, profilePicture);
 
-    // Assert
+    // Assert - Bekræft at save-metoden blev kaldt
     verify(tenantRepository).save(tenant);
   }
 
@@ -75,86 +75,89 @@ public class TenantServiceTest {
   public void testCreateTenant_ReturnsNonNullTenant() {
     // Arrange
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+    when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
     // Act
-    Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
+    Tenant oprettetLejer = tenantService.createTenant(tenant, profilePicture);
 
-    // Assert
-    assertNotNull(createdTenant, "Tenant should be created and not null");
+    // Assert - Bekræft at lejer blev oprettet og ikke er null
+    assertNotNull(oprettetLejer, "Lejer skal oprettes og ikke være null");
   }
 
   @Test
   public void testCreateTenant_SavesProfilePicture() throws Exception {
     // Arrange
-    when(profilePictureService.saveProfilePicture(profilePicture)).thenReturn("profilePicture.jpg");
+    when(profilePictureService.saveProfilePicture(profilePicture)).thenReturn("profilbillede.jpg");
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+    when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act
-    Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
+    // Act 
+    Tenant oprettetLejer = tenantService.createTenant(tenant, profilePicture);
 
-    // Assert
-    assertEquals("profilePicture.jpg", createdTenant.getProfilePictureFileName(),
-        "Profile picture file name should be 'profilePicture.jpg'");
+    // Assert - Bekræft at profilbillede blev gemt korrekt
+    assertEquals("profilbillede.jpg", oprettetLejer.getProfilePictureFileName(),
+        "Profilbillede filnavn skal være 'profilbillede.jpg'");
   }
 
   @Test
   public void testCreateTenant_EncodesPassword() {
-    // Arrange
-    when(passwordEncoder.encode("rawPassword123")).thenReturn("encodedPassword123");
+    // Arrange 
+    when(passwordEncoder.encode("kodeord123")).thenReturn("kodetKodeord123");
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+    when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act
-    Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
+    // Act 
+    Tenant oprettetLejer = tenantService.createTenant(tenant, profilePicture);
 
-    // Assert
-    assertEquals("encodedPassword123", createdTenant.getPassword(),
-        "Password should be encoded and not the raw password");
+    // Assert - Bekræft at kodeordet blev kodet korrekt
+    assertEquals("kodetKodeord123", oprettetLejer.getPassword(),
+        "Kodeord skal være kodet og ikke det rå kodeord");
   }
 
   @Test
   public void testCreateTenant_ThrowsExceptionForInvalidProfilePicture() {
-    // Arrange
-    doThrow(new IllegalArgumentException("Unsupported file type")).when(profilePictureService)
+    // Arrange 
+    doThrow(new IllegalArgumentException("Ikke-understøttet filtype")).when(profilePictureService)
         .saveProfilePicture(profilePicture);
+    when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act & Assert
+    // Act & Assert - Bekræft at IllegalArgumentException bliver kastet
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       tenantService.createTenant(tenant, profilePicture);
     });
-    assertEquals("Unsupported file type", exception.getMessage(),
-        "Should throw exception for unsupported file type");
+    assertEquals("Ikke-understøttet filtype", exception.getMessage(),
+        "Bør kaste en exception for ikke-understøttet filtype");
   }
 
-/*   @Test <-- Doesn't work, fix
-  public void testCreateTenant_ThrowsExceptionForDuplicateUsername() {
-      // Arrange
-      when(tenantRepository.findByUsername("tenantUser")).thenReturn(Optional.of(tenant));
-    
-      // Act & Assert
+  @Test
+  void createTenant_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
+      // Arrange 
+      String duplikeretBrugernavn = "eksisterendeBruger";
+      Tenant nyLejer = new Tenant();
+      nyLejer.setUsername(duplikeretBrugernavn);
+      when(tenantRepository.findByUsername(duplikeretBrugernavn)).thenReturn(Optional.of(nyLejer));
+      when(adminService.getUserByUsername(duplikeretBrugernavn)).thenReturn(Optional.empty());
+
+      // Act & Assert 
       UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
-          Tenant duplicateTenant = new Tenant();
-          duplicateTenant.setUsername("tenantUser");
-          duplicateTenant.setPassword("somePassword123");
-          tenantService.createTenant(duplicateTenant, null);
+          tenantService.createTenant(nyLejer, profilePicture);
       });
-    
-      assertEquals("User already exists", exception.getMessage());
+      
+      assertEquals("Bruger med brugernavn 'eksisterendeBruger' findes allerede", exception.getMessage());
   }
- */
+
   @Test
   public void testCreateTenant_ThrowsExceptionForRestrictedUsername() {
       // Arrange
-      // when(tenantRepository.findByUsername("tenantUser")).thenReturn(Optional.of(tenant));
-    
-      // Act & Assert
       RestrictedUsernameException exception = assertThrows(RestrictedUsernameException.class, () -> {
-          Tenant testTenant = new Tenant();
-          testTenant.setUsername("root");
-          testTenant.setPassword("somePassword123");
-          tenantService.createTenant(testTenant, null);
+          Tenant testLejer = new Tenant();
+          testLejer.setUsername("rod");
+          testLejer.setPassword("etKodeord123");
+          tenantService.createTenant(testLejer, null);
       });
     
-      assertEquals("root", exception.getMessage());
+      // assert
+      assertEquals("rod", exception.getMessage());
   }
-    
+
 }
