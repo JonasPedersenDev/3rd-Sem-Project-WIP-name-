@@ -43,17 +43,6 @@
   background-color: #333;
 }
 
-/* Sidepanel calendar */
-.react-calendar {
-  width: 225px !important;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-.heading {
-  font-size: 24px;
-  font-weight: bold;
-}
-
 .underline {
   width: 95%; 
   height: 1px; 
@@ -93,10 +82,6 @@ h1 {
 }
 
 /* Booking Calendar + Legend */
-.react-calendar__tile {
-  pointer-events: none;
-}
-
 .react-calendar__navigation {
   border-bottom: 2px solid rgba(196, 196, 196, 0.788);
   padding-bottom: 10px;
@@ -105,16 +90,23 @@ h1 {
 
 .react-calendar .booked-tile {
   background-color: red;
-  color: white
+  color: white;
+  pointer-events: none;
 }
 
 .free-tile {
   color: grey;
 }
 
+.range-tile {
+  background-color: #6292eb !important;
+  color: white
+}
+
 .react-calendar .weekend-tile {
   color: white;
   background-color: rgba(196, 196, 196, 0.788);
+  pointer-events: none;
 }
 
 .calendar-wrapper {
@@ -152,6 +144,9 @@ h1 {
 }
 .currentday-color {
   background-color: rgb(255, 240, 0);
+}
+.range-color {
+  background-color: #6292eb;
 }
 
 #root div footer{

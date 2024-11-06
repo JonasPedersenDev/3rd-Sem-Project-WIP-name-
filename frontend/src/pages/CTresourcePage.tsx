@@ -1,15 +1,14 @@
-import { Link } from "react-router-dom";
 import NavBar from "../components/BothView/NavBar/NavBar.tsx";
 import Footer from "../components/BothView/Footer/Footer.tsx";
+import CaretakerResourceOverview from "../components/CaretakerView/RessourceOverview/CaretakerResourceOverview.tsx";
 
 const CTresourcePage = () => {
   return (
     <>
     <NavBar />
     <div>
-      <h1>CTresourcePage</h1>
-      <Link to="/Hjem">Go to HomePage</Link>
-      <Footer style={footerStyle} />
+      <CaretakerResourceOverview />
+      <Footer />
     </div>
     </>
   );

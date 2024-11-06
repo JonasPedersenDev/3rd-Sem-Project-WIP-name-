@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BookingCard from './BookingCard';
+import { Link } from 'react-router-dom';
 
 interface Booking {
   id: string;
@@ -55,7 +56,7 @@ const Checkout: React.FC = () => {
 
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded">
-      <h2 className="text-center mb-4">Dine Ubekræftede Reservationer</h2> {/*Bad name, need to change */}
+      <h2 className="text-center mb-4"><strong>Dine Ubekræftede Reservationer</strong></h2>
       {bookings.length === 0 ? (
         <p>Ingen reservationer endnu</p>
       ) :
@@ -72,6 +73,8 @@ const Checkout: React.FC = () => {
         Bekræft
         </button>
       )}
+      <Link to="/ressource-overblik">Go to Admin</Link>
+      <Link to="/admin-overblik">Go to Admin</Link>
     </div>
   );
 };

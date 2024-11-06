@@ -64,7 +64,7 @@ const ResourceGrid: React.FC = () => {
                     img: tool.resourcePictureFileName,
                     description: tool.description,
                     status: tool.status,
-                    bookedDates: [],  // Replace if booked dates are available
+                    bookedDates: [],
                   }}
                 />
               ))}
@@ -83,7 +83,7 @@ const ResourceGrid: React.FC = () => {
                     img: guestHouse.resourcePictureFileName,
                     description: guestHouse.description,
                     status: guestHouse.status,
-                    bookedDates: [],  // Replace if booked dates are available
+                    bookedDates: [], 
                   }}
                 />
               ))}
@@ -102,7 +102,7 @@ const ResourceGrid: React.FC = () => {
                     img: utility.resourcePictureFileName,
                     description: utility.description,
                     status: utility.status,
-                    bookedDates: [],  // Replace if booked dates are available
+                    bookedDates: [], 
                   }}
                 />
               ))}
