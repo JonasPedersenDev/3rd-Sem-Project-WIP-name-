@@ -2,6 +2,7 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,9 @@ public abstract class ResourceController<T extends Resource> {
   }
 
   @GetMapping(value = "/{id}/booked-dates", produces = "application/json")
-  public ResponseEntity<List<LocalDate>> getReservedDates(@PathVariable Long id) {
+  public ResponseEntity<Map<LocalDate, Integer>> getReservedDates(@PathVariable Long id) {
     Resource resource = resourceService.getResourceById(id).orElse(null);
-    List<LocalDate> reservedDates = bookingService.getBookedDates(resource);
+    Map<LocalDate, Integer> reservedDates = bookingService.getBookedDatesWithCapacity(resource);
     return ResponseEntity.ok(reservedDates);
   }
 

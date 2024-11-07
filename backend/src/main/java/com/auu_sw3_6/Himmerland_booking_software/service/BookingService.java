@@ -3,7 +3,8 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class BookingService {
   // Method to book a resource for a user
   public Booking bookResource(User user, BookingDetails details) {
     ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(details.getResourceType());
-    
+
     long resourceID = details.getResourceID();
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
@@ -60,11 +61,9 @@ public class BookingService {
     Resource resource = resourceService.getResourceById(resourceID)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
 
-
     if (isBookingPeriodInvalid(startDate, endDate)) {
       throw new IllegalArgumentException("Booking period cannot exceed " + MAX_BOOKING_DAYS + " days.");
     }
-
 
     if (isResourceAvailable(resource, startDate, endDate)) {
       Booking booking = new Booking(resource, user, startDate, endDate, startTime, endTime,
@@ -82,16 +81,36 @@ public class BookingService {
   public boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
 
-    // Someone really should impliment logic to check if the resource is available
-    return bookings.stream()
-        .noneMatch(b -> b.getStartDate().isBefore(endDate) && b.getEndDate().isAfter(startDate));
+    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+      LocalDate finalDate = date;
+
+      long overlappingBookingsCount = bookings.stream()
+          .filter(b -> b.getStartDate().isBefore(finalDate.plusDays(1)) && b.getEndDate().isAfter(finalDate))
+          .count();
+
+      if (overlappingBookingsCount >= resource.getCapacity()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  public List<LocalDate> getBookedDates(Resource resource) {
+  public Map<LocalDate, Integer> getBookedDatesWithCapacity(Resource resource) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
-    return bookings.stream()
-        .flatMap(b -> b.getStartDate().datesUntil(b.getEndDate()))
-        .collect(Collectors.toList());
+
+    Map<LocalDate, Integer> bookedDatesWithCapacity = new HashMap<>();
+
+    for (Booking booking : bookings) {
+      LocalDate start = booking.getStartDate();
+      LocalDate end = booking.getEndDate();
+
+      for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+        bookedDatesWithCapacity.put(date, bookedDatesWithCapacity.getOrDefault(date, 0) + 1);
+      }
+    }
+
+    return bookedDatesWithCapacity;
   }
 
 }
