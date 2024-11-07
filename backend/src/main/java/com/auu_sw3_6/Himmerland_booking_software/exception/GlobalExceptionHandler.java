@@ -47,6 +47,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        log.error(ex.getMessage()); 
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),
+                ex.getStatus());
+        return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         log.error("Validation error occurred: " + ex.getMessage());

@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
 @Service
 public class BookingService {
@@ -20,10 +22,13 @@ public class BookingService {
   @Autowired
   private final BookingRepository bookingRepository;
 
+  private final ResourceServiceFactory resourceServiceFactory;
+
   private static final int MAX_BOOKING_DAYS = 5;
 
-  public BookingService(BookingRepository bookingRepository) {
+  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory) {
     this.bookingRepository = bookingRepository;
+    this.resourceServiceFactory = resourceServiceFactory;
   }
 
   public Booking createBooking(Booking booking) {
@@ -43,42 +48,50 @@ public class BookingService {
   }
 
   // Method to book a resource for a user
-  public Booking bookResource(Resource resource, User user, LocalDate startDate, LocalDate endDate) {
+  public Booking bookResource(User user, BookingDetails details) {
+    ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(details.getResourceType());
+    
+    long resourceID = details.getResourceID();
+    LocalDate startDate = details.getStartDate();
+    LocalDate endDate = details.getEndDate();
+    LocalTime startTime = details.getStartTime();
+    LocalTime endTime = details.getEndTime();
+
+    Resource resource = resourceService.getResourceById(resourceID)
+        .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+
+
     if (isBookingPeriodInvalid(startDate, endDate)) {
       throw new IllegalArgumentException("Booking period cannot exceed " + MAX_BOOKING_DAYS + " days.");
     }
 
+
     if (isResourceAvailable(resource, startDate, endDate)) {
-      Booking booking = new Booking(resource, user, startDate, endDate, LocalTime.of(9, 0), LocalTime.of(17, 0),
-          BookingStatus.PENDING);
+      Booking booking = new Booking(resource, user, startDate, endDate, startTime, endTime,
+          BookingStatus.CONFIRMED);
       return bookingRepository.save(booking);
     } else {
       throw new IllegalArgumentException("Resource is not available for the selected dates.");
     }
   }
 
-  // Check if booking period is valid (max 5 days)
   private boolean isBookingPeriodInvalid(LocalDate startDate, LocalDate endDate) {
     return !startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate);
   }
 
-  // Check resource availability within date range
   public boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
+
+    // Someone really should impliment logic to check if the resource is available
     return bookings.stream()
         .noneMatch(b -> b.getStartDate().isBefore(endDate) && b.getEndDate().isAfter(startDate));
   }
 
-  // Method to get all booked dates for a specific resource
   public List<LocalDate> getBookedDates(Resource resource) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
     return bookings.stream()
         .flatMap(b -> b.getStartDate().datesUntil(b.getEndDate()))
         .collect(Collectors.toList());
-  }
-
-  public List<LocalDate> getReservedDates(long resourceId) {
-    return null;
   }
 
 }

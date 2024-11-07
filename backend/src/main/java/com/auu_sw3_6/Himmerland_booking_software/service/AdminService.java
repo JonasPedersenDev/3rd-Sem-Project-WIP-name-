@@ -11,12 +11,13 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 @Service
 public class AdminService extends UserService<Admin> {
 
-    @Autowired
-    public AdminService(AdminRepository adminRepository, PictureService profilePictureService, PasswordEncoder passwordEncoder) {
-        super(adminRepository, profilePictureService, passwordEncoder);
-    }
+  @Autowired
+  public AdminService(AdminRepository adminRepository, PictureService profilePictureService,
+      PasswordEncoder passwordEncoder, BookingService bookingService) {
+    super(adminRepository, profilePictureService, passwordEncoder, bookingService);
+  }
 
-    public Admin createAdmin(Admin admin, MultipartFile profilePicture) {
-        return createUser(admin, profilePicture);
-    }
+  public Admin createAdmin(Admin admin, MultipartFile profilePicture) {
+    return createUser(admin, profilePicture);
+  }
 }

@@ -11,12 +11,11 @@ import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 
 public class BookingController {
 
-    private final BookingService BookingService;
+  private final BookingService bookingService;
 
-    @Autowired
-    public BookingController(BookingService BookingService) {
-        this.BookingService = BookingService;
-    }
-
+  @Autowired
+  public BookingController(BookingService bookingService) {
+    this.bookingService = bookingService;
+  }
 
 }

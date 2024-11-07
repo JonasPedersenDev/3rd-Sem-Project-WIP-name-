@@ -21,30 +21,32 @@ import com.auu_sw3_6.Himmerland_booking_software.service.GuestHouseService;
 @RequestMapping("api/guestHouse")
 public class GuestHouseController extends ResourceController<GuestHouse> {
 
-    private final GuestHouseService guestHouseService;
-    private final BookingService bookingService;
-    
-    @Autowired
-    public GuestHouseController(GuestHouseService guestHouseService, BookingService bookingService) {
-        super(guestHouseService, bookingService);
-        this.guestHouseService = guestHouseService;
-        this.bookingService = bookingService;
-    }
+  private final GuestHouseService guestHouseService;
+  private final BookingService bookingService;
 
-    @GetMapping(value = "/all", produces = "application/json")
-    public ResponseEntity <List<GuestHouse>> getAllGuestHouses() {
-        return ResponseEntity.ok(guestHouseService.getAllResources());
-    }
+  @Autowired
+  public GuestHouseController(GuestHouseService guestHouseService, BookingService bookingService) {
+    super(guestHouseService, bookingService);
+    this.guestHouseService = guestHouseService;
+    this.bookingService = bookingService;
+  }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteGuestHouse(@PathVariable Long id) {
-        guestHouseService.deleteGuestHouse(id);
-        return ResponseEntity.noContent().build();
-    }
+  @GetMapping(value = "/all", produces = "application/json")
+  public ResponseEntity<List<GuestHouse>> getAllGuestHouses() {
+    return ResponseEntity.ok(guestHouseService.getAllResources());
+  }
 
-    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    public ResponseEntity<GuestHouse> createGuestHouse(@RequestPart("guestHouse") GuestHouse guestHouse, @RequestPart("resourcePictures") MultipartFile resourcePictures) {
-        GuestHouse createdGuestHouse = guestHouseService.createGuestHouse(guestHouse, resourcePictures);
-        return ResponseEntity.ok(createdGuestHouse);
-    }
+  @DeleteMapping(value = "/{id}")
+  public ResponseEntity<Void> deleteGuestHouse(@PathVariable Long id) {
+    guestHouseService.deleteGuestHouse(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping(value = "/create", consumes = { "multipart/form-data" })
+  public ResponseEntity<GuestHouse> createGuestHouse(@RequestPart("guestHouse") GuestHouse guestHouse,
+      @RequestPart("resourcePictures") MultipartFile resourcePictures) {
+    GuestHouse createdGuestHouse = guestHouseService.createGuestHouse(guestHouse, resourcePictures);
+    return ResponseEntity.ok(createdGuestHouse);
+  }
+
 }

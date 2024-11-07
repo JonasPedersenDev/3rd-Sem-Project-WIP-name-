@@ -37,6 +37,7 @@ public class AuthController {
   @PostMapping(value = "/api/login", produces = "application/json")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
     try {
+
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -61,13 +62,14 @@ public class AuthController {
           .sameSite("none") // only for development, maybe
           .build();
 
-          response.addHeader("Set-Cookie", jwtCookie.toString());
-          response.addHeader("Set-Cookie", authIndicatorCookie.toString());
-    
+      response.addHeader("Set-Cookie", jwtCookie.toString());
+      response.addHeader("Set-Cookie", authIndicatorCookie.toString());
+
       return ResponseEntity.ok(Map.of("message", "Login successful"));
 
     } catch (AuthenticationException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials"));
     }
   }
+
 }

@@ -3,8 +3,6 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.Authentication;
@@ -12,25 +10,27 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.security.CustomUserDetails;
 
 public abstract class UserService<T extends User> {
 
-  private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
   private final JpaRepository<T, Long> repository;
   private final PictureService profilePictureService;
   private final PasswordEncoder passwordEncoder;
+  private final BookingService bookingService;
 
   @Autowired
-  public UserService(JpaRepository<T, Long> repository, PictureService profilePictureService,
-      PasswordEncoder passwordEncoder) {
+public UserService(JpaRepository<T, Long> repository, PictureService profilePictureService,
+                   PasswordEncoder passwordEncoder, BookingService bookingService) {
     this.repository = repository;
     this.profilePictureService = profilePictureService;
     this.passwordEncoder = passwordEncoder;
-  }
+    this.bookingService = bookingService;
+}
 
   public T createUser(T user, MultipartFile profilePicture) {
 
@@ -89,6 +89,11 @@ public abstract class UserService<T extends User> {
     }
 
     return user;
+  }
+
+  public Booking createBooking(BookingDetails details) {
+    User user = getAuthenticatedUser();
+    return bookingService.bookResource(user, details);
   }
 
 }

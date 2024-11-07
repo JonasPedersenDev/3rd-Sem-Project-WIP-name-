@@ -36,7 +36,7 @@ public class UtilityController extends ResourceController<Utility> {
         return ResponseEntity.ok(utilityService.getAllResources());
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = "/{id}/delete")
     public ResponseEntity<Void> deleteUtility(@PathVariable Long id) {
         utilityService.deleteUtility(id);
         return ResponseEntity.noContent().build();
