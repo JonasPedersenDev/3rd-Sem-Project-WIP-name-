@@ -24,6 +24,9 @@ public class ToolServiceTest {
     private ToolRepository toolRepository;
 
     @Mock
+    private PictureService pictureService;  // Mock the PictureService
+
+    @Mock
     private MultipartFile resourcePictures;
 
     @InjectMocks
@@ -42,6 +45,7 @@ public class ToolServiceTest {
     public void testCreateTool_shouldSaveToolAndReturnToolObject() {
         // Arrange
         when(toolRepository.save(any(Tool.class))).thenReturn(tool);
+        when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class))).thenReturn("savedPicture.jpg");  // Mock savePicture
 
         // Act
         Tool createdTool = toolService.createTool(tool, resourcePictures);
@@ -50,12 +54,14 @@ public class ToolServiceTest {
         assertNotNull(createdTool);
         assertEquals("Test Tool", createdTool.getName());
         verify(toolRepository).save(tool);
+        verify(pictureService).savePicture(any(MultipartFile.class), any(Boolean.class));  // Verify that savePicture was called
     }
 
     @Test
     public void testCreateTool_shouldThrowExceptionWhenRepositoryFails() {
         // Arrange
         when(toolRepository.save(any(Tool.class))).thenThrow(new RuntimeException("Database error"));
+        when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class))).thenReturn("savedPicture.jpg");
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -63,6 +69,7 @@ public class ToolServiceTest {
         });
         assertEquals("Database error", exception.getMessage());
     }
+
 
 /*     @Test <-- Not implimented in the original code
     public void testCreateTool_shouldThrowExceptionForUnsupportedFileType() {
@@ -75,4 +82,5 @@ public class ToolServiceTest {
         });
         assertEquals("Unsupported file type", exception.getMessage());
     }
- */}
+ */
+}

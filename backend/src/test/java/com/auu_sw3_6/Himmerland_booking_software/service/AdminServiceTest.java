@@ -25,7 +25,7 @@ public class AdminServiceTest {
   private AdminRepository adminRepository;
 
   @Mock
-  private PictureService profilePictureService;
+  private PictureService pictureService;
 
   @Mock
   private PasswordEncoder passwordEncoder;
@@ -38,6 +38,8 @@ public class AdminServiceTest {
 
   private Admin admin;
 
+  private final boolean isProfilePicture = true;
+
   @BeforeEach
   public void setUp() {
     admin = new Admin();
@@ -49,7 +51,7 @@ public class AdminServiceTest {
   @Test
   public void testCreateAdmin_SavesAdminWithEncryptedPasswordAndProfilePicture() throws Exception {
     // Arrange
-    when(profilePictureService.saveProfilePicture(profileImage)).thenReturn("profilbillede.jpg");
+    when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profilbillede.jpg");
     when(passwordEncoder.encode("Kodeord123")).thenReturn("krypteretKodeord123");
     when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
@@ -66,7 +68,7 @@ public class AdminServiceTest {
   @Test
   public void testCreateAdmin_ThrowsExceptionForInvalidProfilePicture() {
     // Arrange
-    when(profilePictureService.saveProfilePicture(profileImage))
+    when(pictureService.savePicture(profileImage, isProfilePicture))
         .thenThrow(new IllegalArgumentException("Ikke-understøttet filtype"));
 
     // Act & Assert

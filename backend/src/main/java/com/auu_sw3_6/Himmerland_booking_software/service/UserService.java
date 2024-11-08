@@ -19,23 +19,22 @@ import com.auu_sw3_6.Himmerland_booking_software.security.CustomUserDetails;
 public abstract class UserService<T extends User> {
 
   private final JpaRepository<T, Long> repository;
-  private final PictureService profilePictureService;
+  private final PictureService pictureService;
   private final PasswordEncoder passwordEncoder;
   private final BookingService bookingService;
 
   @Autowired
-public UserService(JpaRepository<T, Long> repository, PictureService profilePictureService,
-                   PasswordEncoder passwordEncoder, BookingService bookingService) {
+  public UserService(JpaRepository<T, Long> repository, PictureService pictureService,
+      PasswordEncoder passwordEncoder, BookingService bookingService) {
     this.repository = repository;
-    this.profilePictureService = profilePictureService;
+    this.pictureService = pictureService;
     this.passwordEncoder = passwordEncoder;
     this.bookingService = bookingService;
-}
+  }
 
   public T createUser(T user, MultipartFile profilePicture) {
-
     if (profilePicture != null && !profilePicture.isEmpty()) {
-      String uniqueFileName = profilePictureService.saveProfilePicture(profilePicture);
+      String uniqueFileName = pictureService.savePicture(profilePicture, true);
       user.setProfilePictureFileName(uniqueFileName);
     }
     user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -52,7 +51,7 @@ public UserService(JpaRepository<T, Long> repository, PictureService profilePict
 
   public Optional<byte[]> getProfilePictureByUserId(long userId) {
     Optional<T> userOptional = repository.findById(userId);
-    return userOptional.flatMap(user -> profilePictureService.readProfilePicture(user.getProfilePictureFileName()));
+    return userOptional.flatMap(user -> pictureService.readPicture(user.getProfilePictureFileName(), true));
   }
 
   public T updateUser(T updatedUser) {

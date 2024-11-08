@@ -86,7 +86,7 @@ public class TenantServiceTest {
   @Test
   public void testCreateTenant_SavesProfilePicture() throws Exception {
     // Arrange
-    when(profilePictureService.saveProfilePicture(profilePicture)).thenReturn("profilbillede.jpg");
+    when(profilePictureService.savePicture(profilePicture, true)).thenReturn("profilbillede.jpg");
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
@@ -117,7 +117,7 @@ public class TenantServiceTest {
   public void testCreateTenant_ThrowsExceptionForInvalidProfilePicture() {
     // Arrange 
     doThrow(new IllegalArgumentException("Ikke-understøttet filtype")).when(profilePictureService)
-        .saveProfilePicture(profilePicture);
+        .savePicture(profilePicture, true);
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
     // Act & Assert - Bekræft at IllegalArgumentException bliver kastet

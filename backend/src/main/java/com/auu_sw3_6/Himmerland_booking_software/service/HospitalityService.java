@@ -11,8 +11,8 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.HospitalityRepos
 public class HospitalityService extends ResourceService<Hospitality> {
 
   @Autowired
-  public HospitalityService(HospitalityRepository ResourceRepository) {
-    super(ResourceRepository);
+  public HospitalityService(HospitalityRepository ResourceRepository, PictureService pictureService) {
+    super(ResourceRepository, pictureService);
   }
 
   public Hospitality createHospitality(Hospitality hospitality, MultipartFile resourcePictures) {

@@ -23,6 +23,10 @@ public class HospitalityServiceTest {
     private HospitalityRepository HospitalityRepository;
 
     @Mock
+    private PictureService pictureService;
+
+
+    @Mock
     private MultipartFile resourcePictures;
 
     @InjectMocks
@@ -41,7 +45,8 @@ public class HospitalityServiceTest {
     public void testCreateHospitality_WithValidName_ShouldCreateHospitality() {
         // Arrange
         when(HospitalityRepository.save(any(Hospitality.class))).thenReturn(hospitality);
-
+        when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class))).thenReturn("someFileName.jpg");
+        
         // Act
         Hospitality createdHospitality = HospitalityService.createHospitality(hospitality, resourcePictures);
 
