@@ -1,5 +1,12 @@
 import axios, { AxiosResponse } from "axios";
 
+enum ResourceType {
+    TOOL = 'TOOL',
+    UTILITY = 'UTILITY',
+    HOSPITALITY = 'HOSPITALITY'
+}
+
+
 class ApiService {
     private baseUrl: string;
 
@@ -43,19 +50,41 @@ class ApiService {
         }
     }
 
-    public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
-      try {
-          return await axios.get<T>(this.baseUrl + endpoint, {
-              withCredentials: true
-          });
-      }
-      catch (error) {
-          throw error;
-      }
-  }
-  
+    public async fetchResources(resourceType: ResourceType): Promise<AxiosResponse<any>> {
+        try {
+            let endpoint = '';
+            switch (resourceType) {
+                case ResourceType.TOOL:
+                    endpoint = 'tool/get-all';
+                    break;
+                case ResourceType.UTILITY:
+                    endpoint = 'utility/get-all';
+                    break;
+                case ResourceType.HOSPITALITY:
+                    endpoint = 'hospitality/get-all';
+                    break;
+                default:
+                    throw new Error('Unknown resource type');
+            }
+            return await axios.get<any>(`${this.baseUrl}${endpoint}`, {
+                withCredentials: true
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 
+    public async fetchTools(): Promise<AxiosResponse<any>> {
+        return this.fetchResources(ResourceType.TOOL);
+    }
 
+    public async fetchUtilities(): Promise<AxiosResponse<any>> {
+        return this.fetchResources(ResourceType.UTILITY);
+    }
+
+    public async fetchHospitalities(): Promise<AxiosResponse<any>> {
+        return this.fetchResources(ResourceType.HOSPITALITY);
+    }
 }
 
 export default new ApiService();

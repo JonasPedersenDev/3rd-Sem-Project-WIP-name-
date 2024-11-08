@@ -2,6 +2,7 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -19,11 +20,13 @@ import io.swagger.v3.oas.annotations.Operation;
 public class HospitalityController extends ResourceController<Hospitality> {
 
   private final HospitalityService hospitalityService;
+  private final BookingService bookingService;
 
   @Autowired
   public HospitalityController(HospitalityService hospitalityService, BookingService bookingService) {
     super(hospitalityService, bookingService);
     this.hospitalityService = hospitalityService;
+    this.bookingService = bookingService;
   }
 
   @PostMapping(value = "/create", consumes = { "multipart/form-data" })
@@ -33,4 +36,11 @@ public class HospitalityController extends ResourceController<Hospitality> {
     Hospitality createdHospitality = hospitalityService.createHospitality(hospitality, resourcePictures);
     return ResponseEntity.ok(createdHospitality);
   }
+
+  @GetMapping("/test")
+  @Operation(summary = "Test endpoint", description = "This endpoint is used to test the controller.")
+  public ResponseEntity<String> testEndpoint() {
+    return ResponseEntity.ok("HospitalityController is working!");
+  }
+
 }

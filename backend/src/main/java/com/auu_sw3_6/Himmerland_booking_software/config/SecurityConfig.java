@@ -39,7 +39,7 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
-            .requestMatchers("/api/tool/**", "/api/guestHouse/**", "/api/utility/**").hasAnyRole("TENANT", "ADMIN")
+            .requestMatchers("/api/tool/**", "/api/utility/**", "api/hospitality/**").hasAnyRole("TENANT", "ADMIN")
             .anyRequest().authenticated()
         // Require JWT for all other requests: .authenticated()
         // Allow access for all other requests: .permitAll()
