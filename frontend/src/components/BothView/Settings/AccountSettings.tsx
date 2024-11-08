@@ -1,21 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Modal, Row, Col, Container, Image } from "react-bootstrap";
 import LogoutButton from "../../BothView/Logout/Logout";
+import ApiService from "../../../utils/ApiService";
+
+
+interface UserInfo {
+  username: string;
+  name: string;
+  houseAddress?: string;
+  email: string;
+  mobile_number?: string;
+  password: string;
+}
 
 const SettingsForm: React.FC = () => {
-  const [userInfo, setUserInfo] = useState({
+  const [userInfo, setUserInfo] = useState<UserInfo> ({
     username: "",
     name: "",
-    houseAddress: "",
     email: "",
-    phoneNumber: "",
     password: ""
   });
 
-  const [profilePicture, setProfilePicture] = useState<string | null>("https://placehold.co/150");
+  //const [profilePicture, setProfilePicture] = useState<string | null>("https://placehold.co/150");
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentView, setCurrentView] = useState("settings");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+  useEffect(() => {
+    // Fetch authenticated user information from the backend
+    const fetchUserInfo = async () => {
+      try {
+        const response = await ApiService.fetchData<UserInfo>("tenant");
+        console.log("User Information:", response.data);
+        setUserInfo(response.data);
+        // Assuming the profile picture URL is part of the user data
+      //   const profilePictureResponse = await ApiService.fetchData<ArrayBuffer>("user/profilePicture");
+      //   const base64Image = btoa(
+      //    new Uint8Array(profilePictureResponse.data).reduce(
+      //      (data, byte) => data + String.fromCharCode(byte),
+      //      ''
+      //    )
+      //  );
+      //  setProfilePicture(`data:image/jpeg;base64,${base64Image}`);
+      } catch (error) {
+        console.error("Error fetching user information:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -30,15 +64,38 @@ const SettingsForm: React.FC = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-      // Assuming you have a function to upload the image and get the URL
-      const uploadedImageUrl = await uploadImage(formData);
-      setProfilePicture(uploadedImageUrl);
-    }
+  // const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     const formData = new FormData();
+  //     formData.append("profilePicture", file);
+  //     try {
+  //       const response = await axios.post("/api/user/profilePicture", formData, {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data"
+  //         }
+  //       });
+  //       if (response.status === 200) {
+  //         const base64Image = await convertFileToBase64(file);
+  //         setProfilePicture(base64Image);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error uploading profile picture:", error);
+  //     }
+  //   }
+  // };
+
+  // const convertFileToBase64 = (file: File): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.readAsDataURL(file);
+  //     reader.onload = () => resolve(reader.result as string);
+  //     reader.onerror = error => reject(error);
+  //   });
+  // };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
   const renderContent = () => {
@@ -56,6 +113,7 @@ const SettingsForm: React.FC = () => {
                     value={userInfo.username}
                     onChange={handleInputChange}
                     disabled={!isEditing}
+                    placeholder={userInfo.username}
                   />
                 </Form.Group>
                 <Form.Group controlId="formName">
@@ -66,6 +124,7 @@ const SettingsForm: React.FC = () => {
                     value={userInfo.name}
                     onChange={handleInputChange}
                     disabled={!isEditing}
+                    placeholder={userInfo.name}
                   />
                 </Form.Group>
                 <Form.Group controlId="formHouseAddress">
@@ -76,6 +135,7 @@ const SettingsForm: React.FC = () => {
                     value={userInfo.houseAddress}
                     onChange={handleInputChange}
                     disabled={!isEditing}
+                    placeholder={userInfo.houseAddress}
                   />
                 </Form.Group>
                 <Form.Group controlId="formEmail">
@@ -86,6 +146,7 @@ const SettingsForm: React.FC = () => {
                     value={userInfo.email}
                     onChange={handleInputChange}
                     disabled={!isEditing}
+                    placeholder={userInfo.email}
                   />
                 </Form.Group>
                 <Form.Group controlId="formPhoneNumber">
@@ -93,20 +154,28 @@ const SettingsForm: React.FC = () => {
                   <Form.Control
                     type="text"
                     name="phoneNumber"
-                    value={userInfo.phoneNumber}
+                    value={userInfo.mobile_number}
                     onChange={handleInputChange}
                     disabled={!isEditing}
+                    placeholder={userInfo.mobile_number}
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">
                   <Form.Label>Adgangskode</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    value={userInfo.password}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Form.Control
+                      type={passwordVisible ? "text" : "password"}
+                      name="password"
+                      value={userInfo.password}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={{ marginRight: '10px' }}
+                      placeholder="Enter new password"
+                    />
+                    <Button variant="secondary" onClick={togglePasswordVisibility}>
+                      {passwordVisible ? "Hide" : "Show"}
+                    </Button>
+                  </div>
                 </Form.Group>
                 <Button variant="primary" onClick={handleEditToggle}>
                   {isEditing ? "Save Changes" : "Edit"}
@@ -114,12 +183,12 @@ const SettingsForm: React.FC = () => {
               </Form>
             </Col>
             <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Image src={profilePicture} roundedCircle style={{ width: '150px', height: '150px' }} />
+              {/* //<Image src={profilePicture || "https://placehold.co/150"} roundedCircle style={{ width: '150px', height: '150px' }} /> */}
               <Form.Group controlId="formProfilePicture" style={{ marginTop: '20px', display: isEditing ? 'block' : 'none' }}>
                 <Form.Label>Upload Profil billede</Form.Label>
                 <Form.Control
                   type="file"
-                  onChange={handleFileChange}
+                  // onChange={handleFileChange}
                   disabled={!isEditing}
                 />
               </Form.Group>
