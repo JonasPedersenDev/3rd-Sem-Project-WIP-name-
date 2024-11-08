@@ -1,90 +1,115 @@
 import axios, { AxiosResponse } from "axios";
-
-enum ResourceType {
-    TOOL = 'TOOL',
-    UTILITY = 'UTILITY',
-    HOSPITALITY = 'HOSPITALITY'
-}
-
+import { ResourceType } from "./ResourceTypes";
 
 class ApiService {
-    private baseUrl: string;
+  private baseUrl: string;
 
-    constructor() {
-        this.baseUrl = "http://localhost:8080/api/";
+  constructor() {
+    this.baseUrl = "http://localhost:8080/api/";
+  }
+
+  public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
+    try {
+      return await axios.get<T>(this.baseUrl + endpoint, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async signUp(details: {
+    user: object;
+    profilePicture?: File;
+  }): Promise<AxiosResponse<any>> {
+    const formData = new FormData();
+
+    formData.append("user", JSON.stringify(details.user));
+
+    if (details.profilePicture) {
+      formData.append("profilePicture", details.profilePicture);
     }
 
-    public async signUp(details: { user: object, profilePicture?: File }): Promise<AxiosResponse<any>> {
-        const formData = new FormData();
-        
-        formData.append('user', JSON.stringify(details.user));
-
-        if (details.profilePicture) {
-            formData.append('profilePicture', details.profilePicture);
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}tenant/register`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-
-        try {
-            const response = await axios.post(`${this.baseUrl}tenant/register`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            return response;
-        }
-        catch (error) {
-            console.error("Error signing up", error);
-            throw error;
-        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Error signing up", error);
+      throw error;
     }
+  }
 
-    public async login(credentials: { username: string, password: string }): Promise<AxiosResponse<any>> {
-        try {
-            const response = await axios.post(`${this.baseUrl}login`, credentials, {
-                withCredentials: true,
-            });
-            return response;
-
-        }
-        catch (error) {
-            throw error;
-        }
+  public async login(credentials: {
+    username: string;
+    password: string;
+  }): Promise<AxiosResponse<any>> {
+    try {
+      const response = await axios.post(`${this.baseUrl}login`, credentials, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      throw error;
     }
+  }
 
-    public async fetchResources(resourceType: ResourceType): Promise<AxiosResponse<any>> {
-        try {
-            let endpoint = '';
-            switch (resourceType) {
-                case ResourceType.TOOL:
-                    endpoint = 'tool/get-all';
-                    break;
-                case ResourceType.UTILITY:
-                    endpoint = 'utility/get-all';
-                    break;
-                case ResourceType.HOSPITALITY:
-                    endpoint = 'hospitality/get-all';
-                    break;
-                default:
-                    throw new Error('Unknown resource type');
-            }
-            return await axios.get<any>(`${this.baseUrl}${endpoint}`, {
-                withCredentials: true
-            });
-        } catch (error) {
-            throw error;
-        }
+  public async fetchResources(
+    resourceType: ResourceType
+  ): Promise<AxiosResponse<any>> {
+    try {
+      let endpoint = "/get-all";
+      return await this.fetchByResourceType(resourceType, endpoint);
+    } catch (error) {
+      throw error;
     }
+  }
 
-    public async fetchTools(): Promise<AxiosResponse<any>> {
-        return this.fetchResources(ResourceType.TOOL);
+  private async fetchByResourceType(
+    resourceType: ResourceType,
+    endPoint: string
+  ): Promise<AxiosResponse<any>> {
+    try {
+      let resourceTypePath = "";
+      switch (resourceType) {
+        case ResourceType.TOOL:
+          resourceTypePath = "tool";
+          break;
+        case ResourceType.UTILITY:
+          resourceTypePath = "utility";
+          break;
+        case ResourceType.HOSPITALITY:
+          resourceTypePath = "hospitality";
+          break;
+        default:
+          console.error("Unknown resource type:", resourceType);
+          throw new Error("Unknown resource type");
+      }
+      console.log(resourceTypePath + endPoint);
+      return await this.fetchData(resourceTypePath + endPoint);
+    } catch (error) {
+      throw error;
     }
+  }
 
-    public async fetchUtilities(): Promise<AxiosResponse<any>> {
-        return this.fetchResources(ResourceType.UTILITY);
+  public async fetchBookings(
+    resourceType: ResourceType,
+    id: number
+  ): Promise<AxiosResponse<any>> {
+    try {
+      let endpoint = `/${id}/booked-dates`;
+      return await this.fetchByResourceType(resourceType, endpoint);
+    } catch (error) {
+      throw error;
     }
-
-    public async fetchHospitalities(): Promise<AxiosResponse<any>> {
-        return this.fetchResources(ResourceType.HOSPITALITY);
-    }
+  }
 }
 
 export default new ApiService();

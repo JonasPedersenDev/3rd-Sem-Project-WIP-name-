@@ -1,23 +1,10 @@
-import React, { useState } from "react";
-import { Modal, Button, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
 import BookingModalCalendar from "./BookingModalCalendar";
-
-interface Resource {
-  name: string;
-  img: string;
-  description: string;
-  status: string;
-  bookedDates: Date[];
-}
-
-interface Booking {
-  id: string;
-  resourceName: string;
-  bookStartTime: Date | null;
-  bookEndTime: Date | null;
-  pickup: string;
-  dropoff: string;
-}
+import ApiService from "../../../utils/ApiService";
+import Resource from "../../modelInterfaces/Resource";
+import Booking from "../../modelInterfaces/Booking";
+import BookingDate from "../../modelInterfaces/BookingDate";
 
 interface CreateBookingModalProps {
   resource: Resource;
@@ -26,9 +13,13 @@ interface CreateBookingModalProps {
   onClose: () => void;
 }
 
-const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show, onBookingAdded, onClose }) => {
-  let bookingList: Booking[] = [];
-
+const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
+  resource,
+  show,
+  onBookingAdded,
+  onClose,
+}) => {
+  const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
   const [bookingFormData, setBookingData] = useState<Booking>({
     id: (Math.floor(Math.random() * 10000) + 1).toString(),
     resourceName: resource.name,
@@ -37,6 +28,26 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
     pickup: "7:00-7:30",
     dropoff: "7:00-7:30",
   });
+
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      try {
+        const response = await ApiService.fetchBookings(
+          resource.type,
+          resource.id
+        );
+        
+        console.log("Booked dates response:", response);
+
+        setBookedDates(response.data);
+
+      } catch (error) {
+        console.error("Failed to fetch booked dates:", error);
+      }
+    };
+
+    fetchBookedDates();
+  }, [resource.type, resource.id]);
 
   const handleDateChange = (start: Date | null, end: Date | null) => {
     setBookingData({
@@ -48,9 +59,9 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
 
   const handleSubmit = () => {
     const bookingListString = window.sessionStorage.getItem("bookingList");
-    if (bookingListString) {
-      bookingList = JSON.parse(bookingListString);
-    }
+    let bookingList: Booking[] = bookingListString
+      ? JSON.parse(bookingListString)
+      : [];
     bookingList.push(bookingFormData);
     window.sessionStorage.setItem("bookingList", JSON.stringify(bookingList));
     onBookingAdded();
@@ -65,17 +76,22 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
         <Form onSubmit={handleSubmit}>
           <div className="d-flex justify-content-center mt-3">
             <BookingModalCalendar
-              bookedDates={resource.bookedDates}
+              bookedDates={bookedDates}
               onDateChange={handleDateChange}
+              resourceCapacity={resource.capacity}
             />
           </div>
-          
+
           <Form.Group controlId="bookstart">
             <Form.Label>Reservation Start:</Form.Label>
             <Form.Control
               type="text"
               readOnly
-              value={bookingFormData.bookStartTime ? bookingFormData.bookStartTime.toDateString() : ""}
+              value={
+                bookingFormData.bookStartTime
+                  ? bookingFormData.bookStartTime.toDateString()
+                  : ""
+              }
               placeholder="Vælg en afhentingsdato"
             />
           </Form.Group>
@@ -85,18 +101,25 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
             <Form.Control
               type="text"
               readOnly
-              value={bookingFormData.bookEndTime ? bookingFormData.bookEndTime.toDateString() : ""}
+              value={
+                bookingFormData.bookEndTime
+                  ? bookingFormData.bookEndTime.toDateString()
+                  : ""
+              }
               placeholder="Vælg en afleveringsdato"
             />
           </Form.Group>
 
           <Form.Group controlId="pickup">
-            <Form.Label>Afhenting:</Form.Label>
+            <Form.Label id="pickup-label">Afhenting:</Form.Label>
             <Form.Control
               as="select"
               name="pickup"
+              aria-labelledby="pickup-label"
               value={bookingFormData.pickup}
-              onChange={(e) => setBookingData({ ...bookingFormData, pickup: e.target.value })}
+              onChange={(e) =>
+                setBookingData({ ...bookingFormData, pickup: e.target.value })
+              }
             >
               <option value="7:00-7:30">7:00 - 7:30</option>
               <option value="11:00-12:00">11:00 - 12:00</option>
@@ -104,12 +127,15 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
           </Form.Group>
 
           <Form.Group controlId="dropoff">
-            <Form.Label>Aflevering:</Form.Label>
+            <Form.Label id="dropoff-label">Aflevering:</Form.Label>
             <Form.Control
               as="select"
               name="dropoff"
+              aria-labelledby="dropoff-label"
               value={bookingFormData.dropoff}
-              onChange={(e) => setBookingData({ ...bookingFormData, dropoff: e.target.value })}
+              onChange={(e) =>
+                setBookingData({ ...bookingFormData, dropoff: e.target.value })
+              }
             >
               <option value="7:00-7:30">7:00 - 7:30</option>
               <option value="11:00-12:00">11:00 - 12:00</option>

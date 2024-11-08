@@ -1,8 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDate;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
@@ -61,11 +60,11 @@ public abstract class ResourceController<T extends Resource> {
     return ResponseEntity.status(HttpStatus.CREATED).body(resource);
   }
 
-  @Operation(summary = "Get booked dates for a resource", description = "Retrieve all dates when a specific resource is booked")
+  @Operation(summary = "Get confirmed booked dates for a resource", description = "Retrieve an array of dates, along with the amount booked on that date when a specific resource is booked")
   @GetMapping(value = "/{id}/booked-dates", produces = "application/json")
-  public ResponseEntity<Map<LocalDate, Integer>> getReservedDates(@PathVariable Long id) {
+  public ResponseEntity<List<BookingDate>> getReservedDates(@PathVariable Long id) {
     Resource resource = resourceService.getResourceById(id).orElse(null);
-    Map<LocalDate, Integer> reservedDates = bookingService.getBookedDatesWithCapacity(resource);
+    List<BookingDate> reservedDates = bookingService.getBookedDatesWithAmount(resource);
     return ResponseEntity.ok(reservedDates);
   }
 

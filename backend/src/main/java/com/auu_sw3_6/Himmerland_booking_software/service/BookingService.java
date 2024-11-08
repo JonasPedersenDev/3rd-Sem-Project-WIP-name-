@@ -2,14 +2,16 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDate;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
@@ -96,18 +98,24 @@ public class BookingService {
     return true;
   }
 
-  public Map<LocalDate, Integer> getBookedDatesWithCapacity(Resource resource) {
+  public List<BookingDate> getBookedDatesWithAmount(Resource resource) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
 
-    Map<LocalDate, Integer> bookedDatesWithCapacity = new HashMap<>();
+    List<BookingDate> bookedDatesWithCapacity = new ArrayList<>();
+
+    Map<LocalDate, Long> dateToCapacityMap = new HashMap<>();
 
     for (Booking booking : bookings) {
       LocalDate start = booking.getStartDate();
       LocalDate end = booking.getEndDate();
 
       for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-        bookedDatesWithCapacity.put(date, bookedDatesWithCapacity.getOrDefault(date, 0) + 1);
+        dateToCapacityMap.put(date, dateToCapacityMap.getOrDefault(date, 0L) + 1);
       }
+    }
+
+    for (Map.Entry<LocalDate, Long> entry : dateToCapacityMap.entrySet()) {
+      bookedDatesWithCapacity.add(new BookingDate(entry.getKey(), entry.getValue()));
     }
 
     return bookedDatesWithCapacity;

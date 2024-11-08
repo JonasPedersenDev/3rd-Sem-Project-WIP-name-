@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+import React, { useState } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import BookingDate from "../../modelInterfaces/BookingDate";
 
 interface BookingModalCalendarProps {
-  bookedDates: Date[];
+  bookedDates: BookingDate[];
   onDateChange: (start: Date | null, end: Date | null) => void;
+  resourceCapacity: number;
 }
 
-const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({ bookedDates, onDateChange }) => {
+const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
+  bookedDates,
+  onDateChange,
+  resourceCapacity,
+}) => {
   const [selectedStart, setSelectedStart] = useState<Date | null>(null);
   const [selectedEnd, setSelectedEnd] = useState<Date | null>(null);
 
-  const isBooked = (date: Date) => 
-    bookedDates.some((bookedDate) => bookedDate.toDateString() === date.toDateString());
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const isWeekend = (date: Date) => date.getDay() === 0 || date.getDay() === 6;
+  const isBooked = (date: Date) => {
+    const booked = bookedDates.find(
+      (booked) => new Date(booked.date).toDateString() === date.toDateString()
+    );
+    return booked ? booked.amount >= resourceCapacity : false;
+  };
+
+  const isWeekend = (date: Date) => {
+    return date.getDay() === 0 || date.getDay() === 6;
+  };
+
+  const isBeforeToday = (date: Date) => {
+    return date < today;
+  };
 
   const isInRange = (date: Date) => {
-    // Check if date is between selectedStart and selectedEnd
     return (
       selectedStart &&
       selectedEnd &&
@@ -51,17 +69,21 @@ const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({ bookedDates
       <Calendar
         tileClassName={({ date }) => {
           if (isWeekend(date)) {
-            return 'weekend-tile';
-          } 
+            return "weekend-tile";
+          }
+          if (isBeforeToday(date)) {
+            return 'unavailable-tile';
+          }
           if (isBooked(date)) {
-            return 'booked-tile';
+            return "booked-tile";
           }
           if (isInRange(date)) {
-            return 'range-tile'; // Apply blue color for dates in the range
+            return "range-tile"; // Apply blue color for dates in the range
           }
-          return 'free-tile';
+          return "free-tile";
         }}
         onClickDay={handleDateClick} // Handle date clicks to set start and end dates
+        tileDisabled={({ date }) => isBeforeToday(date)}
       />
       <div className="calendar-legend">
         <div className="legend-item">

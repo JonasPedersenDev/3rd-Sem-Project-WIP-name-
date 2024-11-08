@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from "react";
 import ResourceCard from "./ResourceCard";
 import ApiService from "../../../utils/ApiService";
+import { ResourceType } from "../../../utils/ResourceTypes"; 
+import Resource from "../../modelInterfaces/Resource";
 
-interface ResourceProps {
-  id: number;
-  type: string;
-  name: string;
-  img: string;
-  description: string;
-  status: string;
-  bookedDates: Date[];
-}
 
 const ResourceGrid: React.FC = () => {
-  const [tools, setTools] = useState<ResourceProps[]>([]);
-  const [guestHouses, setGuestHouses] = useState<ResourceProps[]>([]);
-  const [otherResources, setOtherResources] = useState<ResourceProps[]>([]);
+  const [tools, setTools] = useState<Resource[]>([]);
+  const [guestHouses, setGuestHouses] = useState<Resource[]>([]);
+  const [otherResources, setOtherResources] = useState<Resource[]>([]);
 
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const toolsResponse = await ApiService.fetchTools();
+        const toolsResponse = await ApiService.fetchResources(ResourceType.TOOL);
         setTools(toolsResponse.data);
 
-        const utilitiesResponse = await ApiService.fetchUtilities();
+        const utilitiesResponse = await ApiService.fetchResources(ResourceType.UTILITY);
         setOtherResources(utilitiesResponse.data);
 
-        const hospitalitiesResponse = await ApiService.fetchHospitalities();
+        const hospitalitiesResponse = await ApiService.fetchResources(ResourceType.HOSPITALITY);
         setGuestHouses(hospitalitiesResponse.data);
       } catch (error) {
         console.error("Error fetching resources", error);
