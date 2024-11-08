@@ -25,7 +25,7 @@ public class AdminServiceTest {
   private AdminRepository adminRepository;
 
   @Mock
-  private PictureService profilePictureService;
+  private PictureService pictureService;
 
   @Mock
   private PasswordEncoder passwordEncoder;
@@ -38,19 +38,21 @@ public class AdminServiceTest {
 
   private Admin admin;
 
+  private final boolean isProfilePicture = true;
+
   @BeforeEach
   public void setUp() {
     admin = new Admin();
     admin.setId(1L);
-    admin.setUsername("adminBruger");
-    admin.setPassword("Kodeord123");
+    admin.setUsername("adminUser");
+    admin.setPassword("Password123");
   }
 
   @Test
   public void testCreateAdmin_SavesAdminWithEncryptedPasswordAndProfilePicture() throws Exception {
     // Arrange
-    when(profilePictureService.saveProfilePicture(profileImage)).thenReturn("profilbillede.jpg");
-    when(passwordEncoder.encode("Kodeord123")).thenReturn("krypteretKodeord123");
+    when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profileImage.jpg");
+    when(passwordEncoder.encode("Password123")).thenReturn("encryptedPassword123");
     when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
     // Act
@@ -59,20 +61,20 @@ public class AdminServiceTest {
     // Assert
     verify(adminRepository).save(admin);
     assertNotNull(createdAdmin);
-    assertEquals("krypteretKodeord123", createdAdmin.getPassword());
-    assertEquals("profilbillede.jpg", createdAdmin.getProfilePictureFileName());
+    assertEquals("encryptedPassword123", createdAdmin.getPassword());
+    assertEquals("profileImage.jpg", createdAdmin.getProfilePictureFileName());
   }
 
   @Test
   public void testCreateAdmin_ThrowsExceptionForInvalidProfilePicture() {
     // Arrange
-    when(profilePictureService.saveProfilePicture(profileImage))
-        .thenThrow(new IllegalArgumentException("Ikke-understøttet filtype"));
+    when(pictureService.savePicture(profileImage, isProfilePicture))
+        .thenThrow(new IllegalArgumentException("Unsupported file type"));
 
     // Act & Assert
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       adminService.createAdmin(admin, profileImage);
     });
-    assertEquals("Ikke-understøttet filtype", exception.getMessage());
+    assertEquals("Unsupported file type", exception.getMessage());
   }
 }

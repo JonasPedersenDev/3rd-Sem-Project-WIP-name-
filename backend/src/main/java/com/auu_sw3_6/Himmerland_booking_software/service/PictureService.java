@@ -14,25 +14,27 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class PictureService {
 
-  // @Value("${profile.picture.directory}") <- Lavede problemer med tests, så hardcoded
-  private String profilePictureDirectory = "src/main/resources/database/img/profilePictures/";
-
   // Hardcoded for now, should properly be changed to a more dynamic solution,
   // maybe
-  protected static final String DIRECTORY_PATH = Paths
+  protected static String PROFILE_PICTURE_DIRECTORY = Paths
       .get("src", "main", "resources", "database", "img", "profilePictures").toAbsolutePath().toString();
+
+  protected static String RESOURCE_PICTURE_DIRECTORY = Paths
+      .get("src", "main", "resources", "database", "img", "resourcePictures").toAbsolutePath().toString();
 
   public PictureService() {
   }
 
-  public String saveProfilePicture(MultipartFile profilePicture) {
+  public String savePicture(MultipartFile picture, boolean isProfilePicture) {
+    String directoryPath = isProfilePicture ? PROFILE_PICTURE_DIRECTORY : RESOURCE_PICTURE_DIRECTORY;
+
     try {
-      File directory = new File(DIRECTORY_PATH);
+      File directory = new File(directoryPath);
       if (!directory.exists()) {
         directory.mkdirs();
       }
 
-      String originalFileName = profilePicture.getOriginalFilename();
+      String originalFileName = picture.getOriginalFilename();
       String extension = "";
       if (originalFileName != null) {
         int index = originalFileName.lastIndexOf('.');
@@ -42,18 +44,19 @@ public class PictureService {
       }
 
       String uniqueFileName = UUID.randomUUID().toString() + extension;
-      Path imagePath = Paths.get(DIRECTORY_PATH, uniqueFileName);
-      profilePicture.transferTo(imagePath.toFile());
+      Path imagePath = Paths.get(directoryPath, uniqueFileName);
+      picture.transferTo(imagePath.toFile());
 
       return uniqueFileName;
     } catch (IOException e) {
-      throw new RuntimeException("Failed to save profile picture", e);
+      throw new RuntimeException("Failed to save picture", e);
     }
   }
 
-  public Optional<byte[]> readProfilePicture(String fileName) {
+  public Optional<byte[]> readPicture(String fileName, boolean isProfilePicture) {
+    String directoryPath = isProfilePicture ? PROFILE_PICTURE_DIRECTORY : RESOURCE_PICTURE_DIRECTORY;
     if (fileName != null) {
-      File file = new File(profilePictureDirectory, fileName);
+      File file = new File(directoryPath, fileName);
       if (!file.exists()) {
         return Optional.empty();
       }
@@ -61,18 +64,17 @@ public class PictureService {
         byte[] pictureBytes = Files.readAllBytes(file.toPath());
         return Optional.of(pictureBytes);
       } catch (IOException e) {
-        throw new RuntimeException("Failed to read profile picture", e);
+        throw new RuntimeException("Failed to read picture", e);
       }
     }
     return Optional.empty();
   }
-
+  
   public void setProfilePictureDirectory(String profilePictureDirectory) {
-    this.profilePictureDirectory = profilePictureDirectory;
+    PictureService.PROFILE_PICTURE_DIRECTORY = profilePictureDirectory;
   }
 
   public String getProfilePictureDirectory() {
-    return profilePictureDirectory;
+    return PROFILE_PICTURE_DIRECTORY;
   }
-
 }

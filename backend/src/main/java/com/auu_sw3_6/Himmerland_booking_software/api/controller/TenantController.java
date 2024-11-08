@@ -1,7 +1,5 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +21,6 @@ import jakarta.validation.Valid;
 @RequestMapping("api/tenant")
 public class TenantController extends UserController<Tenant> {
 
-  private static final Logger log = LoggerFactory.getLogger(TenantController.class);
-
   private final TenantService tenantService;
 
   @Autowired
@@ -45,6 +41,6 @@ public class TenantController extends UserController<Tenant> {
 
     Tenant createdUser = tenantService.createTenant(user, profilePicture);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-
   }
+
 }

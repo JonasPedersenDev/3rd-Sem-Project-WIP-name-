@@ -19,41 +19,41 @@ import com.auu_sw3_6.Himmerland_booking_software.security.JwtAuthorizationFilter
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthorizationFilter jwtAuthorizationFilter;
+  @Autowired
+  private JwtAuthorizationFilter jwtAuthorizationFilter;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+  @Autowired
+  private UserDetailsService userDetailsService;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/tenant/**").hasRole("TENANT")
-                .requestMatchers("/api/tool/**", "/api/resource/**").hasAnyRole("TENANT", "ADMIN")
-                .anyRequest().authenticated()
-                // Require JWT for all other requests: .authenticated()
-                // Allow access for all other requests: .permitAll()
-            )
-            .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(authz -> authz
+            .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .requestMatchers("/api/tenant/**").hasRole("TENANT")
+            .requestMatchers("/api/tool/**", "/api/utility/**", "api/hospitality/**").hasAnyRole("TENANT", "ADMIN")
+            .anyRequest().authenticated()
+        // Require JWT for all other requests: .authenticated()
+        // Allow access for all other requests: .permitAll()
+        )
+        .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build();
-    }
+  @Bean
+  public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+    AuthenticationManagerBuilder authenticationManagerBuilder = http
+        .getSharedObject(AuthenticationManagerBuilder.class);
+    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    return authenticationManagerBuilder.build();
+  }
 }

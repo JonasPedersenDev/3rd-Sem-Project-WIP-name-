@@ -11,8 +11,8 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.UtilityRepositor
 public class UtilityService extends ResourceService<Utility> {
 
   @Autowired
-  public UtilityService(UtilityRepository ResourceRepository) {
-    super(ResourceRepository);
+  public UtilityService(UtilityRepository ResourceRepository, PictureService pictureService) {
+    super(ResourceRepository, pictureService);
   }
 
   public Utility createUtility(Utility utility, MultipartFile resourcePictures) {
@@ -21,10 +21,6 @@ public class UtilityService extends ResourceService<Utility> {
     }
 
     return createResource(utility, resourcePictures);
-  }
-
-  public void deleteUtility(Long id) {
-    deleteResource(id);
   }
 
 }

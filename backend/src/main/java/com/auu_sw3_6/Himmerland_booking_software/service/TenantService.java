@@ -27,10 +27,13 @@ public class TenantService extends UserService<Tenant> {
 
   private Set<String> restrictedUsernamesSet;
 
-  @Autowired
-  public TenantService(TenantRepository tenantRepository, PictureService profilePictureService,
-      PasswordEncoder passwordEncoder, AdminService adminService) {
-    super(tenantRepository, profilePictureService, passwordEncoder);
+    @Autowired
+  public TenantService(TenantRepository tenantRepository, 
+                      PictureService profilePictureService,
+                      PasswordEncoder passwordEncoder,
+                      AdminService adminService,
+                      BookingService bookingService) {
+    super(tenantRepository, profilePictureService, passwordEncoder, bookingService);
     this.adminService = adminService;
   }
 

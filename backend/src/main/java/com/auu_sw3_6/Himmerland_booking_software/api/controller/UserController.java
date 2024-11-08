@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
@@ -21,7 +25,6 @@ import com.auu_sw3_6.Himmerland_booking_software.service.UserService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-@RestController
 @RequestMapping("api/user")
 public abstract class UserController<T extends User> {
 
@@ -84,6 +87,34 @@ public abstract class UserController<T extends User> {
           .body(imageBytesOptional.get());
     }
     return new ErrorResponse("Profile picture not found", HttpStatus.NOT_FOUND).send();
+  }
+
+  @PostMapping(value = "book-resource", produces = "application/json")
+  public ResponseEntity<?> createBooking(@RequestBody BookingDetails details) {
+    System.out.println("Creating booking");
+    logObjectAttributes(details);
+    Booking booking = userService.createBooking(details);
+    return ResponseEntity.ok(booking);
+  }
+
+  public static void logObjectAttributes(Object obj) {
+    if (obj == null) {
+      System.out.println("Object is null.");
+      return;
+    }
+
+    Class<?> objClass = obj.getClass();
+    System.out.println("Logging attributes of " + objClass.getName());
+
+    for (Field field : objClass.getDeclaredFields()) {
+      field.setAccessible(true); // Allows access to private fields
+      try {
+        Object value = field.get(obj);
+        System.out.println(field.getName() + ": " + value);
+      } catch (IllegalAccessException e) {
+        System.out.println("Could not access field " + field.getName());
+      }
+    }
   }
 
 }

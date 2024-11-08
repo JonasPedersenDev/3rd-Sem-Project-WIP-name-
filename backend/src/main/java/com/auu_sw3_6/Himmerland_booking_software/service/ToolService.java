@@ -11,8 +11,8 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.ToolRepository;
 public class ToolService extends ResourceService<Tool> {
 
   @Autowired
-  public ToolService(ToolRepository ResourceRepository) {
-    super(ResourceRepository);
+  public ToolService(ToolRepository ResourceRepository, PictureService pictureService) {
+    super(ResourceRepository, pictureService);
   }
 
   public Tool createTool(Tool tool, MultipartFile resourcePictures) {
@@ -21,10 +21,6 @@ public class ToolService extends ResourceService<Tool> {
     }
 
     return createResource(tool, resourcePictures);
-  }
-
-  public void deleteTool(Long id) {
-    deleteResource(id);
   }
 
 }
