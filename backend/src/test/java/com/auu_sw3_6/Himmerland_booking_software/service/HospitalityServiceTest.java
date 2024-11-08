@@ -20,17 +20,16 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.HospitalityRepos
 public class HospitalityServiceTest {
 
     @Mock
-    private HospitalityRepository HospitalityRepository;
+    private HospitalityRepository hospitalityRepository;
 
     @Mock
     private PictureService pictureService;
-
 
     @Mock
     private MultipartFile resourcePictures;
 
     @InjectMocks
-    private HospitalityService HospitalityService;
+    private HospitalityService hospitalityService;
 
     private Hospitality hospitality;
 
@@ -44,15 +43,15 @@ public class HospitalityServiceTest {
     @Test
     public void testCreateHospitality_WithValidName_ShouldCreateHospitality() {
         // Arrange
-        when(HospitalityRepository.save(any(Hospitality.class))).thenReturn(hospitality);
+        when(hospitalityRepository.save(any(Hospitality.class))).thenReturn(hospitality);
         when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class))).thenReturn("someFileName.jpg");
         
         // Act
-        Hospitality createdHospitality = HospitalityService.createHospitality(hospitality, resourcePictures);
+        Hospitality createdHospitality = hospitalityService.createHospitality(hospitality, resourcePictures);
 
         // Assert
-        assertNotNull(createdHospitality, "Hospitality burde være oprettet og ikke null");
-        assertEquals("Test Guest House", createdHospitality.getName(), "Navnet på Hospitality burde være 'Test Guest House'");
+        assertNotNull(createdHospitality, "Hospitality should be created and not null");
+        assertEquals("Test Guest House", createdHospitality.getName(), "The name of the Hospitality should be 'Test Guest House'");
     }
 
     @Test
@@ -62,9 +61,9 @@ public class HospitalityServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            HospitalityService.createHospitality(hospitality, resourcePictures);
+            hospitalityService.createHospitality(hospitality, resourcePictures);
         });
-        assertEquals("Name cannot be null or empty.", exception.getMessage(), "Skulle kaste undtagelse for null navn");
+        assertEquals("Name cannot be null or empty.", exception.getMessage(), "Should throw exception for null name");
     }
 
     @Test
@@ -74,17 +73,17 @@ public class HospitalityServiceTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            HospitalityService.createHospitality(hospitality, resourcePictures);
+            hospitalityService.createHospitality(hospitality, resourcePictures);
         });
-        assertEquals("Name cannot be null or empty.", exception.getMessage(), "Skulle kaste undtagelse for tomt navn");
+        assertEquals("Name cannot be null or empty.", exception.getMessage(), "Should throw exception for empty name");
     }
 
-/*     @Test <--- no worky
+    /* @Test <-- no worky
     public void testDeleteHospitality_ShouldCallDeleteResource() {
         // Act
-        HospitalityService.deleteResource(1L);
+        hospitalityService.deleteResource(1L);
 
         // Assert
-        verify(HospitalityRepository).deleteById(1L);
+        verify(hospitalityRepository).deleteById(1L);
     } */
 }

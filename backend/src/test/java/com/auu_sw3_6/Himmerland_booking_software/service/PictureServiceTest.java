@@ -61,9 +61,8 @@ public class PictureServiceTest {
   public void testReadProfilePicture_shouldReturnBytesIfFileExists() throws IOException {
     // Arrange
     String fileName = "existingPicture.jpg";
-    // Create a temporary file to simulate an existing picture
     File tempFile = new File(pictureService.getProfilePictureDirectory(), fileName);
-    Files.write(tempFile.toPath(), new byte[] { 1, 2, 3, 4 }); // Dummy bytes
+    Files.write(tempFile.toPath(), new byte[] { 1, 2, 3, 4 });
 
     // Act
     Optional<byte[]> pictureBytes = pictureService.readPicture(fileName, true);
@@ -99,7 +98,7 @@ public class PictureServiceTest {
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
       pictureService.savePicture(profilePictureTest, true);
     });
-    assertEquals("Failed to save picture", exception.getMessage()); // Update this line
+    assertEquals("Failed to save picture", exception.getMessage());
   }
   
 /*   @Test <- Not ipmlemented in the original code
