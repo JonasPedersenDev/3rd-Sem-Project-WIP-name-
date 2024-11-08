@@ -9,7 +9,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceTyp
 public class ResourceServiceFactory {
     
     @Autowired
-    private GuestHouseService guestHouseService;
+    private HospitalityService hospitalityService;
 
     @Autowired
     private ToolService toolService;
@@ -19,8 +19,8 @@ public class ResourceServiceFactory {
 
 public ResourceService<?> getServiceByType(ResourceType resourceType) {
     switch (resourceType) {
-        case GUESTHOUSE -> {
-            return guestHouseService;
+        case HOSPITALITY -> {
+            return hospitalityService;
         }
         case TOOL -> {
             return toolService;

@@ -25,8 +25,4 @@ public class UtilityService extends ResourceService<Utility> {
     return createResource(utility, resourcePictures);
   }
 
-  public void deleteUtility(Long id) {
-    deleteResource(id);
-  }
-
 }

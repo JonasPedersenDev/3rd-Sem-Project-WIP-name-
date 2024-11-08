@@ -95,8 +95,13 @@ public abstract class ResourceService<T extends Resource> {
         return repository.save(updatedResource);
     }
 
-    public void deleteResource(Long id) {
-        repository.deleteById(id);
+    public boolean deleteResource(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Optional<byte[]> getResourcePictureByResourcename(String resourceName) {
