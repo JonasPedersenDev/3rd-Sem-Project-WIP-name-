@@ -1,4 +1,4 @@
-import { ResourceType } from "../../utils/ResourceTypes";
+import { ResourceType } from "../../utils/EnumSupport";
 
 
 export default interface Resource {

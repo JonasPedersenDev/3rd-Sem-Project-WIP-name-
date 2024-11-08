@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import BookingDate from "../../modelInterfaces/BookingDate";
+import { isBeforeToday, isWeekend } from "../../../utils/BookingSupport";
 
 interface BookingModalCalendarProps {
   bookedDates: BookingDate[];
@@ -25,14 +26,6 @@ const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
       (booked) => new Date(booked.date).toDateString() === date.toDateString()
     );
     return booked ? booked.amount >= resourceCapacity : false;
-  };
-
-  const isWeekend = (date: Date) => {
-    return date.getDay() === 0 || date.getDay() === 6;
-  };
-
-  const isBeforeToday = (date: Date) => {
-    return date < today;
   };
 
   const isInRange = (date: Date) => {

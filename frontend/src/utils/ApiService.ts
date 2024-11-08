@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { ResourceType } from "./ResourceTypes";
+import { ResourceType } from "./EnumSupport";
 
 class ApiService {
   private baseUrl: string;

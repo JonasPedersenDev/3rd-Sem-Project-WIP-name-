@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ResourceCard from "./ResourceCard";
 import ApiService from "../../../utils/ApiService";
-import { ResourceType } from "../../../utils/ResourceTypes"; 
+import { ResourceType } from "../../../utils/EnumSupport"; 
 import Resource from "../../modelInterfaces/Resource";
 
 

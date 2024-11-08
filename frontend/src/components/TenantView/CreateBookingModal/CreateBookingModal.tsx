@@ -5,6 +5,8 @@ import ApiService from "../../../utils/ApiService";
 import Resource from "../../modelInterfaces/Resource";
 import Booking from "../../modelInterfaces/Booking";
 import BookingDate from "../../modelInterfaces/BookingDate";
+import { isValidDateRange } from "../../../utils/BookingSupport";
+
 
 interface CreateBookingModalProps {
   resource: Resource;
@@ -36,11 +38,10 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
           resource.type,
           resource.id
         );
-        
+
         console.log("Booked dates response:", response);
 
         setBookedDates(response.data);
-
       } catch (error) {
         console.error("Failed to fetch booked dates:", error);
       }
@@ -142,7 +143,16 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             </Form.Control>
           </Form.Group>
 
-          <Button variant="primary" type="submit">
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={
+              !isValidDateRange(
+                bookingFormData.bookStartTime,
+                bookingFormData.bookEndTime
+              )
+            }
+          >
             Tilføj Booking
           </Button>
           <Button variant="secondary" onClick={onClose} className="ms-2">
