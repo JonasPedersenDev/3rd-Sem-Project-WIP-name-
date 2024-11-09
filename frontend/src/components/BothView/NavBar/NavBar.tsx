@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getBookingCount } from "../../../utils/sessionStorageSupport";
 
-function Navbar() {
+function Navbar({ onToggleDarkMode }) {
   const navigate = useNavigate();
   const [bookingCount, setBookingCount] = useState<number>(0);
 
@@ -90,6 +90,13 @@ function Navbar() {
                 Konto
               </button>
             </li>
+            {/* Dark Mode Toggle */}
+            <li className="nav-item">
+              <button className="nav-link btn btn-link" onClick={onToggleDarkMode}>
+                Toggle Dark Mode
+              </button>
+            </li>
+
           </ul>
         </div>
       </div>

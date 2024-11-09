@@ -1,3 +1,17 @@
+
+/* Dark Mode Overrides */
+.dark-mode {
+  --bs-body-bg: #212529;
+  --bs-body-color: #f8f9fa;
+  --bs-card-bg: #343a40;
+  --bs-card-border-color: #454d55;
+  --bs-link-color: #66b2ff;
+  --bs-btn-primary-bg: #007bff;
+  --bs-btn-primary-border-color: #007bff;
+  /* Add more variables to customize */
+}
+
+
 /* Sidebar */
 .sidebar {
   width: 250px;
