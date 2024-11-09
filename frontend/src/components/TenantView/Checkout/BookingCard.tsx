@@ -1,29 +1,29 @@
-import React, { useState } from 'react';
-
-interface Booking {
-  id: string;
-  resourceName: string;
-  bookStartTime: Date;
-  bookEndTime: Date;
-  pickup: string;
-  dropoff: string;
-}
+import React, { useState } from "react";
+import Booking from "../../modelInterfaces/Booking";
 
 interface BookingCardProps {
   booking: Booking;
-  onEdit: (id: string, updatedBooking: Booking) => void;
-  onRemove: (id: string) => void; 
+  onEdit: (id: number, updatedBooking: Booking) => void;
+  onRemove: (id: number) => void;
 }
 
-const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit, onRemove }) => {
+const BookingCard: React.FC<BookingCardProps> = ({
+  booking,
+  onEdit,
+  onRemove,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking>(booking);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
     setEditedBooking({
       ...editedBooking,
-      [name]: name.includes('Time') ? new Date(value) : value,
+      [name]: name.includes("Time") ? new Date(value) : value,
     });
   };
 
@@ -37,61 +37,116 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit, onRemove }) 
       <div className="card-body">
         {isEditing ? (
           <div>
+            <label
+              htmlFor={`resourceName-${booking.id}`}
+              className="form-label"
+            >
+              Resource Name
+            </label>
             <input
+              id={`resourceName-${booking.id}`}
               value={editedBooking.resourceName}
               className="form-control mb-2"
               disabled
+              aria-label="Resource Name"
             />
+
+            <label
+              htmlFor={`bookStartTime-${booking.id}`}
+              className="form-label"
+            >
+              Booking Start Time
+            </label>
             <input
-              type="datetime-local"
+              type="date"
+              id={`bookStartTime-${booking.id}`}
               name="bookStartTime"
-              value={editedBooking.bookStartTime.toISOString().substring(0, 16)}
+              value={editedBooking.bookStartDate ? editedBooking.bookStartDate.toISOString().substring(0, 10) : "N/A"}
               onChange={handleChange}
               className="form-control mb-2"
+              aria-label="Booking Start Time"
             />
+
+            <label htmlFor={`bookEndTime-${booking.id}`} className="form-label">
+              Booking End Time
+            </label>
             <input
-              type="datetime-local"
+              type="date"
+              id={`bookEndTime-${booking.id}`}
               name="bookEndTime"
-              value={editedBooking.bookEndTime.toISOString().substring(0, 16)}
+              value={editedBooking.bookEndDate ? editedBooking.bookEndDate.toISOString().substring(0, 10) : "N/A"}
               onChange={handleChange}
               className="form-control mb-2"
+              aria-label="Booking End Time"
             />
+
+            <label htmlFor={`pickup-${booking.id}`} className="form-label">
+              Pickup Time
+            </label>
             <select
+              id={`pickup-${booking.id}`}
               name="pickup"
-              value={editedBooking.pickup}
+              value={editedBooking.pickupTime}
               className="form-control mb-2"
-              onChange= {handleChange}
+              onChange={handleChange}
+              aria-label="Pickup Time"
             >
               <option value="7:00-7:30">7:00 - 7:30</option>
               <option value="11:00-12:00">11:00 - 12:00</option>
             </select>
+
+            <label htmlFor={`dropoff-${booking.id}`} className="form-label">
+              Dropoff Time
+            </label>
             <select
+              id={`dropoff-${booking.id}`}
               name="dropoff"
-              value={editedBooking.dropoff}
+              value={editedBooking.dropoffTime}
               className="form-control mb-2"
-              onChange= {handleChange}
+              onChange={handleChange}
+              aria-label="Dropoff Time"
             >
               <option value="7:00-7:30">7:00 - 7:30</option>
               <option value="11:00-12:00">11:00 - 12:00</option>
             </select>
+
             <button onClick={handleSave} className="btn btn-success me-2">
               Gem
             </button>
-            <button onClick={() => setIsEditing(false)} className="btn btn-danger">
+            <button
+              onClick={() => setIsEditing(false)}
+              className="btn btn-danger"
+            >
               Anuller
             </button>
           </div>
         ) : (
           <div>
             <h5 className="card-title">{booking.resourceName}</h5>
-            <p className="card-text">Booking Start: {booking.bookStartTime.toLocaleString()}</p>
-            <p className="card-text">Booking Slut: {booking.bookEndTime.toLocaleString()}</p>
-            <p className="card-text">Afhenting: {booking.pickup}</p>
-            <p className="card-text">Aflevering: {booking.dropoff}</p>
-            <button onClick={() => setIsEditing(true)} className="btn btn-secondary">
+            <p className="card-text">
+              Booking Start:{" "}
+              {booking.bookStartDate
+                ? booking.bookStartDate.toLocaleDateString()
+                : "N/A"}
+            </p>
+            <p className="card-text">
+              Booking Slut:{" "}
+              {booking.bookEndDate
+                ? booking.bookEndDate.toLocaleDateString()
+                : "N/A"}
+            </p>
+            <p className="card-text">Afhenting: {booking.pickupTime}</p>
+            <p className="card-text">Aflevering: {booking.dropoffTime}</p>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="btn btn-secondary"
+            >
               Rediger
             </button>
-            <button onClick={() => onRemove(booking.id)} className="btn btn-danger">
+            <button
+              onClick={() => onRemove(booking.id)}
+              className="btn btn-danger"
+            >
               Fjern
             </button>
           </div>
@@ -100,5 +155,4 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onEdit, onRemove }) 
     </div>
   );
 };
-
 export default BookingCard;

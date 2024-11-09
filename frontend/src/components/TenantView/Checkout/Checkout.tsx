@@ -1,57 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import BookingCard from './BookingCard';
-import { Link } from 'react-router-dom';
-
-interface Booking {
-  id: string;
-  resourceName: string;
-  bookStartTime: Date;
-  bookEndTime: Date;
-  pickup: string;
-  dropoff: string;
-}
+import React, { useState, useEffect } from "react";
+import BookingCard from "./BookingCard";
+import { Link } from "react-router-dom";
+import Booking from "../../modelInterfaces/Booking";
+import {
+  loadBookingsFromSessionStorage,
+  updateBookingInSessionStorage,
+  removeBookingFromSessionStorage,
+} from "../../../utils/sessionStorageSupport";
 
 const Checkout: React.FC = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
-  
-  let [bookings, setBookings] = useState<Booking[]>([]);
-  
-  //Load bookings from session storage
+  // Load bookings from session storage on mount
   useEffect(() => {
-    const bookingsString = window.sessionStorage.getItem("bookingList");
-    if (bookingsString) {
-      const loadedBookings: Booking[] = JSON.parse(bookingsString).map((booking: any) => ({
-        ...booking,
-        bookStartTime: new Date(booking.bookStartTime), // Convert back to Date
-        bookEndTime: new Date(booking.bookEndTime),     // Convert back to Date
-      }));
-      setBookings(loadedBookings);
-    }
-  }, []); // Empty, so it only loads once
+    setBookings(loadBookingsFromSessionStorage());
+  }, []);
 
-  console.log(bookings.length)
-
-  const handleEdit = (id: string, updatedBooking: Booking) => {
-    setBookings(prevBookings => {
-      const updatedBookings = prevBookings.map(booking => 
-        booking.id === id ? updatedBooking : booking
-      );
-      window.sessionStorage.setItem("bookingList", JSON.stringify(updatedBookings));
-      return updatedBookings; 
-    });
+  const handleEdit = (id: number, updatedBooking: Booking) => {
+    updateBookingInSessionStorage(id, updatedBooking);
+    setBookings(loadBookingsFromSessionStorage());
   };
 
-  const handleRemove = (id: string) => {
-    setBookings(prevBookings => {
-      const updatedBookings = prevBookings.filter(booking => booking.id !== id);
-      window.sessionStorage.setItem("bookingList", JSON.stringify(updatedBookings));
-      return updatedBookings;
-    });
+  const handleRemove = (id: number) => {
+    removeBookingFromSessionStorage(id);
+    setBookings(loadBookingsFromSessionStorage());
   };
 
   const handleFinalize = () => {
-    //Logic to verify with database 
-    console.log('Bookings finalized:', bookings);
+    console.log("Bookings finalized:", bookings);
   };
 
   return (
@@ -59,18 +35,19 @@ const Checkout: React.FC = () => {
       <h2 className="text-center mb-4"><strong>Dine Ubekræftede Reservationer</strong></h2>
       {bookings.length === 0 ? (
         <p>Ingen reservationer endnu</p>
-      ) :
-        bookings.map(booking => (
-        <BookingCard
-          key={booking.id}
-          booking={booking}
-          onEdit={handleEdit}
-          onRemove={handleRemove}
-        />
-      ))}
+      ) : (
+        bookings.map((booking) => (
+          <BookingCard
+            key={booking.id}
+            booking={booking}
+            onEdit={handleEdit}
+            onRemove={handleRemove}
+          />
+        ))
+      )}
       {bookings.length !== 0 && (
         <button onClick={handleFinalize} className="btn btn-primary w-100 mt-3">
-        Bekræft
+          Bekræft
         </button>
       )}
       <Link to="/ressource-overblik">Go to Admin</Link>
