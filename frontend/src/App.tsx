@@ -18,6 +18,7 @@ import OwnBookingsPage from "./pages/OwnBookingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ContactPage from "./pages/ContactPage";
 import { useEffect, useState } from "react";
+import { DarkModeProvider } from "./components/DarkModeContext";
 
 const routesConfig: {
   path: string;
@@ -65,22 +66,10 @@ const routesConfig: {
 ];
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [isDarkMode]);
-
   const role = getUserRole();
 
   return (
-    <>
-      <Navbar onToggleDarkMode={() => setIsDarkMode(!isDarkMode)} />
-
+    <DarkModeProvider>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
@@ -108,7 +97,7 @@ function App() {
         {/* Fallback for undefined routes */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </>
+    </DarkModeProvider>
   );
 }
 
