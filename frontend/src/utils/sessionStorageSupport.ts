@@ -6,8 +6,8 @@ const getBookingList = (): Booking[] => {
   
   return JSON.parse(bookingsString).map((booking: any) => ({
     ...booking,
-    bookStartDate: booking.bookStartDate ? new Date(booking.bookStartDate) : null,
-    bookEndDate: booking.bookEndDate ? new Date(booking.bookEndDate) : null,
+    startDate: booking.startDate ? new Date(booking.startDate) : null,
+    endDate: booking.endDate ? new Date(booking.endDate) : null,
   }));
 };
 

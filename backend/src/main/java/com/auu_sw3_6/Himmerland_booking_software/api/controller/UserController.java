@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
@@ -52,7 +51,6 @@ public abstract class UserController<T extends User> {
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-
   @GetMapping("{id}")
   public ResponseEntity<Object> getUserById(@PathVariable Long id) {
     Optional<T> user = userService.getUserById(id);
@@ -92,12 +90,14 @@ public abstract class UserController<T extends User> {
 
   @SecurityRequirement(name = "bearerAuth")
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_TENANT')")
-  @PostMapping(value = "bookresource", produces = "application/json")
+  @PostMapping(value = "book-resource", produces = "application/json")
   public ResponseEntity<?> createBooking(@RequestBody BookingDetails details) {
     System.out.println("Creating booking");
     logObjectAttributes(details);
-    Booking booking = userService.createBooking(details);
-    return ResponseEntity.ok(booking);
+    // Booking booking = userService.createBooking(details);
+    //return ResponseEntity.ok(booking);
+    return ResponseEntity.ok(details);
+
   }
 
   public static void logObjectAttributes(Object obj) {

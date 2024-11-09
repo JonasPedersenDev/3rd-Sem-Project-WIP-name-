@@ -5,6 +5,7 @@ import java.time.LocalTime;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -19,27 +20,32 @@ public class BookingDetails {
 
   @Schema(description = "Type of the resource being booked", example = "UTILITY")
   @NotNull(message = "Resource type cannot be null")
+  @JsonProperty("resourceType")
   private ResourceType resourceType;
 
   @Schema(description = "Start date of the booking in yyyy-MM-dd format", example = "2024-11-07")
   @NotNull(message = "Start date cannot be null")
   @JsonFormat(pattern = "yyyy-MM-dd")
+  @JsonProperty("startDate")
   private LocalDate startDate;
 
   @Schema(description = "End date of the booking in yyyy-MM-dd format", example = "2024-11-07")
   @NotNull(message = "End date cannot be null")
   @JsonFormat(pattern = "yyyy-MM-dd")
+  @JsonProperty("endDate")
   private LocalDate endDate;
 
   @Schema(description = "Start time of the booking in HH:mm:ss format", example = "14:00:00")
   @NotNull(message = "Start time cannot be null")
   @JsonFormat(pattern = "HH:mm:ss")
-  private LocalTime startTime;
+  @JsonProperty("pickupTime")
+  private LocalTime pickupTime;
 
   @Schema(description = "End time of the booking in HH:mm:ss format", example = "16:00:00")
   @NotNull(message = "End time cannot be null")
   @JsonFormat(pattern = "HH:mm:ss")
-  private LocalTime endTime;
+  @JsonProperty("dropoffTime")
+  private LocalTime dropoffTime;
 
   public BookingDetails() {
   }
@@ -50,8 +56,8 @@ public class BookingDetails {
     this.resourceType = resourceType;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.startTime = startTime;
-    this.endTime = endTime;
+    this.pickupTime = startTime;
+    this.dropoffTime = endTime;
   }
 
   public Long getResourceID() {
@@ -86,19 +92,19 @@ public class BookingDetails {
     this.endDate = endDate;
   }
 
-  public LocalTime getStartTime() {
-    return startTime;
+  public LocalTime getPickupTime() {
+    return pickupTime;
   }
 
-  public void setStartTime(LocalTime startTime) {
-    this.startTime = startTime;
+  public void setPickupTime(LocalTime startTime) {
+    this.pickupTime = startTime;
   }
 
-  public LocalTime getEndTime() {
-    return endTime;
+  public LocalTime getDropoffTime() {
+    return dropoffTime;
   }
 
-  public void setEndTime(LocalTime endTime) {
-    this.endTime = endTime;
+  public void setDropoffTime(LocalTime endTime) {
+    this.dropoffTime = endTime;
   }
 }

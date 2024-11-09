@@ -41,9 +41,7 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(authz -> authz
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests
-            .requestMatchers("/api/tenant/register", "/api/tenant/book-resource", "/api/login", "/api/logout")
-            .permitAll()
-            .requestMatchers("/api/booking/**").hasRole("TENANT")
+            .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")

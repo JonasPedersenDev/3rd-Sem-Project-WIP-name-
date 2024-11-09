@@ -32,6 +32,7 @@ const Checkout: React.FC = () => {
     console.log("Bookings finalized:", bookings);
 
     for (const booking of bookings) {
+      console.log("Creating booking", booking);
       let response = await ApiService.createBooking(booking);
       if (response.status !== 200) {
         console.error("Failed to create booking", booking);

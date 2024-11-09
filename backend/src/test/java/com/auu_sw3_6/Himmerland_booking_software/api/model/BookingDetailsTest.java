@@ -39,8 +39,8 @@ public class BookingDetailsTest {
         assertEquals(ResourceType.UTILITY, bookingDetails.getResourceType(), "Resource type should be UTILITY.");
         assertEquals(LocalDate.of(2024, 11, 7), bookingDetails.getStartDate(), "Start date should be 2024-11-07.");
         assertEquals(LocalDate.of(2024, 11, 7), bookingDetails.getEndDate(), "End date should be 2024-11-07.");
-        assertEquals(LocalTime.of(14, 0), bookingDetails.getStartTime(), "Start time should be 14:00.");
-        assertEquals(LocalTime.of(16, 0), bookingDetails.getEndTime(), "End time should be 16:00.");
+        assertEquals(LocalTime.of(14, 0), bookingDetails.getPickupTime(), "Start time should be 14:00.");
+        assertEquals(LocalTime.of(16, 0), bookingDetails.getDropoffTime(), "End time should be 16:00.");
     }
 
     @Test
@@ -50,16 +50,16 @@ public class BookingDetailsTest {
         bookingDetails.setResourceType(ResourceType.TOOL);
         bookingDetails.setStartDate(LocalDate.of(2024, 12, 1));
         bookingDetails.setEndDate(LocalDate.of(2024, 12, 3));
-        bookingDetails.setStartTime(LocalTime.of(10, 0));
-        bookingDetails.setEndTime(LocalTime.of(18, 0));
+        bookingDetails.setPickupTime(LocalTime.of(10, 0));
+        bookingDetails.setDropoffTime(LocalTime.of(18, 0));
 
         // Assert
         assertEquals(2L, bookingDetails.getResourceID(), "Resource ID should be updated to 2.");
         assertEquals(ResourceType.TOOL, bookingDetails.getResourceType(), "Resource type should be updated to TOOL.");
         assertEquals(LocalDate.of(2024, 12, 1), bookingDetails.getStartDate(), "Start date should be updated to 2024-12-01.");
         assertEquals(LocalDate.of(2024, 12, 3), bookingDetails.getEndDate(), "End date should be updated to 2024-12-03.");
-        assertEquals(LocalTime.of(10, 0), bookingDetails.getStartTime(), "Start time should be updated to 10:00.");
-        assertEquals(LocalTime.of(18, 0), bookingDetails.getEndTime(), "End time should be updated to 18:00.");
+        assertEquals(LocalTime.of(10, 0), bookingDetails.getPickupTime(), "Start time should be updated to 10:00.");
+        assertEquals(LocalTime.of(18, 0), bookingDetails.getDropoffTime(), "End time should be updated to 18:00.");
     }
 
     @Test
@@ -77,8 +77,8 @@ public class BookingDetailsTest {
         bookingDetails.setResourceID(null);
         bookingDetails.setStartDate(null);
         bookingDetails.setEndDate(null);
-        bookingDetails.setStartTime(null);
-        bookingDetails.setEndTime(null);
+        bookingDetails.setPickupTime(null);
+        bookingDetails.setDropoffTime(null);
 
         // Act
         Set<ConstraintViolation<BookingDetails>> violations = validator.validate(bookingDetails);

@@ -2,11 +2,11 @@ import { ResourceType } from "../../utils/EnumSupport";
 
 export default interface Booking {
     id: number;
-    resourceId: number;
+    resourceID: number;
     resourceType: ResourceType;
     resourceName: string;
-    bookStartDate: Date | null;
-    bookEndDate: Date | null;
+    startDate: Date | null;
+    endDate: Date | null;
     pickupTime: string;
     dropoffTime: string;
   }

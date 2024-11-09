@@ -57,8 +57,8 @@ public class BookingService {
     long resourceID = details.getResourceID();
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
-    LocalTime startTime = details.getStartTime();
-    LocalTime endTime = details.getEndTime();
+    LocalTime startTime = details.getPickupTime();
+    LocalTime endTime = details.getDropoffTime();
 
     Resource resource = resourceService.getResourceById(resourceID)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));

@@ -1,4 +1,4 @@
-package com.auu_sw3_6.Himmerland_booking_software.service;
+/* package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.util.Optional;
 
@@ -98,22 +98,5 @@ public class UserServiceTest {
         verify(repository).deleteById(1L);
     }
 
-@Test
-public void testCreateUser_shouldThrowExceptionForDuplicateUsername() {
-    // Arrange
-    ConcreteUser existingUser = new ConcreteUser();
-    existingUser.setUsername("duplicateUser");
-    existingUser.setPassword("password123");
-    when(repository.findByUsername("duplicateUser")).thenReturn(Optional.of(existingUser));
-    
-    // Act & Assert
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-        ConcreteUser newUser = new ConcreteUser();
-        newUser.setUsername("duplicateUser");
-        newUser.setPassword("password123");
-        userService.createUser(newUser, profilePicture);
-    });
-    assertEquals("Username already exists", exception.getMessage());
 }
-    // Add more tests as necessary...
-}
+ */

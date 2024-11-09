@@ -1,5 +1,7 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,60 +23,72 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 @ExtendWith(MockitoExtension.class)
 public class AdminServiceTest {
 
-  @Mock
-  private AdminRepository adminRepository;
+    @Mock
+    private AdminRepository adminRepository;
 
-  @Mock
-  private PictureService pictureService;
+    @Mock
+    private PictureService profilbilledeService;
 
-  @Mock
-  private PasswordEncoder passwordEncoder;
+    @Mock
+    private PasswordEncoder kodeordKrypter;
 
-  @Mock
-  private MultipartFile profileImage;
+    @Mock
+    private MultipartFile profilbillede;
 
-  @InjectMocks
-  private AdminService adminService;
+    @InjectMocks
+    private AdminService adminService;
 
-  private Admin admin;
+    private Admin admin;
 
-  private final boolean isProfilePicture = true;
+    @BeforeEach
+    public void setUp() {
+        admin = new Admin();
+        admin.setId(1L);
+        admin.setUsername("adminBruger");
+        admin.setPassword("Kodeord123");
+    }
 
-  @BeforeEach
-  public void setUp() {
-    admin = new Admin();
-    admin.setId(1L);
-    admin.setUsername("adminUser");
-    admin.setPassword("Password123");
-  }
+    @Test
+    public void testOpretAdmin_SkalGemAdminMedKrypteretKodeordOgProfilbillede() throws Exception {
+        // Arrange
+        when(profilbilledeService.saveProfilePicture(profilbillede)).thenReturn("profilbillede.jpg");
+        when(kodeordKrypter.encode("Kodeord123")).thenReturn("krypteretKodeord123");
+        when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
-  @Test
-  public void testCreateAdmin_SavesAdminWithEncryptedPasswordAndProfilePicture() throws Exception {
-    // Arrange
-    when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profileImage.jpg");
-    when(passwordEncoder.encode("Password123")).thenReturn("encryptedPassword123");
-    when(adminRepository.save(any(Admin.class))).thenReturn(admin);
+        // Act
+        Admin oprettetAdmin = adminService.createAdmin(admin, profilbillede);
 
-    // Act
-    Admin createdAdmin = adminService.createAdmin(admin, profileImage);
+        // Assert
+        verify(adminRepository).save(admin);
+        assertNotNull(oprettetAdmin);
+        assertEquals("krypteretKodeord123", oprettetAdmin.getPassword());
+        assertEquals("profilbillede.jpg", oprettetAdmin.getProfilePictureFileName());
+    }
 
-    // Assert
-    verify(adminRepository).save(admin);
-    assertNotNull(createdAdmin);
-    assertEquals("encryptedPassword123", createdAdmin.getPassword());
-    assertEquals("profileImage.jpg", createdAdmin.getProfilePictureFileName());
-  }
+    @Test
+    public void testOpretAdmin_SkalKasteUndtagelseForUgyldigtProfilbillede() {
+        // Arrange
+        when(profilbilledeService.saveProfilePicture(profilbillede)).thenThrow(new IllegalArgumentException("Ikke-understøttet filtype"));
 
-  @Test
-  public void testCreateAdmin_ThrowsExceptionForInvalidProfilePicture() {
-    // Arrange
-    when(pictureService.savePicture(profileImage, isProfilePicture))
-        .thenThrow(new IllegalArgumentException("Unsupported file type"));
+        // Act & Assert
+        IllegalArgumentException undtagelse = assertThrows(IllegalArgumentException.class, () -> {
+            adminService.createAdmin(admin, profilbillede);
+        });
+        assertEquals("Ikke-understøttet filtype", undtagelse.getMessage());
+    }
 
-    // Act & Assert
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-      adminService.createAdmin(admin, profileImage);
-    });
-    assertEquals("Unsupported file type", exception.getMessage());
-  }
+    @Test
+    public void testOpretAdmin_SkalKasteUndtagelseForDuplikeretBrugernavn() {
+        // Arrange
+        when(adminRepository.findByUsername("adminBruger")).thenReturn(Optional.of(admin));
+
+        // Act & Assert
+        IllegalArgumentException undtagelse = assertThrows(IllegalArgumentException.class, () -> {
+            Admin duplikatAdmin = new Admin();
+            duplikatAdmin.setUsername("adminBruger");
+            duplikatAdmin.setPassword("andetKodeord");
+            adminService.createAdmin(duplikatAdmin, profilbillede);
+        });
+        assertEquals("Brugernavn eksisterer allerede", undtagelse.getMessage());
+    }
 }

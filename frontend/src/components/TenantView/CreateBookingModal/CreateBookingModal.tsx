@@ -24,11 +24,11 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
   const [bookingFormData, setBookingData] = useState<Booking>({
     id: Math.floor(Math.random() * 10000) + 1,
-    resourceId: resource.id,
+    resourceID: resource.id,
     resourceName: resource.name,
     resourceType: resource.type,
-    bookStartDate: null,
-    bookEndDate: null,
+    startDate: null,
+    endDate: null,
     pickupTime: "7:00-7:30",
     dropoffTime: "7:00-7:30",
   });
@@ -55,8 +55,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   const handleDateChange = (start: Date | null, end: Date | null) => {
     setBookingData({
       ...bookingFormData,
-      bookStartDate: start,
-      bookEndDate: end,
+      startDate: start,
+      endDate: end,
     });
   };
   
@@ -86,8 +86,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               type="text"
               readOnly
               value={
-                bookingFormData.bookStartDate
-                  ? bookingFormData.bookStartDate.toDateString()
+                bookingFormData.startDate
+                  ? bookingFormData.startDate.toDateString()
                   : ""
               }
               placeholder="Vælg en afhentingsdato"
@@ -100,8 +100,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               type="text"
               readOnly
               value={
-                bookingFormData.bookEndDate
-                  ? bookingFormData.bookEndDate.toDateString()
+                bookingFormData.endDate
+                  ? bookingFormData.endDate.toDateString()
                   : ""
               }
               placeholder="Vælg en afleveringsdato"
@@ -153,8 +153,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             type="submit"
             disabled={
               !isValidDateRange(
-                bookingFormData.bookStartDate,
-                bookingFormData.bookEndDate
+                bookingFormData.startDate,
+                bookingFormData.endDate
               )
             }
           >

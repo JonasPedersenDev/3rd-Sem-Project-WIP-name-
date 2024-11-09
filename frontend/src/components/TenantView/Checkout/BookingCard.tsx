@@ -15,6 +15,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking>(booking);
 
+  const parseDate = (date: string | Date | null): string => {
+    return date ? new Date(date).toLocaleDateString() : "N/A";
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -55,33 +59,33 @@ const BookingCard: React.FC<BookingCardProps> = ({
               htmlFor={`bookStartTime-${booking.id}`}
               className="form-label"
             >
-              Booking Start Time
+              Reservation Start Dato
             </label>
             <input
               type="date"
               id={`bookStartTime-${booking.id}`}
               name="bookStartTime"
-              value={editedBooking.bookStartDate ? editedBooking.bookStartDate.toISOString().substring(0, 10) : "N/A"}
+              value={parseDate(booking.startDate)}
               onChange={handleChange}
               className="form-control mb-2"
               aria-label="Booking Start Time"
             />
 
             <label htmlFor={`bookEndTime-${booking.id}`} className="form-label">
-              Booking End Time
+              Reservation Slut Dato
             </label>
             <input
               type="date"
               id={`bookEndTime-${booking.id}`}
               name="bookEndTime"
-              value={editedBooking.bookEndDate ? editedBooking.bookEndDate.toISOString().substring(0, 10) : "N/A"}
+              value={parseDate(booking.endDate)}
               onChange={handleChange}
               className="form-control mb-2"
               aria-label="Booking End Time"
             />
 
             <label htmlFor={`pickup-${booking.id}`} className="form-label">
-              Pickup Time
+              Afhentningstid
             </label>
             <select
               id={`pickup-${booking.id}`}
@@ -96,7 +100,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
             </select>
 
             <label htmlFor={`dropoff-${booking.id}`} className="form-label">
-              Dropoff Time
+              Afleveringstid
             </label>
             <select
               id={`dropoff-${booking.id}`}
@@ -124,19 +128,13 @@ const BookingCard: React.FC<BookingCardProps> = ({
           <div>
             <h5 className="card-title">{booking.resourceName}</h5>
             <p className="card-text">
-              Booking Start:{" "}
-              {booking.bookStartDate
-                ? booking.bookStartDate.toLocaleDateString()
-                : "N/A"}
+              Reservation Start: {parseDate(booking.startDate)}
             </p>
             <p className="card-text">
-              Booking Slut:{" "}
-              {booking.bookEndDate
-                ? booking.bookEndDate.toLocaleDateString()
-                : "N/A"}
+              Reservation Slut: {parseDate(booking.endDate)}
             </p>
-            <p className="card-text">Afhenting: {booking.pickupTime}</p>
-            <p className="card-text">Aflevering: {booking.dropoffTime}</p>
+            <p className="card-text">Afhentningstid: {booking.pickupTime}</p>
+            <p className="card-text">Afleveringstid: {booking.dropoffTime}</p>
             <button
               onClick={() => setIsEditing(true)}
               className="btn btn-secondary"
