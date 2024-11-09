@@ -7,6 +7,8 @@ import {
   updateBookingInSessionStorage,
   removeBookingFromSessionStorage,
 } from "../../../utils/sessionStorageSupport";
+import ApiService from "../../../utils/ApiService";
+import axios from "axios";
 
 const Checkout: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -26,13 +28,24 @@ const Checkout: React.FC = () => {
     setBookings(loadBookingsFromSessionStorage());
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     console.log("Bookings finalized:", bookings);
+
+    for (const booking of bookings) {
+      let response = await ApiService.createBooking(booking);
+      if (response.status !== 200) {
+        console.error("Failed to create booking", booking);
+        return;
+      }
+      removeBookingFromSessionStorage(booking.id);
+    }
   };
 
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded">
-      <h2 className="text-center mb-4"><strong>Dine Ubekræftede Reservationer</strong></h2>
+      <h2 className="text-center mb-4">
+        <strong>Dine Ubekræftede Reservationer</strong>
+      </h2>
       {bookings.length === 0 ? (
         <p>Ingen reservationer endnu</p>
       ) : (

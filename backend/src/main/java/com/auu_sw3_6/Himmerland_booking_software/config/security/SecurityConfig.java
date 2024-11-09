@@ -1,8 +1,12 @@
-package com.auu_sw3_6.Himmerland_booking_software.config;
+package com.auu_sw3_6.Himmerland_booking_software.config.security;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,8 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.auu_sw3_6.Himmerland_booking_software.security.JwtAuthorizationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -35,7 +40,10 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests
+            .requestMatchers("/api/tenant/register", "/api/tenant/book-resource", "/api/login", "/api/logout")
+            .permitAll()
+            .requestMatchers("/api/booking/**").hasRole("TENANT")
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
@@ -47,6 +55,19 @@ public class SecurityConfig {
         .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
+  }
+
+  @Bean
+  public CorsFilter corsFilter() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
+    config.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return new CorsFilter(source);
   }
 
   @Bean

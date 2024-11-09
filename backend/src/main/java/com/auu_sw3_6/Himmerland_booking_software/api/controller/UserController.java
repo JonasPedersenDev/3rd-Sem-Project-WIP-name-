@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -23,6 +22,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.UserService;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RequestMapping("api/user")
@@ -52,6 +52,7 @@ public abstract class UserController<T extends User> {
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
+
   @GetMapping("{id}")
   public ResponseEntity<Object> getUserById(@PathVariable Long id) {
     Optional<T> user = userService.getUserById(id);
@@ -89,7 +90,9 @@ public abstract class UserController<T extends User> {
     return new ErrorResponse("Profile picture not found", HttpStatus.NOT_FOUND).send();
   }
 
-  @PostMapping(value = "book-resource", produces = "application/json")
+  @SecurityRequirement(name = "bearerAuth")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_TENANT')")
+  @PostMapping(value = "bookresource", produces = "application/json")
   public ResponseEntity<?> createBooking(@RequestBody BookingDetails details) {
     System.out.println("Creating booking");
     logObjectAttributes(details);
@@ -107,7 +110,7 @@ public abstract class UserController<T extends User> {
     System.out.println("Logging attributes of " + objClass.getName());
 
     for (Field field : objClass.getDeclaredFields()) {
-      field.setAccessible(true); // Allows access to private fields
+      field.setAccessible(true);
       try {
         Object value = field.get(obj);
         System.out.println(field.getName() + ": " + value);

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.LoginRequest;
-import com.auu_sw3_6.Himmerland_booking_software.security.JwtUtil;
+import com.auu_sw3_6.Himmerland_booking_software.config.security.JwtUtil;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,7 +53,7 @@ public class AuthController {
           .maxAge(60 * 60 * 5) // 5 hours
           .sameSite("none") // only for development, maybe
           .build();
-
+          
       ResponseCookie authIndicatorCookie = ResponseCookie.from("authIndicator", role)
           .httpOnly(false)
           .secure(true)

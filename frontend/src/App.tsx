@@ -17,7 +17,6 @@ import CTtenantOverview from "./pages/CTtenantOverview";
 import OwnBookingsPage from "./pages/OwnBookingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ContactPage from "./pages/ContactPage";
-import { useEffect, useState } from "react";
 import { DarkModeProvider } from "./components/DarkModeContext";
 
 const routesConfig: {

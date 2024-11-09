@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { ResourceType } from "./EnumSupport";
+import { getUserRole, UserRole } from "./authConfig";
 
 class ApiService {
   private baseUrl: string;
@@ -110,6 +111,20 @@ class ApiService {
       throw error;
     }
   }
+
+  public async createBooking(booking: object): Promise<AxiosResponse<any>> {
+    try {
+      let role = getUserRole();
+      let userType = role === "ROLE_TENANT" ? "tenant" : "admin";
+
+      return await axios.post(`${this.baseUrl}${userType}/book-resource`, booking, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
 
 export default new ApiService();
