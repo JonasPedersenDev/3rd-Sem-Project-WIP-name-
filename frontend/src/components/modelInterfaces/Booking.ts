@@ -1,4 +1,5 @@
 import { ResourceType } from "../../utils/EnumSupport";
+import { TimeRange } from "./TimeRange";
 
 export default interface Booking {
     id: number;
@@ -7,6 +8,6 @@ export default interface Booking {
     resourceName: string;
     startDate: Date | null;
     endDate: Date | null;
-    pickupTime: string;
-    dropoffTime: string;
+    pickupTime: TimeRange;
+    dropoffTime: TimeRange;
   }

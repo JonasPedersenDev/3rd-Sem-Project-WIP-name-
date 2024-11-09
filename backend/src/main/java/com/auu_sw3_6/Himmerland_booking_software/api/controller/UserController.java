@@ -13,15 +13,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.UserService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RequestMapping("api/user")
@@ -94,10 +95,8 @@ public abstract class UserController<T extends User> {
   public ResponseEntity<?> createBooking(@RequestBody BookingDetails details) {
     System.out.println("Creating booking");
     logObjectAttributes(details);
-    // Booking booking = userService.createBooking(details);
-    //return ResponseEntity.ok(booking);
-    return ResponseEntity.ok(details);
-
+    Booking booking = userService.createBooking(details);
+    return ResponseEntity.ok(booking);
   }
 
   public static void logObjectAttributes(Object obj) {

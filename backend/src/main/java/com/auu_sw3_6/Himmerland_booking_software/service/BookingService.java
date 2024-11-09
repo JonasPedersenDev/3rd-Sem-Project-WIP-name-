@@ -16,6 +16,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
@@ -57,8 +58,8 @@ public class BookingService {
     long resourceID = details.getResourceID();
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
-    LocalTime startTime = details.getPickupTime();
-    LocalTime endTime = details.getDropoffTime();
+    TimeRange startTime = details.getPickupTime();
+    TimeRange endTime = details.getDropoffTime();
 
     Resource resource = resourceService.getResourceById(resourceID)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));

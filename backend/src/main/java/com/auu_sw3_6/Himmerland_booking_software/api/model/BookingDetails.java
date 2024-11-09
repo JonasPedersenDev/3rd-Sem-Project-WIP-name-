@@ -1,9 +1,9 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -39,19 +39,19 @@ public class BookingDetails {
   @NotNull(message = "Start time cannot be null")
   @JsonFormat(pattern = "HH:mm:ss")
   @JsonProperty("pickupTime")
-  private LocalTime pickupTime;
+  private TimeRange pickupTime;
 
   @Schema(description = "End time of the booking in HH:mm:ss format", example = "16:00:00")
   @NotNull(message = "End time cannot be null")
   @JsonFormat(pattern = "HH:mm:ss")
   @JsonProperty("dropoffTime")
-  private LocalTime dropoffTime;
+  private TimeRange dropoffTime;
 
   public BookingDetails() {
   }
 
   public BookingDetails(Long resourceID, ResourceType resourceType, LocalDate startDate, LocalDate endDate,
-      LocalTime startTime, LocalTime endTime) {
+      TimeRange startTime, TimeRange endTime) {
     this.resourceID = resourceID;
     this.resourceType = resourceType;
     this.startDate = startDate;
@@ -92,19 +92,19 @@ public class BookingDetails {
     this.endDate = endDate;
   }
 
-  public LocalTime getPickupTime() {
+  public TimeRange getPickupTime() {
     return pickupTime;
   }
 
-  public void setPickupTime(LocalTime startTime) {
+  public void setPickupTime(TimeRange startTime) {
     this.pickupTime = startTime;
   }
 
-  public LocalTime getDropoffTime() {
+  public TimeRange getDropoffTime() {
     return dropoffTime;
   }
 
-  public void setDropoffTime(LocalTime endTime) {
+  public void setDropoffTime(TimeRange endTime) {
     this.dropoffTime = endTime;
   }
 }

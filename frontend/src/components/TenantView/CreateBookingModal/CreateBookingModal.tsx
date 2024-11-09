@@ -7,6 +7,7 @@ import Booking from "../../modelInterfaces/Booking";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import { isValidDateRange } from "../../../utils/BookingSupport";
 import { addBookingToSessionStorage } from "../../../utils/sessionStorageSupport";
+import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface CreateBookingModalProps {
   resource: Resource;
@@ -29,10 +30,10 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     resourceType: resource.type,
     startDate: null,
     endDate: null,
-    pickupTime: "7:00-7:30",
-    dropoffTime: "7:00-7:30",
+    pickupTime: TimeRange.EARLY,
+    dropoffTime: TimeRange.EARLY,
   });
-  
+
   useEffect(() => {
     const fetchBookedDates = async () => {
       try {
@@ -59,7 +60,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       endDate: end,
     });
   };
-  
+
   const handleSubmit = () => {
     addBookingToSessionStorage(bookingFormData);
     onBookingAdded();
@@ -114,17 +115,17 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               as="select"
               name="pickup"
               aria-labelledby="pickup-label"
-              value={bookingFormData.pickupTime}
+              value={bookingFormData.pickupTime.toString()}
               onChange={(e) =>
                 setBookingData({
                   ...bookingFormData,
-                  pickupTime: e.target.value,
+                  pickupTime: e.target.value as TimeRange,
                 })
               }
               title="Choose Pickup Time"
             >
-              <option value="7:00-7:30">7:00 - 7:30</option>
-              <option value="11:00-12:00">11:00 - 12:00</option>
+              <option value={TimeRange.EARLY}>{TimeRange.EARLY}</option>
+              <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </Form.Control>
           </Form.Group>
 
@@ -134,17 +135,17 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               as="select"
               name="dropoff"
               aria-labelledby="dropoff-label"
-              value={bookingFormData.dropoffTime}
+              value={bookingFormData.dropoffTime.toString()}
               onChange={(e) =>
                 setBookingData({
                   ...bookingFormData,
-                  dropoffTime: e.target.value,
+                  dropoffTime: e.target.value as TimeRange,
                 })
               }
               title="Choose Dropoff Time"
             >
-              <option value="7:00-7:30">7:00 - 7:30</option>
-              <option value="11:00-12:00">11:00 - 12:00</option>
+              <option value={TimeRange.EARLY}>{TimeRange.EARLY}</option>
+              <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </Form.Control>
           </Form.Group>
 

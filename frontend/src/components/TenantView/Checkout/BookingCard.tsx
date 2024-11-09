@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Booking from "../../modelInterfaces/Booking";
+import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface BookingCardProps {
   booking: Booking;
@@ -90,13 +91,13 @@ const BookingCard: React.FC<BookingCardProps> = ({
             <select
               id={`pickup-${booking.id}`}
               name="pickup"
-              value={editedBooking.pickupTime}
+              value={editedBooking.pickupTime.toString()}
               className="form-control mb-2"
               onChange={handleChange}
               aria-label="Pickup Time"
             >
-              <option value="7:00-7:30">7:00 - 7:30</option>
-              <option value="11:00-12:00">11:00 - 12:00</option>
+              <option value={TimeRange.EARLY}>{TimeRange.EARLY}</option>
+              <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </select>
 
             <label htmlFor={`dropoff-${booking.id}`} className="form-label">
@@ -105,13 +106,13 @@ const BookingCard: React.FC<BookingCardProps> = ({
             <select
               id={`dropoff-${booking.id}`}
               name="dropoff"
-              value={editedBooking.dropoffTime}
+              value={editedBooking.dropoffTime.toString()}
               className="form-control mb-2"
               onChange={handleChange}
               aria-label="Dropoff Time"
             >
-              <option value="7:00-7:30">7:00 - 7:30</option>
-              <option value="11:00-12:00">11:00 - 12:00</option>
+              <option value={TimeRange.EARLY}>{TimeRange.EARLY}</option>
+              <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </select>
 
             <button onClick={handleSave} className="btn btn-success me-2">
@@ -133,8 +134,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
             <p className="card-text">
               Reservation Slut: {parseDate(booking.endDate)}
             </p>
-            <p className="card-text">Afhentningstid: {booking.pickupTime}</p>
-            <p className="card-text">Afleveringstid: {booking.dropoffTime}</p>
+            <p className="card-text">Afhentningstid: {booking.pickupTime.toString()}</p>
+            <p className="card-text">Afleveringstid: {booking.dropoffTime.toString()}</p>
             <button
               onClick={() => setIsEditing(true)}
               className="btn btn-secondary"

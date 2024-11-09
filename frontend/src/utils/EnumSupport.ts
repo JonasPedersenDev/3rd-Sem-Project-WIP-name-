@@ -1,7 +1,8 @@
+  
 export enum ResourceType {
-    TOOL = 'Tool',
-    UTILITY = 'Utility',
-    HOSPITALITY = 'Hospitality'
+    TOOL = 'TOOL',
+    UTILITY = 'UTILITY',
+    HOSPITALITY = 'HOSPITALITY'
 }
 
 export enum WeekDayNum {

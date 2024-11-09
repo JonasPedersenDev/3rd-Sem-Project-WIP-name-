@@ -1,9 +1,9 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,8 +32,8 @@ public class Booking {
   private LocalDate startDate;
   private LocalDate endDate;
 
-  private LocalTime pickupTime;
-  private LocalTime dropoffTime;
+  private TimeRange pickupTime;
+  private TimeRange dropoffTime;
 
   @Enumerated(EnumType.STRING)
   private BookingStatus status;
@@ -42,7 +42,7 @@ public class Booking {
   }
 
   public Booking(Resource resource, User user, LocalDate startDate, LocalDate endDate,
-      LocalTime pickupTime, LocalTime dropoffTime, BookingStatus status) {
+  TimeRange pickupTime, TimeRange dropoffTime, BookingStatus status) {
     this.resource = resource;
     this.user = user;
     this.startDate = startDate;
@@ -92,19 +92,19 @@ public class Booking {
     this.endDate = endDate;
   }
 
-  public LocalTime getPickupTime() {
+  public TimeRange getPickupTime() {
     return pickupTime;
   }
 
-  public void setPickupTime(LocalTime pickupTime) {
+  public void setPickupTime(TimeRange pickupTime) {
     this.pickupTime = pickupTime;
   }
 
-  public LocalTime getDropoffTime() {
+  public TimeRange getDropoffTime() {
     return dropoffTime;
   }
 
-  public void setDropoffTime(LocalTime dropoffTime) {
+  public void setDropoffTime(TimeRange dropoffTime) {
     this.dropoffTime = dropoffTime;
   }
 

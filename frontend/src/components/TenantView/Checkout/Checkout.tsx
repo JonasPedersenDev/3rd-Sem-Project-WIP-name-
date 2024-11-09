@@ -8,7 +8,6 @@ import {
   removeBookingFromSessionStorage,
 } from "../../../utils/sessionStorageSupport";
 import ApiService from "../../../utils/ApiService";
-import axios from "axios";
 
 const Checkout: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -30,10 +29,13 @@ const Checkout: React.FC = () => {
 
   const handleFinalize = async () => {
     console.log("Bookings finalized:", bookings);
-
+  
     for (const booking of bookings) {
       console.log("Creating booking", booking);
-      let response = await ApiService.createBooking(booking);
+  
+      const transformedBooking = transformBooking(booking);
+  
+      let response = await ApiService.createBooking(transformedBooking);
       if (response.status !== 200) {
         console.error("Failed to create booking", booking);
         return;
@@ -42,6 +44,23 @@ const Checkout: React.FC = () => {
     }
   };
 
+  const transformBooking = (booking: any) => {
+    return {
+      resourceID: booking.resourceID,
+      resourceType: booking.resourceType.toUpperCase(),
+      startDate: formatDate(booking.startDate),
+      endDate: formatDate(booking.endDate),
+      pickupTime: booking.pickupTime,
+      dropoffTime: booking.dropoffTime
+    };
+  };
+  
+  const formatDate = (date: string) => {
+    const newDate = new Date(date);
+    return newDate.toISOString().split('T')[0];
+  };
+  
+  
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded">
       <h2 className="text-center mb-4">
