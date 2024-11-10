@@ -200,3 +200,36 @@ h1 {
   padding: 20px;
   flex: 1;
 }
+
+.tenant-overview {
+  display: flex;
+}
+
+.filter-panel {
+  width: 200px;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tenant-list {
+  flex: 1;
+  padding: 20px;
+}
+
+.tenant-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.tenant-info {
+  flex: 1;
+}
+
+.tenant-actions button {
+  display: block;
+  margin: 5px 0;
+}

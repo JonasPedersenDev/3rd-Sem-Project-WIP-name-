@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import ApiService from "../../../utils/ApiService";
+import Tenant from "../../modelInterfaces/Tenant";
 
-interface Tenant {
-  id: number;
-  username: string;
-  email: string;
-}
 
 const TenantDetailsList: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -42,26 +37,50 @@ const TenantDetailsList: React.FC = () => {
   }
 
   return (
-    <div>
-      <h1>Tenant Overview</h1>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tenants.map((tenant) => (
-            <tr key={tenant.id}>
-              <td>{tenant.id}</td>
-              <td>{tenant.username}</td>
-              <td>{tenant.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="tenant-overview">
+      <div className="filter-panel">
+        <input type="text" placeholder="Name" />
+        <div>
+          <label>
+            <input type="checkbox" /> Afdeling 1
+          </label>
+          <label>
+            <input type="checkbox" /> Afdeling 2
+          </label>
+          <label>
+            <input type="checkbox" /> Afdeling 3
+          </label>
+        </div>
+        <div>
+          <label>Vejnummer</label>
+          <select>
+            <option value="1-10">1-10</option>
+            <option value="11-20">11-20</option>
+            <option value="21-30">21-30</option>
+          </select>
+        </div>
+        <button>Add</button>
+        <button>Reset</button>
+      </div>
+
+      <div className="tenant-list">
+        <h1>Udlejere</h1>
+        {tenants.map((tenant) => (
+          <div key={tenant.id} className="tenant-card">
+            <div className="tenant-info">
+              <h2>{tenant.name}</h2>
+              <p>Address: {tenant.address}</p>
+              <p>Phone: {tenant.phone}</p>
+              <p>Email: {tenant.email}</p>
+            </div>
+            <div className="tenant-actions">
+              <button>Book for Udlejer</button>
+              <button>Edit</button>
+              <button>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
