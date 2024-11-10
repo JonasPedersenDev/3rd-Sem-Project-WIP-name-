@@ -43,4 +43,6 @@ public class TenantController extends UserController<Tenant> {
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 
+  
+
 }
