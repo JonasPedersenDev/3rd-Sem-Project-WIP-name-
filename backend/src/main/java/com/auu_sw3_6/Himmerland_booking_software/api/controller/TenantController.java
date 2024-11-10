@@ -44,5 +44,8 @@ public class TenantController extends UserController<Tenant> {
     Tenant createdUser = tenantService.createTenant(user, profilePicture);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
+
+  
+
 }
   
