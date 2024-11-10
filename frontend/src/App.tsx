@@ -18,6 +18,7 @@ import OwnBookingsPage from "./pages/OwnBookingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ContactPage from "./pages/ContactPage";
 import { DarkModeProvider } from "./components/DarkModeContext";
+import TenantDetailsList from "./components/CaretakerView/TenantDetails/TenantDetailsList";
 
 const routesConfig: {
   path: string;
