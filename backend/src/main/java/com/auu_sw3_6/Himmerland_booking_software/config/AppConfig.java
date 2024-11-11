@@ -8,6 +8,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Hospitality;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tool;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Utility;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
 import com.auu_sw3_6.Himmerland_booking_software.service.HospitalityService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ToolService;
@@ -42,7 +43,7 @@ public class AppConfig {
         hospitality.setName("Festlokale");
         hospitality.setDescription("Festlokale med minibar");
         hospitality.setResourcePictureFileName("festlokale.jpg");
-        hospitality.setType("Hospitality");
+        hospitality.setType(ResourceType.HOSPITALITY);
         hospitality.setCapacity(1L);
         hospitality.setStatus("available");
 
@@ -60,7 +61,7 @@ public class AppConfig {
         tool.setName("Boremaskine");
         tool.setDescription("En elektrisk boremaskine, i modsætning til en benzin drevet boremaskine");
         tool.setResourcePictureFileName("boremaskine.jpg");
-        tool.setType("Tool");
+        tool.setType(ResourceType.TOOL);
         tool.setCapacity(3L);
         tool.setStatus("available");
 
@@ -79,7 +80,7 @@ public class AppConfig {
         utility.setName("Trailer");
         utility.setDescription("Havetrailer med en vægtkapacitet på 500 Kg.");
         utility.setResourcePictureFileName("trailer.jpg");
-        utility.setType("Utility");
+        utility.setType(ResourceType.UTILITY);
         utility.setCapacity(2L);
         utility.setStatus("available");
 
