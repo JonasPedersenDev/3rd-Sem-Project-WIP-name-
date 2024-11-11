@@ -1,7 +1,28 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getBookingCount } from "../../../utils/sessionStorageSupport";
+import { useDarkMode } from "../../DarkModeContext";
 
 function Navbar() {
+
+  const { toggleDarkMode } = useDarkMode();
+
   const navigate = useNavigate();
+  const [bookingCount, setBookingCount] = useState<number>(0);
+
+  useEffect(() => {
+    setBookingCount(getBookingCount());
+
+    const handleBookingAdded = () => {
+      setBookingCount(getBookingCount());
+    };
+
+    window.addEventListener("bookingsUpdated", handleBookingAdded);
+
+    return () => {
+      window.removeEventListener("bookingsUpdated", handleBookingAdded);
+    };
+  }, []);
 
   return (
     <nav className="navbar navbar-expand-md navbar-dark bg-custom">
@@ -26,7 +47,10 @@ function Navbar() {
         </button>
 
         {/* Navbar links */}
-        <div className="collapse navbar-collapse justify-content-end align-center" id="main-nav">
+        <div
+          className="collapse navbar-collapse justify-content-end align-center"
+          id="main-nav"
+        >
           <ul className="navbar-nav">
             <li className="nav-item">
               <button
@@ -37,7 +61,7 @@ function Navbar() {
               </button>
             </li>
             <li className="nav-item">
-            <button
+              <button
                 className="nav-link btn btn-link"
                 onClick={() => navigate("/kontakt")}
               >
@@ -45,12 +69,22 @@ function Navbar() {
               </button>
             </li>
             <li className="nav-item">
-            <button
+              <button
                 className="nav-link btn btn-link"
                 onClick={() => navigate("/mine-reservationer")}
               >
                 Reservationer
               </button>
+            </li>
+            {/* New Reservation Overblik link with counter */}
+            <li className="nav-item d-flex align-items-center">
+              <button
+                className="nav-link btn btn-link"
+                onClick={() => navigate("/reservation-overblik")}
+              >
+                Reservation Overblik
+              </button>
+              <span className="badge bg-danger ms-2">{bookingCount}</span>
             </li>
             <li className="nav-item">
               <button
@@ -60,6 +94,13 @@ function Navbar() {
                 Konto
               </button>
             </li>
+            {/* Dark Mode Toggle */}
+            <li className="nav-item">
+              <button className="nav-link btn btn-link" onClick={toggleDarkMode}>
+                Toggle Dark Mode
+              </button>
+            </li>
+
           </ul>
         </div>
       </div>

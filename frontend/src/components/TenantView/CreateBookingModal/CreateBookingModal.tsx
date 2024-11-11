@@ -1,23 +1,13 @@
-import React, { useState } from "react";
-import { Modal, Button, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
 import BookingModalCalendar from "./BookingModalCalendar";
-
-interface Resource {
-  name: string;
-  img: string;
-  description: string;
-  status: string;
-  bookedDates: Date[];
-}
-
-interface Booking {
-  id: string;
-  resourceName: string;
-  bookStartTime: Date | null;
-  bookEndTime: Date | null;
-  pickup: string;
-  dropoff: string;
-}
+import ApiService from "../../../utils/ApiService";
+import Resource from "../../modelInterfaces/Resource";
+import Booking from "../../modelInterfaces/Booking";
+import BookingDate from "../../modelInterfaces/BookingDate";
+import { isValidDateRange } from "../../../utils/BookingSupport";
+import { addBookingToSessionStorage } from "../../../utils/sessionStorageSupport";
+import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface CreateBookingModalProps {
   resource: Resource;
@@ -26,33 +16,53 @@ interface CreateBookingModalProps {
   onClose: () => void;
 }
 
-const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show, onBookingAdded, onClose }) => {
-  let bookingList: Booking[] = [];
-
+const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
+  resource,
+  show,
+  onBookingAdded,
+  onClose,
+}) => {
+  const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
   const [bookingFormData, setBookingData] = useState<Booking>({
-    id: (Math.floor(Math.random() * 10000) + 1).toString(),
+    id: Math.floor(Math.random() * 10000) + 1,
+    resourceID: resource.id,
     resourceName: resource.name,
-    bookStartTime: null,
-    bookEndTime: null,
-    pickup: "7:00-7:30",
-    dropoff: "7:00-7:30",
+    resourceType: resource.type,
+    startDate: null,
+    endDate: null,
+    pickupTime: TimeRange.EARLY,
+    dropoffTime: TimeRange.EARLY,
   });
+
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      try {
+        const response = await ApiService.fetchBookings(
+          resource.type,
+          resource.id
+        );
+
+        console.log("Booked dates response:", response);
+
+        setBookedDates(response.data);
+      } catch (error) {
+        console.error("Failed to fetch booked dates:", error);
+      }
+    };
+
+    fetchBookedDates();
+  }, [resource.type, resource.id]);
 
   const handleDateChange = (start: Date | null, end: Date | null) => {
     setBookingData({
       ...bookingFormData,
-      bookStartTime: start,
-      bookEndTime: end,
+      startDate: start,
+      endDate: end,
     });
   };
 
   const handleSubmit = () => {
-    const bookingListString = window.sessionStorage.getItem("bookingList");
-    if (bookingListString) {
-      bookingList = JSON.parse(bookingListString);
-    }
-    bookingList.push(bookingFormData);
-    window.sessionStorage.setItem("bookingList", JSON.stringify(bookingList));
+    addBookingToSessionStorage(bookingFormData);
     onBookingAdded();
   };
 
@@ -65,17 +75,22 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
         <Form onSubmit={handleSubmit}>
           <div className="d-flex justify-content-center mt-3">
             <BookingModalCalendar
-              bookedDates={resource.bookedDates}
+              bookedDates={bookedDates}
               onDateChange={handleDateChange}
+              resourceCapacity={resource.capacity}
             />
           </div>
-          
+
           <Form.Group controlId="bookstart">
             <Form.Label>Reservation Start:</Form.Label>
             <Form.Control
               type="text"
               readOnly
-              value={bookingFormData.bookStartTime ? bookingFormData.bookStartTime.toDateString() : ""}
+              value={
+                bookingFormData.startDate
+                  ? bookingFormData.startDate.toDateString()
+                  : ""
+              }
               placeholder="Vælg en afhentingsdato"
             />
           </Form.Group>
@@ -85,38 +100,65 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({ resource, show,
             <Form.Control
               type="text"
               readOnly
-              value={bookingFormData.bookEndTime ? bookingFormData.bookEndTime.toDateString() : ""}
+              value={
+                bookingFormData.endDate
+                  ? bookingFormData.endDate.toDateString()
+                  : ""
+              }
               placeholder="Vælg en afleveringsdato"
             />
           </Form.Group>
 
           <Form.Group controlId="pickup">
-            <Form.Label>Afhenting:</Form.Label>
+            <Form.Label id="pickup-label">Afhenting:</Form.Label>
             <Form.Control
               as="select"
               name="pickup"
-              value={bookingFormData.pickup}
-              onChange={(e) => setBookingData({ ...bookingFormData, pickup: e.target.value })}
+              aria-labelledby="pickup-label"
+              value={bookingFormData.pickupTime.toString()}
+              onChange={(e) =>
+                setBookingData({
+                  ...bookingFormData,
+                  pickupTime: e.target.value as TimeRange,
+                })
+              }
+              title="Choose Pickup Time"
             >
-              <option value="7:00-7:30">7:00 - 7:30</option>
-              <option value="11:00-12:00">11:00 - 12:00</option>
+              <option value={TimeRange.EARLY}>{TimeRange.EARLY}</option>
+              <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </Form.Control>
           </Form.Group>
 
           <Form.Group controlId="dropoff">
-            <Form.Label>Aflevering:</Form.Label>
+            <Form.Label id="dropoff-label">Aflevering:</Form.Label>
             <Form.Control
               as="select"
               name="dropoff"
-              value={bookingFormData.dropoff}
-              onChange={(e) => setBookingData({ ...bookingFormData, dropoff: e.target.value })}
+              aria-labelledby="dropoff-label"
+              value={bookingFormData.dropoffTime.toString()}
+              onChange={(e) =>
+                setBookingData({
+                  ...bookingFormData,
+                  dropoffTime: e.target.value as TimeRange,
+                })
+              }
+              title="Choose Dropoff Time"
             >
-              <option value="7:00-7:30">7:00 - 7:30</option>
-              <option value="11:00-12:00">11:00 - 12:00</option>
+              <option value={TimeRange.EARLY}>{TimeRange.EARLY}</option>
+              <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </Form.Control>
           </Form.Group>
 
-          <Button variant="primary" type="submit">
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={
+              !isValidDateRange(
+                bookingFormData.startDate,
+                bookingFormData.endDate
+              )
+            }
+          >
             Tilføj Booking
           </Button>
           <Button variant="secondary" onClick={onClose} className="ms-2">

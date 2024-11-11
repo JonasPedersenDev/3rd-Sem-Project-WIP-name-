@@ -89,6 +89,8 @@ public abstract class UserController<T extends User> {
     return new ErrorResponse("Profile picture not found", HttpStatus.NOT_FOUND).send();
   }
 
+  @SecurityRequirement(name = "bearerAuth")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_TENANT')")
   @PostMapping(value = "book-resource", produces = "application/json")
   public ResponseEntity<?> createBooking(@RequestBody BookingDetails details) {
     System.out.println("Creating booking");
@@ -107,7 +109,7 @@ public abstract class UserController<T extends User> {
     System.out.println("Logging attributes of " + objClass.getName());
 
     for (Field field : objClass.getDeclaredFields()) {
-      field.setAccessible(true); // Allows access to private fields
+      field.setAccessible(true);
       try {
         Object value = field.get(obj);
         System.out.println(field.getName() + ": " + value);

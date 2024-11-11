@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
-import com.auu_sw3_6.Himmerland_booking_software.security.CustomUserDetails;
+import com.auu_sw3_6.Himmerland_booking_software.config.security.CustomUserDetails;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

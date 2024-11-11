@@ -4,14 +4,9 @@ import CardBody from "./CardBody";
 import CardAction from "./CardActionButton";
 import CreateBookingModal from '../CreateBookingModal/CreateBookingModal';
 import Placeholder from '../../BothView/Placeholder/Placeholder';
+import Resource from '../../modelInterfaces/Resource';
 
-interface Resource {
-  name: string;
-  img: string;
-  description: string;
-  status: string;
-  bookedDates: Date[];
-}
+
 
 interface ResourceCardProps {
   resource: Resource;

@@ -13,8 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
+import com.auu_sw3_6.Himmerland_booking_software.config.security.CustomUserDetails;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
-import com.auu_sw3_6.Himmerland_booking_software.security.CustomUserDetails;
 
 public abstract class UserService<T extends User> {
 

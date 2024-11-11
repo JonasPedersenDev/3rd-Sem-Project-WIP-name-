@@ -1,76 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import BookingCard from './BookingCard';
-import { Link } from 'react-router-dom';
-
-interface Booking {
-  id: string;
-  resourceName: string;
-  bookStartTime: Date;
-  bookEndTime: Date;
-  pickup: string;
-  dropoff: string;
-}
+import React, { useState, useEffect } from "react";
+import BookingCard from "./BookingCard";
+import { Link } from "react-router-dom";
+import Booking from "../../modelInterfaces/Booking";
+import {
+  loadBookingsFromSessionStorage,
+  updateBookingInSessionStorage,
+  removeBookingFromSessionStorage,
+} from "../../../utils/sessionStorageSupport";
+import ApiService from "../../../utils/ApiService";
 
 const Checkout: React.FC = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
-  
-  let [bookings, setBookings] = useState<Booking[]>([]);
-  
-  //Load bookings from session storage
+  // Load bookings from session storage on mount
   useEffect(() => {
-    const bookingsString = window.sessionStorage.getItem("bookingList");
-    if (bookingsString) {
-      const loadedBookings: Booking[] = JSON.parse(bookingsString).map((booking: any) => ({
-        ...booking,
-        bookStartTime: new Date(booking.bookStartTime), // Convert back to Date
-        bookEndTime: new Date(booking.bookEndTime),     // Convert back to Date
-      }));
-      setBookings(loadedBookings);
+    setBookings(loadBookingsFromSessionStorage());
+  }, []);
+
+  const handleEdit = (id: number, updatedBooking: Booking) => {
+    updateBookingInSessionStorage(id, updatedBooking);
+    setBookings(loadBookingsFromSessionStorage());
+  };
+
+  const handleRemove = (id: number) => {
+    removeBookingFromSessionStorage(id);
+    setBookings(loadBookingsFromSessionStorage());
+  };
+
+  const handleFinalize = async () => {
+    console.log("Bookings finalized:", bookings);
+  
+    for (const booking of bookings) {
+      console.log("Creating booking", booking);
+  
+      const transformedBooking = transformBooking(booking);
+  
+      let response = await ApiService.createBooking(transformedBooking);
+      if (response.status !== 200) {
+        console.error("Failed to create booking", booking);
+        return;
+      }
+      removeBookingFromSessionStorage(booking.id);
     }
-  }, []); // Empty, so it only loads once
-
-  console.log(bookings.length)
-
-  const handleEdit = (id: string, updatedBooking: Booking) => {
-    setBookings(prevBookings => {
-      const updatedBookings = prevBookings.map(booking => 
-        booking.id === id ? updatedBooking : booking
-      );
-      window.sessionStorage.setItem("bookingList", JSON.stringify(updatedBookings));
-      return updatedBookings; 
-    });
   };
 
-  const handleRemove = (id: string) => {
-    setBookings(prevBookings => {
-      const updatedBookings = prevBookings.filter(booking => booking.id !== id);
-      window.sessionStorage.setItem("bookingList", JSON.stringify(updatedBookings));
-      return updatedBookings;
-    });
+  const transformBooking = (booking: any) => {
+    return {
+      resourceID: booking.resourceID,
+      resourceType: booking.resourceType.toUpperCase(),
+      startDate: formatDate(booking.startDate),
+      endDate: formatDate(booking.endDate),
+      pickupTime: booking.pickupTime,
+      dropoffTime: booking.dropoffTime
+    };
   };
-
-  const handleFinalize = () => {
-    //Logic to verify with database 
-    console.log('Bookings finalized:', bookings);
+  
+  const formatDate = (date: string) => {
+    const newDate = new Date(date);
+    return newDate.toISOString().split('T')[0];
   };
-
+  
+  
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded">
-      <h2 className="text-center mb-4"><strong>Dine Ubekræftede Reservationer</strong></h2>
+      <h2 className="text-center mb-4">
+        <strong>Dine Ubekræftede Reservationer</strong>
+      </h2>
       {bookings.length === 0 ? (
         <p>Ingen reservationer endnu</p>
-      ) :
-        bookings.map(booking => (
-        <BookingCard
-          key={booking.id}
-          booking={booking}
-          onEdit={handleEdit}
-          onRemove={handleRemove}
-        />
-      ))}
+      ) : (
+        bookings.map((booking) => (
+          <BookingCard
+            key={booking.id}
+            booking={booking}
+            onEdit={handleEdit}
+            onRemove={handleRemove}
+          />
+        ))
+      )}
       {bookings.length !== 0 && (
         <button onClick={handleFinalize} className="btn btn-primary w-100 mt-3">
-        Bekræft
+          Bekræft
         </button>
       )}
       <Link to="/ressource-overblik">Go to Admin</Link>

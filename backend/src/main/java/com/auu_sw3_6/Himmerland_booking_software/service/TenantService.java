@@ -17,24 +17,29 @@ import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsExce
 
 import jakarta.annotation.PostConstruct;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class TenantService extends UserService<Tenant> {
 
   private final AdminService adminService;
+  private final TenantRepository tenantRepository;
 
   @Value("${restricted.usernames}")
   private String restrictedUsernames;
 
   private Set<String> restrictedUsernamesSet;
 
-    @Autowired
-  public TenantService(TenantRepository tenantRepository, 
-                      PictureService profilePictureService,
-                      PasswordEncoder passwordEncoder,
-                      AdminService adminService,
-                      BookingService bookingService) {
+  @Autowired
+  public TenantService(TenantRepository tenantRepository,
+      PictureService profilePictureService,
+      PasswordEncoder passwordEncoder,
+      AdminService adminService,
+      BookingService bookingService) {
     super(tenantRepository, profilePictureService, passwordEncoder, bookingService);
     this.adminService = adminService;
+    this.tenantRepository = tenantRepository;
   }
 
   private Set<String> initializeRestrictedUsernames() {
@@ -43,6 +48,10 @@ public class TenantService extends UserService<Tenant> {
       return new HashSet<>();
     }
     return new HashSet<>(Arrays.asList(restrictedUsernames.split(",")));
+  }
+
+  public List<Tenant> getAllTenants() {
+    return tenantRepository.findAll();
   }
 
   public Tenant createTenant(Tenant tenant, MultipartFile profilePicture) {
@@ -56,15 +65,14 @@ public class TenantService extends UserService<Tenant> {
 
     if (userExists(tenant.getUsername())) {
       throw new UserAlreadyExistsException(tenant.getUsername());
-  }
+    }
 
     return createUser(tenant, profilePicture);
   }
 
   private boolean userExists(String username) {
     return getUserByUsername(username).isPresent() || adminService.getUserByUsername(username).isPresent();
-}
-
+  }
 
   @PostConstruct
   public void init() {
@@ -73,6 +81,5 @@ public class TenantService extends UserService<Tenant> {
 
   public void setRestrictedUsernamesSet(Set<String> restrictedUsernames) {
     this.restrictedUsernamesSet = restrictedUsernames;
-}
-
+  }
 }
