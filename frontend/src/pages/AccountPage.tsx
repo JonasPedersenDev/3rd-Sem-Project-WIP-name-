@@ -1,5 +1,5 @@
 import React from "react";
-import SettingsForm from "../components/BothView/Settings/AccountSettings";
+import SettingsForm from "../components/BothView/Settings/AccountSettings.tsx";
 import Navbar from "../components/BothView/NavBar/NavBar.tsx";
 import Footer from "../components/BothView/Footer/Footer.tsx";
 

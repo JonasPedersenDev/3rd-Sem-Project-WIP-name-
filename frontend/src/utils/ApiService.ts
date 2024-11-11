@@ -19,6 +19,35 @@ class ApiService {
     }
   }
 
+  public async editUser(id: number, data: object): Promise<AxiosResponse<any>> {
+    try {
+      const response = await axios.put(`${this.baseUrl}tenant/${id}`, data, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Error updating user:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      throw error;
+    }
+  }
+
+  //JPA 
+  public async editData(id: number, data: string): Promise<AxiosResponse<any>> {
+    try {
+      return await axios.put(`${this.baseUrl}tool/${id}`, data, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Error editing user", error);
+      throw error;
+    }
+  }
+  
+
   public async signUp(details: {
     user: object;
     profilePicture?: File;

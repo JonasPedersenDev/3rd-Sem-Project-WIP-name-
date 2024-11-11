@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -16,6 +17,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.config.security.CustomUserDetails;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserNotFoundException;
 
+@Service
 public abstract class UserService<T extends User> {
 
   private final JpaRepository<T, Long> repository;
@@ -30,6 +32,19 @@ public abstract class UserService<T extends User> {
     this.pictureService = pictureService;
     this.passwordEncoder = passwordEncoder;
     this.bookingService = bookingService;
+  }
+
+  public User updateUser(Long id, User updatedUser) {
+    return repository.findById(id)
+        .map(user -> {
+          user.setName(updatedUser.getName());
+          user.setEmail(updatedUser.getEmail());
+          user.setMobileNumber(updatedUser.getMobileNumber());
+          user.setUsername(updatedUser.getUsername());
+          user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+          return repository.save(user);
+        })
+        .orElseThrow(() -> new UserNotFoundException("User not found"));
   }
 
   public T createUser(T user, MultipartFile profilePicture) {
@@ -52,10 +67,6 @@ public abstract class UserService<T extends User> {
   public Optional<byte[]> getProfilePictureByUserId(long userId) {
     Optional<T> userOptional = repository.findById(userId);
     return userOptional.flatMap(user -> pictureService.readPicture(user.getProfilePictureFileName(), true));
-  }
-
-  public T updateUser(T updatedUser) {
-    return repository.save(updatedUser);
   }
 
   public void deleteUser(Long id) {
