@@ -12,7 +12,7 @@ interface TenantBooking {
   isCurrentTenant: boolean;
   imageUrl: string;
 }
-
+// tenant booking card
 interface TenantBookingCardProps {
   booking: TenantBooking;
   onTerminate: (id: number) => void; // booking cancellation
