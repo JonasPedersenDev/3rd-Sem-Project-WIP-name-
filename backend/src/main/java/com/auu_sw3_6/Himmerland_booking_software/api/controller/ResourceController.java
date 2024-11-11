@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDate;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
 
@@ -37,10 +38,18 @@ public abstract class ResourceController<T extends Resource> {
   @Operation(summary = "Get a resource by ID", description = "Retrieve details of a specific resource by its ID")
   @GetMapping(value = "/{id}", produces = "application/json")
   public ResponseEntity<T> getResourceById(@PathVariable Long id) {
-    Optional<T> resource = resourceService.getResourceById(id);
-    return resource.map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-  }
+    try {
+        Optional<T> resource = resourceService.getResourceById(id);
+        return resource.map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    } catch (ResourceNotFoundException e) {
+        System.out.println("No resources found: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    } catch (Exception e) {
+        System.out.println("An unexpected error occurred: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
 
   @Operation(summary = "Get all resources", description = "Retrieve a list of all available resources")
   @GetMapping(value = "/get-all", produces = "application/json")
