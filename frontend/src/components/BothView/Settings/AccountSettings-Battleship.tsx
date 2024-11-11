@@ -3,7 +3,6 @@ import { Form, Button, Modal, Row, Col, Container, Image } from "react-bootstrap
 import LogoutButton from "../../BothView/Logout/Logout";
 import ApiService from "../../../utils/ApiService";
 
-
 interface UserInfo {
   username: string;
   name: string;
@@ -14,7 +13,7 @@ interface UserInfo {
 }
 
 const SettingsForm: React.FC = () => {
-  const [userInfo, setUserInfo] = useState<UserInfo> ({
+  const [userInfo, setUserInfo] = useState<UserInfo>({
     username: "",
     name: "",
     email: "",
@@ -26,6 +25,7 @@ const SettingsForm: React.FC = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentView, setCurrentView] = useState("settings");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch authenticated user information from the backend
@@ -56,12 +56,34 @@ const SettingsForm: React.FC = () => {
     setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
   };
 
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!userInfo.username || !userInfo.password || !userInfo.email || !userInfo.name) {
+      return "Udfyld venligst alle felter.";
+    }
+    if (!emailRegex.test(userInfo.email)) {
+      return "Indtast en gyldig email.";
+    }
+    if (!passwordRegex.test(userInfo.password)) {
+      return "Adgangskoden skal være mindst 8 tegn lang og inkludere både store og små bogstaver samt et tal.";
+    }
+    return null;
+  };
+
   const handleEditToggle = () => {
     if (isEditing) {
+      const error = validateForm();
+      if (error) {
+        setValidationError(error);
+        return;
+      }
       console.log("Updated User Information:", userInfo);
       setShowSuccessModal(true);
     }
     setIsEditing(!isEditing);
+    setValidationError(null);
   };
 
   // const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,6 +199,7 @@ const SettingsForm: React.FC = () => {
                     </Button>
                   </div>
                 </Form.Group>
+                {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
                 <Button variant="primary" onClick={handleEditToggle}>
                   {isEditing ? "Save Changes" : "Edit"}
                 </Button>
