@@ -62,7 +62,7 @@ const TenantBookingOverview: React.FC = () => {
 
   return (
     <div className="container mt-4 border border-dark rounded mb-3">
-      <h2 className="text-center mb-5"><strong>Lejeres Reservationsoversigt</strong></h2>
+      <h2 className="text-center mb-5"><strong>Lejerens reservationsoversigt</strong></h2>
       {/* Current Reservations */}
       <h3>
         <Button
