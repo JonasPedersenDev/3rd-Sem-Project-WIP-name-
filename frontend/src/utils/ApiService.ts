@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { ResourceType } from "./EnumSupport";
 import { getUserRole, UserRole } from "./authConfig";
+import Resource from "../components/modelInterfaces/Resource";
 
 class ApiService {
   private baseUrl: string;
@@ -122,7 +123,7 @@ class ApiService {
           console.error("Unknown resource type:", resourceType);
           throw new Error("Unknown resource type");
       }
-      console.log(resourceTypePath + endPoint);
+      //console.log(resourceTypePath + endPoint);
       return await this.fetchData(resourceTypePath + endPoint);
     } catch (error) {
       throw error;
@@ -153,6 +154,52 @@ class ApiService {
       throw error;
     }
   }
+
+  public async deleteResource(resourceID: number, resourceType: ResourceType): Promise<AxiosResponse<any>> {
+    try {
+      //construct endpoint
+      const endpoint = `${this.baseUrl}${resourceType.toLocaleLowerCase()}/api/resource/${resourceID}`;
+      console.log("delete resource:", endpoint)
+
+      //call
+      return await axios.delete(endpoint, { withCredentials: true });
+    } catch (error) {
+      console.error("Error deleting resource:", error);
+      throw error;
+    }
+  }
+
+  public async updateResource(resource: Resource, resourceType: ResourceType, resourceId: number): Promise<AxiosResponse<any>> { //NOT WORKING
+    try {
+      //construct endpoint
+      let endpoint = `${this.baseUrl}${resourceType.toLowerCase()}/update/${resourceId}`;
+      console.log("update resource:", endpoint)
+      console.log("send resource:", resource)
+      console.log("send id:", resourceId)
+      //call
+      return await axios.put(endpoint, resource, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Error updating resource:", error);
+      throw error;
+    }
+  }
+
+  public async deleteBooking(bookingID: number): Promise<AxiosResponse<any>> {
+    try {
+      //construct endpoint
+      const endpoint = `${this.baseUrl}booking/delete/${bookingID}`;
+      console.log("delete booking:", endpoint)
+
+      //call
+      return await axios.delete(endpoint, { withCredentials: true });
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      throw error;
+    }
+  }
+
 
 }
 

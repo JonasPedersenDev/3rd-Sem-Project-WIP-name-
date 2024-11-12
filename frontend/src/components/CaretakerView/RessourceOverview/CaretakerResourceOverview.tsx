@@ -1,106 +1,114 @@
 import React, { useState, useEffect } from 'react';
-import CaretakerResourceCard from './CaretakerResourceCard';
 import { Collapse, Button } from 'react-bootstrap';
-import AddResourceModal from '../AddResourceModal/AddResourceModal';
-
-interface Resource {
-  id: string;
-  name: string;
-  description: string;
-  status: 'Aktiv' | 'Service';
-  imageUrl: string;
-  category: 'Værktøj' | 'Gæstehuse' | 'Andet';
-}
+import CaretakerResourceCard from './CaretakerResourceCard';
+import Resource from '../../modelInterfaces/Resource';
+import { ResourceType } from '../../../utils/EnumSupport';
+import ApiService from '../../../utils/ApiService';
 
 const CaretakerResourceOverview: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [showVærktøj, setShowVærktøj] = useState(true);
   const [showGæstehuse, setShowGæstehuse] = useState(true);
   const [showAndet, setShowAndet] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const resourcesData: Resource[] = [
-      {
-        id: '1',
-        name: 'Boremaskine 1',
-        description: 'tekstet fylde',
-        status: 'Aktiv',
-        imageUrl: '',
-        category: 'Værktøj',
-      },
-      {
-        id: '2',
-        name: 'Sav 1',
-        description: 'fyldt tekst',
-        status: 'Aktiv',
-        imageUrl: '',
-        category: 'Værktøj',
-      },
-      {
-        id: '3',
-        name: 'Hammer 1',
-        description: 'fylde med tekst',
-        status: 'Service',
-        imageUrl: '',
-        category: 'Værktøj',
-      },
-      {
-        id: '4',
-        name: 'Gæstehus 1',
-        description: 'tekst med fylde',
-        status: 'Aktiv',
-        imageUrl: '',
-        category: 'Gæstehuse',
-      },
-      {
-        id: '5',
-        name: 'Trailer 1',
-        description: 'tekst fyldt',
-        status: 'Aktiv',
-        imageUrl: '',
-        category: 'Andet',
-      },
-    ];
+    const fetchResources = async () => {
+      let værktøjResources = [];
+      let gæstehuseResources = [];
+      let andetResources = [];
 
-    setResources(resourcesData);
+      //Fetch tools
+      try {
+        const værktøjResponse = await ApiService.fetchResources(ResourceType.TOOL);
+        console.log("tools:", værktøjResponse)
+        værktøjResources = værktøjResponse.data;
+      } catch (error) {
+        console.error("Error fetching TOOL resources:", error);
+      }
+      
+      //Fetch hospitality
+      try {
+        const gæstehuseResponse = await ApiService.fetchResources(ResourceType.HOSPITALITY);
+        console.log("hospitality:", gæstehuseResponse)
+        gæstehuseResources = gæstehuseResponse.data;
+      } catch (error) {
+        console.error("Error fetching HOSPITALITY resources:", error);
+      }
+
+      //Fetch utility
+      try {
+        const andetResponse = await ApiService.fetchResources(ResourceType.UTILITY);
+        console.log("utility:", andetResponse)
+        andetResources = andetResponse.data;
+      } catch (error) {
+        console.error("Error fetching UTILITY resources:", error);
+      }
+
+      const combinedResources = [
+        ...værktøjResources,
+        ...gæstehuseResources,
+        ...andetResources,
+      ];
+      setResources(combinedResources);
+    };
+
+    fetchResources();
   }, []);
 
-  const værktøjResources = resources.filter((resource) => resource.category === 'Værktøj');
-  const gæstehuseResources = resources.filter((resource) => resource.category === 'Gæstehuse');
-  const andetResources = resources.filter((resource) => resource.category === 'Andet');
+  //Categorize
+  const værktøjResources = resources.filter(
+    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.TOOL.toLowerCase()
+  );
+  const gæstehuseResources = resources.filter(
+    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.HOSPITALITY.toLowerCase()
+  );
+  const andetResources = resources.filter(
+    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.UTILITY.toLowerCase()
+  );
 
-  const handleEdit = (id: string) => {
-    console.log(`Edit resource with id: ${id}`);
-    // todo
+  const handleEdit = async (updatedResource: Resource) => {
+    try {
+      const response = await ApiService.updateResource(
+        updatedResource,
+        ResourceType[updatedResource.type.toUpperCase() as keyof typeof ResourceType],
+        updatedResource.id
+      );
+      setResources((prevResources) =>
+        prevResources.map((resource) =>
+          resource.id === response.data.id ? response.data : resource
+        )
+      );
+      console.log("response:", response)
+    } catch (error) {
+      console.error('Error updating resource:', error);
+    }
   };
 
-  const handleToggleService = (id: string) => {
+  const handleToggleService = (id: number) => {
     setResources((prevResources) =>
       prevResources.map((resource) =>
         resource.id === id
-          ? { ...resource, status: resource.status === 'Aktiv' ? 'Service' : 'Aktiv' }
+          ? {
+              ...resource,
+              status: resource.status === 'available' ? 'maintenance' : 'available',
+            }
           : resource
       )
     );
   };
 
-  const handleDelete = (id: string) => {
-    setResources((prevResources) => prevResources.filter((resource) => resource.id !== id));
+  const handleDelete = async (id: number, type: ResourceType) => {
+    try {
+      await ApiService.deleteResource(id, type);
+      setResources((prevResources) => prevResources.filter((resource) => resource.id !== id));
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+    }
   };
 
-  const handleResourceAdded = () => {
-    console.log("booking added to cart")
-    setIsModalOpen(false)
-  }
-
-return (
+  return (
     <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
       <h2 className="text-center mb-4"><strong>Ressourcer</strong></h2>
-      <Button onClick={() => setIsModalOpen(true)}>
-        Tilføj Ressource
-      </Button>
-      {/* Værktøj */}
       <h3>
         <Button
           variant="secondary"
@@ -111,7 +119,8 @@ return (
         >
           Værktøj
         </Button>
-      </h3> <hr />
+      </h3>
+      <hr />
       <Collapse in={showVærktøj}>
         <div id="værktøj-collapse">
           {værktøjResources.length === 0 ? (
@@ -130,7 +139,6 @@ return (
         </div>
       </Collapse>
 
-      {/* Gæstehuse */}
       <h3>
         <Button
           variant="secondary"
@@ -141,7 +149,8 @@ return (
         >
           Gæstehuse
         </Button>
-      </h3> <hr />
+      </h3>
+      <hr />
       <Collapse in={showGæstehuse}>
         <div id="gæstehuse-collapse">
           {gæstehuseResources.length === 0 ? (
@@ -160,7 +169,6 @@ return (
         </div>
       </Collapse>
 
-      {/* Andet Section */}
       <h3>
         <Button
           variant="secondary"
@@ -171,7 +179,8 @@ return (
         >
           Andet
         </Button>
-      </h3> <hr />
+      </h3>
+      <hr />
       <Collapse in={showAndet}>
         <div id="andet-collapse">
           {andetResources.length === 0 ? (
@@ -189,13 +198,6 @@ return (
           )}
         </div>
       </Collapse>
-      {isModalOpen && (
-        <AddResourceModal
-          show={isModalOpen}
-          onResourceAdded={handleResourceAdded}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
     </div>
   );
 };

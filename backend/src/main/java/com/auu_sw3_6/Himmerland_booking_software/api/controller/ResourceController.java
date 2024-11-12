@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -86,6 +87,13 @@ public abstract class ResourceController<T extends Resource> {
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+  }
+
+  @Operation(summary = "Update a resource", description = "Update the details of an existing resource") //NOT WORKING
+  @PutMapping(value = "/update/{updatedResourceId}", produces = "application/json")
+  public ResponseEntity<T> updateResource(@RequestBody T updatedResource, @PathVariable long updatedResourceId) {
+    T resource = resourceService.updateResource(updatedResource, updatedResourceId);
+    return ResponseEntity.ok(resource);
   }
 
 }

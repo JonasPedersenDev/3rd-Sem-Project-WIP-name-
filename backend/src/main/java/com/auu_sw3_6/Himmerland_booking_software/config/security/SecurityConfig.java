@@ -59,7 +59,7 @@ public class SecurityConfig {
   public CorsFilter corsFilter() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-    config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
     config.setAllowCredentials(true);
 

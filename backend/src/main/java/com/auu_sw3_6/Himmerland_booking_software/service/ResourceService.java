@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
 public abstract class ResourceService<T extends Resource> {
 
@@ -48,8 +49,23 @@ public abstract class ResourceService<T extends Resource> {
     return resourceOptional.flatMap(user -> pictureService.readPicture(user.getResourcePictureFileName(), false));
   }
 
-  public T updateResource(T updatedResource) {
-    return repository.save(updatedResource);
+  public T updateResource(T updatedResource, long id) { //NOT WORKING
+    Optional<T> existingResourceOptional = repository.findById(id);
+
+    if (existingResourceOptional.isPresent()) {
+        T existingResource = existingResourceOptional.get();
+
+        existingResource.setName(updatedResource.getName());
+        existingResource.setDescription(updatedResource.getDescription());
+        existingResource.setStatus(updatedResource.getStatus());
+        existingResource.setCapacity(updatedResource.getCapacity());
+        existingResource.setType(updatedResource.getType());
+        existingResource.setResourcePictureFileName(updatedResource.getResourcePictureFileName());
+
+        return repository.save(existingResource);
+    } else {
+        throw new ResourceNotFoundException("Resource with ID " + id + " not found");
+    }
   }
 
   public boolean deleteResource(Long id) {
