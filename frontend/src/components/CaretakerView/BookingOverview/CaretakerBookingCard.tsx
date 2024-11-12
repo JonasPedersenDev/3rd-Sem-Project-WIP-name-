@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
 interface CaretakerBooking {
-  id: string;
+  id: number;
   name: string;
   resourceName: string;
   startDate: Date;
@@ -10,13 +10,13 @@ interface CaretakerBooking {
   pickupTime: string;
   dropoffTime: string;
   phoneNumber: string;
-  address: string;
+  email: string;
   isFutureBooking: boolean;
 }
 
 interface CaretakerBookingCardProps {
   booking: CaretakerBooking;
-  onCancel: (id: string) => void;
+  onCancel: (id: number) => void;
 }
 
 const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel }) => {
@@ -54,7 +54,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <p><strong>Navn:</strong> {booking.name}</p>
           <p><strong>Ressource:</strong> {booking.resourceName}</p>
           <p><strong>Telefon:</strong> {booking.phoneNumber}</p>
-          <p><strong>Adresse:</strong> {booking.address}</p>
+          <p><strong>Email:</strong> {booking.email}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>
         </Modal.Body>

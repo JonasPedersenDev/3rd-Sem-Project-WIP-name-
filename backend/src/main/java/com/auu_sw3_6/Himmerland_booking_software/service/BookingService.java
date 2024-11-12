@@ -39,12 +39,21 @@ public class BookingService {
     return bookingRepository.save(booking);
   }
 
+  public List<Booking> getAllBookings() {
+    return bookingRepository.findAll();
+  }
+
   public Booking getBookingById(long id) {
     return bookingRepository.findById(id).orElse(null);
   }
 
-  public void deleteBooking(long id) {
-    bookingRepository.deleteById(id);
+  public boolean deleteBooking(long id) {
+    if (bookingRepository.existsById(id)) {
+      bookingRepository.deleteById(id);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public Booking updateBooking(Booking booking) {
