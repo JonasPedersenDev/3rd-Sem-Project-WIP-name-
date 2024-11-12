@@ -21,9 +21,33 @@ interface CaretakerBookingCardProps {
 
 const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel }) => {
   const [showModal, setShowModal] = useState(false);
+  const [showModalInitials, setShowModalInitials] = useState(false);
+  const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
+  const [showConfirmButton, setShowConfirmButton] = useState(false); // Tracks if the "Bekræft" button should be visible
+
+  // Sample list of caretaker initials
+  const caretakers = ['AB', 'CD', 'EF', 'GH'];
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+
+  const handleCloseInitials = () => {
+    setShowModalInitials(false);
+    setSelectedInitials(null);
+    setShowConfirmButton(false); // Hide "Bekræft" button when modal closes
+  };
+  const handleShowInitials = () => setShowModalInitials(true);
+
+  const handleInitialsSelect = (initials: string) => {
+    setSelectedInitials(initials);
+    setShowConfirmButton(true); // Show "Bekræft" button after an initials selection
+  };
+
+  const handleConfirm = () => {
+    setShowModalInitials(false); // Close initials modal on confirm
+    setSelectedInitials(null); // Reset initials selection after confirmation
+    setShowConfirmButton(false); // Hide "Bekræft" button
+  };
 
   return (
     <div className="card mb-3">
@@ -42,6 +66,11 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               Annuller
             </Button>
           )}
+          {!booking.isFutureBooking && (
+            <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+              Modtag
+            </Button>
+          )}
         </div>
       </div>
 
@@ -57,6 +86,33 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <p><strong>Email:</strong> {booking.email}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>
+        </Modal.Body>
+      </Modal>
+
+      {/* Modal for selecting caretaker initials */}
+      <Modal show={showModalInitials} onHide={handleCloseInitials}>
+        <Modal.Header closeButton>
+          <Modal.Title>Vælg modtager</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p><strong>Medarbejder initialer:</strong></p>
+          <div>
+            {caretakers.map((initials, index) => (
+              <Button
+                key={index}
+                variant="outline-primary"
+                onClick={() => handleInitialsSelect(initials)}
+                className="me-2 mb-2"
+              >
+                {initials}
+              </Button>
+            ))}
+          </div>
+          {showConfirmButton && (
+            <Button variant="outline-secondary" onClick={handleConfirm} className="mt-3">
+              Bekræft
+            </Button>
+          )}
         </Modal.Body>
       </Modal>
     </div>

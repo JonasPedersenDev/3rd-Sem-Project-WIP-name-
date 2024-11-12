@@ -46,6 +46,7 @@ public class SecurityConfig {
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
             .requestMatchers("/api/tool/**", "/api/utility/**", "api/hospitality/**").hasAnyRole("TENANT", "ADMIN")
+            .requestMatchers("/api/CaretakerInitials/**").hasAnyRole("TENANT", "ADMIN")
             .anyRequest().authenticated()
         // Require JWT for all other requests: .authenticated()
         // Allow access for all other requests: .permitAll()

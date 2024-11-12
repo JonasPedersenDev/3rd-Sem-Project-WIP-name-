@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,6 +71,7 @@ public class BookingService {
     LocalDate endDate = details.getEndDate();
     TimeRange startTime = details.getPickupTime();
     TimeRange endTime = details.getDropoffTime();
+    String initials = details.getInitials();
 
     Resource resource = resourceService.getResourceById(resourceID)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
@@ -79,7 +82,7 @@ public class BookingService {
 
     if (isResourceAvailable(resource, startDate, endDate)) {
       Booking booking = new Booking(resource, user, startDate, endDate, startTime, endTime,
-          BookingStatus.CONFIRMED);
+          BookingStatus.CONFIRMED, initials);
       return bookingRepository.save(booking);
     } else {
       throw new IllegalArgumentException("Resource is not available for the selected dates.");
@@ -130,5 +133,24 @@ public class BookingService {
 
     return bookedDatesWithCapacity;
   }
+
+  public List<String> getAllInitials() {
+    List<Booking> bookings = bookingRepository.findAll();
+    return bookings.stream()
+                   .map(booking -> booking.getInitials())
+                   .collect(Collectors.toList());
+}
+
+public boolean setInitialToBooking(long bookingId, String initial) {
+  Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
+  if (optionalBooking.isPresent()) {
+      Booking booking = optionalBooking.get();
+      booking.setInitials(initial); // Assuming Booking class has an addInitial method
+      bookingRepository.save(booking);
+      return true;
+  } else {
+      return false;
+  }
+}
 
 }
