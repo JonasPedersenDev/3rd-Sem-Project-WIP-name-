@@ -48,8 +48,26 @@ public class AdminServiceTest {
     admin.setPassword("Password123");
   }
 
+
   @Test
-  public void testCreateAdmin_SavesAdminWithEncryptedPasswordAndProfilePicture() throws Exception {
+  public void testCreateAdmin_InteractsWithDependencies() throws Exception {
+      // Arrange
+      when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profileImage.jpg");
+      when(passwordEncoder.encode("Password123")).thenReturn("encryptedPassword123");
+      when(adminRepository.save(any(Admin.class))).thenReturn(admin);
+  
+      // Act
+      adminService.createAdmin(admin, profileImage);
+  
+      // Assert
+      verify(adminRepository).save(admin); // Verify interaction with adminRepository
+      verify(pictureService).savePicture(profileImage, isProfilePicture); // Verify interaction with pictureService
+      verify(passwordEncoder).encode("Password123"); // Verify interaction with passwordEncoder
+  }
+
+
+@Test
+public void testCreateAdmin_ReturnsAdminWithCorrectDetails() throws Exception {
     // Arrange
     when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profileImage.jpg");
     when(passwordEncoder.encode("Password123")).thenReturn("encryptedPassword123");
@@ -59,11 +77,12 @@ public class AdminServiceTest {
     Admin createdAdmin = adminService.createAdmin(admin, profileImage);
 
     // Assert
-    verify(adminRepository).save(admin);
-    assertNotNull(createdAdmin);
-    assertEquals("encryptedPassword123", createdAdmin.getPassword());
-    assertEquals("profileImage.jpg", createdAdmin.getProfilePictureFileName());
-  }
+    assertNotNull(createdAdmin, "The created admin should not be null");
+    assertEquals("encryptedPassword123", createdAdmin.getPassword(), "The password should be encrypted");
+    assertEquals("profileImage.jpg", createdAdmin.getProfilePictureFileName(), "The profile picture file name should match");
+}
+
+
 
   @Test
   public void testCreateAdmin_ThrowsExceptionForInvalidProfilePicture() {
