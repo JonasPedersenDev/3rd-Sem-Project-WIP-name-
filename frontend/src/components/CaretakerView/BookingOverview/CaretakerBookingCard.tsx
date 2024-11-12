@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import ApiService from '../../../utils/ApiService';
 
 interface CaretakerBooking {
   id: number;
@@ -24,9 +25,20 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
   const [showModalInitials, setShowModalInitials] = useState(false);
   const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
   const [showConfirmButton, setShowConfirmButton] = useState(false); // Tracks if the "Bekræft" button should be visible
+  const [caretakers, setCaretakers] = useState<string[]>([]); // State to store caretaker initials
 
-  // Sample list of caretaker initials
-  const caretakers = ['AB', 'CD', 'EF', 'GH'];
+  useEffect(() => {
+    const fetchCaretakerInitials = async () => {
+      try {
+        const initials = await ApiService.getAllCaretakerInitials();
+        setCaretakers(initials);
+      } catch (error) {
+        console.error("Error fetching caretaker initials:", error);
+      }
+    };
+
+    fetchCaretakerInitials();
+  }, []);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);

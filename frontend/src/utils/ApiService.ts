@@ -200,6 +200,16 @@ class ApiService {
     }
   }
 
+  async getAllCaretakerInitials() {
+    const endpoint = 'caretaker-initials/get-all';
+    try {
+        const response = await axios.get(this.baseUrl + endpoint, { withCredentials: true });
+        return response.data.map((item: { initials: string }) => item.initials); 
+    } catch (error) {
+        console.error("Error fetching caretaker initials:", error);
+        throw error;
+    }
+}
 
 }
 
