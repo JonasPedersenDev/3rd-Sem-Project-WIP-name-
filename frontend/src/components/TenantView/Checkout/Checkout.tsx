@@ -57,8 +57,9 @@ const Checkout: React.FC = () => {
   
   const formatDate = (date: string) => {
     const newDate = new Date(date);
-    return newDate.toISOString().split('T')[0];
+    return newDate.toLocaleDateString('en-CA');
   };
+  
   
   
   return (

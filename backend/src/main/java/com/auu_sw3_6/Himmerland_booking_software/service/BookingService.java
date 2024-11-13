@@ -1,13 +1,12 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +72,9 @@ public class BookingService {
     TimeRange endTime = details.getDropoffTime();
     String initials = details.getInitials();
 
+    System.out.println("Start Date: " + startDate); //Debugging
+    System.out.println("End Date: " + endDate); //Debugging
+
     Resource resource = resourceService.getResourceById(resourceID)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
 
@@ -93,7 +95,7 @@ public class BookingService {
     return !startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate);
   }
 
-  public boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
+  private boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
 
     for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
