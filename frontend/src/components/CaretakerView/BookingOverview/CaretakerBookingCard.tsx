@@ -13,14 +13,16 @@ interface CaretakerBooking {
   phoneNumber: string;
   email: string;
   isFutureBooking: boolean;
+  isPastBooking: boolean;
 }
 
 interface CaretakerBookingCardProps {
   booking: CaretakerBooking;
   onCancel: (id: number) => void;
+  onComplete: (id: number) => void;
 }
 
-const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel }) => {
+const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel, onComplete }) => {
   const [showModal, setShowModal] = useState(false);
   const [showModalInitials, setShowModalInitials] = useState(false);
   const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
@@ -46,27 +48,23 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
   const handleCloseInitials = () => {
     setShowModalInitials(false);
     setSelectedInitials(null);
-    setShowConfirmButton(false); // Hide "Bekræft" button when modal closes
+    setShowConfirmButton(false);
   };
   const handleShowInitials = () => setShowModalInitials(true);
 
   const handleInitialsSelect = (initials: string) => {
     setSelectedInitials(initials);
-    setShowConfirmButton(true); // Show "Bekræft" button after an initials selection
+    setShowConfirmButton(true);
   };
 
 
   const handleConfirm = async () => {
     if (selectedInitials) {
       try {
-        console.log(`Selected initials: ${selectedInitials}`);
-        console.log(`Booking ID: ${booking.id}`);
         const formattedInitials = selectedInitials.replace(/['"]+/g, '');
         await ApiService.setInitialToBooking(booking.id, formattedInitials);
-        alert("Initials set successfully.");
+        onComplete(booking.id);
       } catch (error) {
-        console.error("Error setting initials:", error);
-        alert("Failed to set initials. Please try again.");
       }
       handleCloseInitials();
     } else {
@@ -91,7 +89,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               Annuller
             </Button>
           )}
-          {!booking.isFutureBooking && (
+          {!booking.isFutureBooking && !booking.isPastBooking && (
             <Button variant="success" className="ms-2" onClick={handleShowInitials}>
               Modtag
             </Button>

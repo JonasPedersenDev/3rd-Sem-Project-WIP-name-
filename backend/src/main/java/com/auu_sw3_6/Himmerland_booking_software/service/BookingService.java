@@ -152,9 +152,11 @@ public boolean setInitialToBooking(long bookingId, String initial) {
       Booking booking = bookingRepository.findById(bookingId).orElse(null);
       if (booking != null) {
           System.out.println("Booking found. Setting initials.");
-          String formattedInitials = initial.replaceAll("[\"']", ""); // Remove quotes from initials
+          String formattedInitials = initial.replaceAll("[\"']", "");
           booking.setInitials(formattedInitials);
-          bookingRepository.save(booking);
+          booking.setStatus(BookingStatus.COMPLETED); // Move this line above save
+          bookingRepository.save(booking); // Save after both fields are set
+          System.out.println(booking.getStatus());
           System.out.println("Initials set and booking saved.");
           return true;
       } else {
@@ -165,6 +167,7 @@ public boolean setInitialToBooking(long bookingId, String initial) {
   }
   return false;
 }
+
 
 
 }
