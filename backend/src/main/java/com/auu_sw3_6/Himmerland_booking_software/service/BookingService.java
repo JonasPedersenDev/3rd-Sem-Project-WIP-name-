@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,20 +21,24 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStat
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.CaretakerInitials;
+import com.auu_sw3_6.Himmerland_booking_software.service.CaretakerInitialsService;
 
 @Service
 public class BookingService {
 
   @Autowired
   private final BookingRepository bookingRepository;
+  private final CaretakerInitialsService caretakerInitialsService;
 
   private final ResourceServiceFactory resourceServiceFactory;
 
   private static final int MAX_BOOKING_DAYS = 5;
 
-  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory) {
+  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory, CaretakerInitialsService caretakerInitialsService) {
     this.bookingRepository = bookingRepository;
     this.resourceServiceFactory = resourceServiceFactory;
+    this.caretakerInitialsService = caretakerInitialsService;
   }
 
   public Booking createBooking(Booking booking) {
@@ -69,6 +75,7 @@ public class BookingService {
     LocalDate endDate = details.getEndDate();
     TimeRange startTime = details.getPickupTime();
     TimeRange endTime = details.getDropoffTime();
+    String initials = details.getInitials();
 
     Resource resource = resourceService.getResourceById(resourceID)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
@@ -79,7 +86,7 @@ public class BookingService {
 
     if (isResourceAvailable(resource, startDate, endDate)) {
       Booking booking = new Booking(resource, user, startDate, endDate, startTime, endTime,
-          BookingStatus.CONFIRMED);
+          BookingStatus.CONFIRMED, initials);
       return bookingRepository.save(booking);
     } else {
       throw new IllegalArgumentException("Resource is not available for the selected dates.");
@@ -130,5 +137,37 @@ public class BookingService {
 
     return bookedDatesWithCapacity;
   }
+
+  public List<String> getAllInitials() {
+    List<Booking> bookings = bookingRepository.findAll();
+    return bookings.stream()
+                   .map(booking -> booking.getInitials())
+                   .collect(Collectors.toList());
+}
+
+public boolean setInitialToBooking(long bookingId, String initial) {
+  System.out.println("Checking if initials exist: " + initial);
+  if (caretakerInitialsService.initialsExist(initial)) {
+      System.out.println("Initials exist. Fetching booking with ID: " + bookingId + " and initials: " + initial);
+      Booking booking = bookingRepository.findById(bookingId).orElse(null);
+      if (booking != null) {
+          System.out.println("Booking found. Setting initials.");
+          String formattedInitials = initial.replaceAll("[\"']", "");
+          booking.setInitials(formattedInitials);
+          booking.setStatus(BookingStatus.COMPLETED); // Move this line above save
+          bookingRepository.save(booking); // Save after both fields are set
+          System.out.println(booking.getStatus());
+          System.out.println("Initials set and booking saved.");
+          return true;
+      } else {
+          System.out.println("Booking not found for ID: " + bookingId);
+      }
+  } else {
+      System.out.println("Initials do not exist: " + initial);
+  }
+  return false;
+}
+
+
 
 }

@@ -38,11 +38,13 @@ public class Booking {
   @Enumerated(EnumType.STRING)
   private BookingStatus status;
 
+  private String initials;
+
   public Booking() {
   }
 
   public Booking(Resource resource, User user, LocalDate startDate, LocalDate endDate,
-  TimeRange pickupTime, TimeRange dropoffTime, BookingStatus status) {
+  TimeRange pickupTime, TimeRange dropoffTime, BookingStatus status, String initials) {
     this.resource = resource;
     this.user = user;
     this.startDate = startDate;
@@ -50,6 +52,7 @@ public class Booking {
     this.pickupTime = pickupTime;
     this.dropoffTime = dropoffTime;
     this.status = status;
+    this.initials = initials;
   }
 
   public long getId() {
@@ -114,6 +117,14 @@ public class Booking {
 
   public void setStatus(BookingStatus status) {
     this.status = status;
+  }
+
+  public String getInitials(){
+    return initials;
+  }
+
+  public void setInitials(String initials){
+    this.initials = initials;
   }
 
 }

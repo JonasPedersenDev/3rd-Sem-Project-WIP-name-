@@ -14,7 +14,9 @@ interface CaretakerBooking {
   dropoffTime: string;
   phoneNumber: string;
   email: string;
+  status: string;
   isFutureBooking: boolean;
+  isPastBooking: boolean;
 }
 
 const CaretakerBookingOverview: React.FC = () => {
@@ -36,11 +38,13 @@ const CaretakerBookingOverview: React.FC = () => {
             resourceName: booking.resource.name,
             startDate: new Date(booking.startDate[0], booking.startDate[1] - 1, booking.startDate[2]),
             endDate: new Date(booking.endDate[0], booking.endDate[1] - 1, booking.endDate[2]),
+            status: booking.status,
             pickupTime: booking.pickupTime,
             dropoffTime: booking.dropoffTime,
             phoneNumber: booking.user.mobile,
             email: booking.user.email, // Replace with address if available
             isFutureBooking: false, // This will be updated later
+            isPastBooking: false, 
           })
         );
         
@@ -66,19 +70,32 @@ const CaretakerBookingOverview: React.FC = () => {
     }
   };
 
-  const updateFutureBookings = (bookings: CaretakerBooking[]) => {
+  const onBookingComplete = (id: number) => {
     const updatedBookings = bookings.map((booking) =>
-      booking.startDate > currentDate ? { ...booking, isFutureBooking: true } : booking
+        booking.id === id ? { ...booking, status: "COMPLETED", isPastBooking: true } : booking
     );
-  
     setBookings(updatedBookings);
-  };
+    updateFutureBookings(updatedBookings); 
+};
+
+  const updateFutureBookings = (bookings: CaretakerBooking[]) => {
+    const updatedBookings = bookings.map((booking) => ({
+        ...booking,
+        isFutureBooking: booking.startDate > currentDate,
+        isPastBooking: booking.endDate < currentDate || booking.status === "COMPLETED",
+    }));
+
+    setBookings(updatedBookings);
+};
   
   const currentDate = new Date();
 
-  const activeBookings = bookings.filter((booking) => booking.startDate <= currentDate && booking.endDate >= currentDate);
-  const futureBookings = bookings.filter((booking) => booking.startDate > currentDate);
-  const pastBookings = bookings.filter((booking) => booking.endDate < currentDate);
+  const activeBookings = bookings.filter((booking) =>
+    booking.startDate <= currentDate && booking.endDate >= currentDate && booking.status !== "COMPLETED");
+  const futureBookings = bookings.filter((booking) => 
+    booking.startDate > currentDate);
+  const pastBookings = bookings.filter((booking) =>
+    booking.endDate < currentDate || booking.status === "COMPLETED");
 
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
@@ -100,7 +117,7 @@ const CaretakerBookingOverview: React.FC = () => {
           {activeBookings.length === 0 ? (
             <p>Ingen nuværende reservationer</p>
           ) : (
-            activeBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} />))
+            activeBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
           )}
         </div>
       </Collapse>
@@ -122,7 +139,7 @@ const CaretakerBookingOverview: React.FC = () => {
           {futureBookings.length === 0 ? (
             <p>Ingen kommende reservationer</p>
           ) : (
-            futureBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} />))
+            futureBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
           )}
         </div>
       </Collapse>
@@ -144,7 +161,7 @@ const CaretakerBookingOverview: React.FC = () => {
           {pastBookings.length === 0 ? (
             <p>Ingen tidligere reservationer</p>
           ) : (
-            pastBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} />))
+            pastBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
           )}
         </div>
       </Collapse>

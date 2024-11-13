@@ -200,6 +200,34 @@ class ApiService {
     }
   }
 
+  async getAllCaretakerInitials() {
+    const endpoint = 'caretaker-initials/get-all';
+    try {
+        const response = await axios.get(this.baseUrl + endpoint, { withCredentials: true });
+        return response.data.map((item: { initials: string }) => item.initials); 
+    } catch (error) {
+        console.error("Error fetching caretaker initials:", error);
+        throw error;
+    }
+}
+
+public async setInitialToBooking(bookingId: number, initials: string) {
+  try {
+    const response = await axios.post(
+      `${this.baseUrl}booking/set-initials/${bookingId}`, initials,
+      {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error setting initials:", error);
+    throw error;
+  }
+}
 
 }
 
