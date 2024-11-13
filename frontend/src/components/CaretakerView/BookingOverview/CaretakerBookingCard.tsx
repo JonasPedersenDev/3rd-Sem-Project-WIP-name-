@@ -24,8 +24,8 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
   const [showModal, setShowModal] = useState(false);
   const [showModalInitials, setShowModalInitials] = useState(false);
   const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
-  const [showConfirmButton, setShowConfirmButton] = useState(false); // Tracks if the "Bekræft" button should be visible
-  const [caretakers, setCaretakers] = useState<string[]>([]); // State to store caretaker initials
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [caretakers, setCaretakers] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCaretakerInitials = async () => {
@@ -55,10 +55,23 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
     setShowConfirmButton(true); // Show "Bekræft" button after an initials selection
   };
 
-  const handleConfirm = () => {
-    setShowModalInitials(false); // Close initials modal on confirm
-    setSelectedInitials(null); // Reset initials selection after confirmation
-    setShowConfirmButton(false); // Hide "Bekræft" button
+
+  const handleConfirm = async () => {
+    if (selectedInitials) {
+      try {
+        console.log(`Selected initials: ${selectedInitials}`);
+        console.log(`Booking ID: ${booking.id}`);
+        const formattedInitials = selectedInitials.replace(/['"]+/g, '');
+        await ApiService.setInitialToBooking(booking.id, formattedInitials);
+        alert("Initials set successfully.");
+      } catch (error) {
+        console.error("Error setting initials:", error);
+        alert("Failed to set initials. Please try again.");
+      }
+      handleCloseInitials();
+    } else {
+      console.warn("No initials selected");
+    }
   };
 
   return (

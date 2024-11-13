@@ -66,8 +66,9 @@ public class BookingController {
 
   @Operation(summary = "Set initial to a booking", description = "Add an initial to a specific booking by its ID")
   @PostMapping(value = "/set-initials/{bookingId}", consumes = "application/json")
-  public ResponseEntity<Void> setInitialToBooking(@PathVariable long bookingId, @RequestBody String initial) {
-    boolean isAdded = bookingService.setInitialToBooking(bookingId, initial);
+  public ResponseEntity<Void> setInitialToBooking(@PathVariable long bookingId, @RequestBody String initials) {
+    System.out.println("Received request to set initials for booking with ID: " + bookingId);
+    boolean isAdded = bookingService.setInitialToBooking(bookingId, initials);
     if (isAdded) {
       return ResponseEntity.ok().build();
     } else {

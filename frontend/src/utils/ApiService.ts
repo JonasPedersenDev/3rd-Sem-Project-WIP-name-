@@ -211,6 +211,24 @@ class ApiService {
     }
 }
 
+public async setInitialToBooking(bookingId: number, initials: string) {
+  try {
+    const response = await axios.post(
+      `${this.baseUrl}booking/set-initials/${bookingId}`, initials,
+      {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error setting initials:", error);
+    throw error;
+  }
+}
+
 }
 
 export default new ApiService();
