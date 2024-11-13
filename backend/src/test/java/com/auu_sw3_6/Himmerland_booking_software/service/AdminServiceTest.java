@@ -60,9 +60,9 @@ public class AdminServiceTest {
       adminService.createAdmin(admin, profileImage);
   
       // Assert
-      verify(adminRepository).save(admin); // Verify interaction with adminRepository
-      verify(pictureService).savePicture(profileImage, isProfilePicture); // Verify interaction with pictureService
-      verify(passwordEncoder).encode("Password123"); // Verify interaction with passwordEncoder
+      verify(adminRepository).save(admin); 
+      verify(pictureService).savePicture(profileImage, isProfilePicture);
+      verify(passwordEncoder).encode("Password123");
   }
 
 

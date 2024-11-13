@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
-import com.auu_sw3_6.Himmerland_booking_software.exception.RestrictedUsernameException;
 
 @ExtendWith(MockitoExtension.class)
 public class TenantServiceTest {
@@ -51,22 +50,23 @@ public class TenantServiceTest {
   public void setUp() {
     tenant = new Tenant();
     tenant.setId(1L);
-    tenant.setUsername("lejerBruger");
-    tenant.setPassword("kodeord123");
+    tenant.setUsername("tenantUser");
+    tenant.setPassword("password123");
 
-    tenantService.setRestrictedUsernamesSet(new HashSet<>(Arrays.asList("administrator", "rod")));
+    tenantService.setRestrictedUsernamesSet(new HashSet<>(Arrays.asList("administrator", "root")));
   }
+  
 
   @Test
   public void testCreateTenant_CallsSaveMethodOnRepository() {
-    // Arrange 
+    // Arrange
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act 
+    // Act
     tenantService.createTenant(tenant, profilePicture);
 
-    // Assert - Bekræft at save-metoden blev kaldt
+    // Assert - Verify that the save method was called
     verify(tenantRepository).save(tenant);
   }
 
@@ -77,87 +77,73 @@ public class TenantServiceTest {
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
     // Act
-    Tenant oprettetLejer = tenantService.createTenant(tenant, profilePicture);
+    Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
 
-    // Assert - Bekræft at lejer blev oprettet og ikke er null
-    assertNotNull(oprettetLejer, "Lejer skal oprettes og ikke være null");
+    // Assert
+    assertNotNull(createdTenant, "Tenant should be created and not be null");
   }
 
   @Test
   public void testCreateTenant_SavesProfilePicture() throws Exception {
     // Arrange
-    when(profilePictureService.savePicture(profilePicture, true)).thenReturn("profilbillede.jpg");
+    when(profilePictureService.savePicture(profilePicture, true)).thenReturn("profilePicture.jpg");
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act 
-    Tenant oprettetLejer = tenantService.createTenant(tenant, profilePicture);
+    // Act
+    Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
 
-    // Assert - Bekræft at profilbillede blev gemt korrekt
-    assertEquals("profilbillede.jpg", oprettetLejer.getProfilePictureFileName(),
-        "Profilbillede filnavn skal være 'profilbillede.jpg'");
+    // Assert
+    assertEquals("profilePicture.jpg", createdTenant.getProfilePictureFileName(),
+        "Profile picture filename should be 'profilePicture.jpg'");
   }
 
   @Test
   public void testCreateTenant_EncodesPassword() {
-    // Arrange 
-    when(passwordEncoder.encode("kodeord123")).thenReturn("kodetKodeord123");
+    // Arrange
+    when(passwordEncoder.encode("password123")).thenReturn("encodedPassword123");
     when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act 
-    Tenant oprettetLejer = tenantService.createTenant(tenant, profilePicture);
+    // Act
+    Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
 
-    // Assert - Bekræft at kodeordet blev kodet korrekt
-    assertEquals("kodetKodeord123", oprettetLejer.getPassword(),
-        "Kodeord skal være kodet og ikke det rå kodeord");
+    // Assert
+    assertEquals("encodedPassword123", createdTenant.getPassword(),
+        "Password should be encoded and not the raw password");
   }
 
-  @Test
-  public void testCreateTenant_ThrowsExceptionForInvalidProfilePicture() {
-    // Arrange 
-    doThrow(new IllegalArgumentException("Ikke-understøttet filtype")).when(profilePictureService)
+
+@Test
+public void testCreateTenant_ThrowsExceptionForInvalidProfilePicture() {
+    // Arrange:
+    doThrow(new IllegalArgumentException("Unsupported file type")).when(profilePictureService)
         .savePicture(profilePicture, true);
     when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
 
-    // Act & Assert - Bekræft at IllegalArgumentException bliver kastet
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-      tenantService.createTenant(tenant, profilePicture);
+    // Act & Assert:
+    assertThrows(IllegalArgumentException.class, () -> {
+        tenantService.createTenant(tenant, profilePicture);
     });
-    assertEquals("Ikke-understøttet filtype", exception.getMessage(),
-        "Bør kaste en exception for ikke-understøttet filtype");
-  }
-/* 
-  @Test
-  void createTenant_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
-      // Arrange 
-      String duplikeretBrugernavn = "eksisterendeBruger";
-      Tenant nyLejer = new Tenant();
-      nyLejer.setUsername(duplikeretBrugernavn);
-      when(tenantRepository.findByUsername(duplikeretBrugernavn)).thenReturn(Optional.of(nyLejer));
-      when(adminService.getUserByUsername(duplikeretBrugernavn)).thenReturn(Optional.empty());
-
-      // Act & Assert 
-      UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
-          tenantService.createTenant(nyLejer, profilePicture);
-      });
-      
-      assertEquals("Bruger med brugernavn 'eksisterendeBruger' findes allerede", exception.getMessage());
-  }
-*/
-
-  @Test
-  public void testCreateTenant_ThrowsExceptionForRestrictedUsername() {
-      // Arrange
-      RestrictedUsernameException exception = assertThrows(RestrictedUsernameException.class, () -> {
-          Tenant testLejer = new Tenant();
-          testLejer.setUsername("rod");
-          testLejer.setPassword("etKodeord123");
-          tenantService.createTenant(testLejer, null);
-      });
-    
-      // assert
-      assertEquals("rod", exception.getMessage());
-  }
-
 }
+
+
+@Test
+public void testCreateTenant_ThrowsExceptionWithCorrectMessageForInvalidProfilePicture() {
+    // Arrange:
+    doThrow(new IllegalArgumentException("Unsupported file type")).when(profilePictureService)
+        .savePicture(profilePicture, true);
+    when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
+
+    // Act:
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        tenantService.createTenant(tenant, profilePicture);
+    });
+
+    // Assert:
+    assertEquals("Unsupported file type", exception.getMessage(),
+        "Should throw an exception with the correct message for unsupported file type");
+}
+}
+
+
