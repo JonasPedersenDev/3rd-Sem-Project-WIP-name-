@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
-import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
@@ -61,38 +61,47 @@ public class BookingService {
     return bookingRepository.save(booking);
   }
 
-  // Method to book a resource for a user
   public Booking bookResource(User user, BookingDetails details) {
     ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(details.getResourceType());
-
-    long resourceID = details.getResourceID();
-    LocalDate startDate = details.getStartDate();
-    LocalDate endDate = details.getEndDate();
-    TimeRange startTime = details.getPickupTime();
-    TimeRange endTime = details.getDropoffTime();
-    String initials = details.getInitials();
-
-    System.out.println("Start Date: " + startDate); //Debugging
-    System.out.println("End Date: " + endDate); //Debugging
-
-    Resource resource = resourceService.getResourceById(resourceID)
+    Resource resource = resourceService.getResourceById(details.getResourceID())
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
 
+    LocalDate startDate = details.getStartDate();
+    LocalDate endDate = details.getEndDate();
+
     if (isBookingPeriodInvalid(startDate, endDate)) {
-      throw new IllegalArgumentException("Booking period cannot exceed " + MAX_BOOKING_DAYS + " days.");
+        throw new IllegalArgumentException("Invalid booking period.");
     }
 
     if (isResourceAvailable(resource, startDate, endDate)) {
-      Booking booking = new Booking(resource, user, startDate, endDate, startTime, endTime,
-          BookingStatus.CONFIRMED, initials);
-      return bookingRepository.save(booking);
+        Booking booking = new Booking(resource, user, startDate, endDate,
+            details.getPickupTime(), details.getDropoffTime(),
+            BookingStatus.CONFIRMED, details.getInitials());
+
+        return bookingRepository.save(booking);
     } else {
-      throw new IllegalArgumentException("Resource is not available for the selected dates.");
+        throw new IllegalArgumentException("Resource is not available for the selected dates.");
     }
-  }
+}
 
   private boolean isBookingPeriodInvalid(LocalDate startDate, LocalDate endDate) {
-    return !startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate);
+    if (!startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate)) {
+      return true;
+    }
+
+    if (startDate.isBefore(LocalDate.now())) {
+      return true;
+    }
+
+    if (isWeekend(startDate) || isWeekend(endDate)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private boolean isWeekend(LocalDate date) {
+    return date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
   }
 
   private boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
@@ -139,20 +148,20 @@ public class BookingService {
   public List<String> getAllInitials() {
     List<Booking> bookings = bookingRepository.findAll();
     return bookings.stream()
-                   .map(booking -> booking.getInitials())
-                   .collect(Collectors.toList());
-}
+        .map(booking -> booking.getInitials())
+        .collect(Collectors.toList());
+  }
 
-public boolean setInitialToBooking(long bookingId, String initial) {
-  Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
-  if (optionalBooking.isPresent()) {
+  public boolean setInitialToBooking(long bookingId, String initial) {
+    Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
+    if (optionalBooking.isPresent()) {
       Booking booking = optionalBooking.get();
       booking.setInitials(initial); // Assuming Booking class has an addInitial method
       bookingRepository.save(booking);
       return true;
-  } else {
+    } else {
       return false;
+    }
   }
-}
 
 }

@@ -155,7 +155,9 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             disabled={
               !isValidDateRange(
                 bookingFormData.startDate,
-                bookingFormData.endDate
+                bookingFormData.endDate,
+                bookedDates,
+                resource.capacity
               )
             }
           >
