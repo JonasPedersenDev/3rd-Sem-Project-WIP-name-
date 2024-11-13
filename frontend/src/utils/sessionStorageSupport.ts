@@ -11,6 +11,13 @@ const getBookingList = (): Booking[] => {
   }));
 };
 
+export const getHighestBookingID = (): number => {
+  const bookings = getBookingList();
+  return bookings.reduce((highestID, booking) => {
+    return booking.id > highestID ? booking.id : highestID;
+  }, 0);
+}
+
 const saveBookingList = (bookingList: Booking[]): void => {
   sessionStorage.setItem("bookingList", JSON.stringify(bookingList));
 };
