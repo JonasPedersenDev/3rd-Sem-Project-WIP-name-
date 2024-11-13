@@ -28,6 +28,12 @@ public class SecurityConfig {
   private JwtAuthorizationFilter jwtAuthorizationFilter;
 
   @Autowired
+  private CustomAccessDeniedHandler customAccessDeniedHandler;
+
+  @Autowired
+  private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+  @Autowired
   private UserDetailsService userDetailsService;
 
   @Bean
@@ -45,13 +51,13 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
-            .requestMatchers("/api/tool/**", "/api/utility/**", "api/hospitality/**").hasAnyRole("TENANT", "ADMIN")
-            .requestMatchers("/api/caretaker-initials/**").hasAnyRole("TENANT", "ADMIN")
-            .requestMatchers("/api/caretaker-initials/get-all").hasAnyRole("TENANT", "ADMIN")
+            .requestMatchers("/api/booking/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         // Require JWT for all other requests: .authenticated()
         // Allow access for all other requests: .permitAll()
-        )
+        ).exceptionHandling(exceptionHandling -> exceptionHandling
+            .accessDeniedHandler(customAccessDeniedHandler)
+            .authenticationEntryPoint(customAuthenticationEntryPoint))
         .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
