@@ -6,17 +6,24 @@ interface SignUpDetails {
   password: string;
   email: string;
   name: string;
+  houseAddress?: string;
+  mobileNumber: string;
 }
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  const [details, setDetails] = useState<SignUpDetails>({ username: "", password: "", email: "", name: "" });
+  const [details, setDetails] = useState<SignUpDetails>({ username: "", password: "", email: "", name: "", houseAddress: "", mobileNumber: "" });
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Valider om det er en mail
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+
+  const ismobileNumber = (mobileNumber: string): boolean => {
+    const mobileNumberRegex = /^\d{8}$/;
+    return mobileNumberRegex.test(mobileNumber);
   };
 
   // Valider styrke af kodeord
@@ -34,6 +41,10 @@ const SignUp: React.FC = () => {
     }
     if (!isValidEmail(email)) {
       setErrorMessage("Indtast en gyldig email.");
+      return false;
+    }
+    if (!ismobileNumber(details.mobileNumber)) {
+      setErrorMessage("Indtast et gyldigt telefonnummer.");
       return false;
     }
     if (!isStrongPassword(password)) {
@@ -114,6 +125,32 @@ const SignUp: React.FC = () => {
             value={details.username}
             onChange={handleChange}
             placeholder="Skriv brugernavn"
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="mobileNumber">Telefonnummer</label>
+          <input
+            type="text"
+            className="form-control form-control-lg"
+            id="mobileNumber"
+            value={details.mobileNumber}
+            onChange={handleChange}
+            placeholder="Skriv telefonnummer"
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="houseAddress">Adresse</label>
+          <input
+            type="text"
+            className="form-control form-control-lg"
+            id="houseAddress"
+            value={details.houseAddress}
+            onChange={handleChange}
+            placeholder="Skriv adresse"
             required
           />
         </div>

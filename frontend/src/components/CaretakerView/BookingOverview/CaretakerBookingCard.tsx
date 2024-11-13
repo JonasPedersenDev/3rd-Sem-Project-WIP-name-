@@ -13,19 +13,21 @@ interface CaretakerBooking {
   phoneNumber: string;
   email: string;
   isFutureBooking: boolean;
+  isPastBooking: boolean;
 }
 
 interface CaretakerBookingCardProps {
   booking: CaretakerBooking;
   onCancel: (id: number) => void;
+  onComplete: (id: number) => void;
 }
 
-const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel }) => {
+const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel, onComplete }) => {
   const [showModal, setShowModal] = useState(false);
   const [showModalInitials, setShowModalInitials] = useState(false);
   const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
-  const [showConfirmButton, setShowConfirmButton] = useState(false); // Tracks if the "Bekræft" button should be visible
-  const [caretakers, setCaretakers] = useState<string[]>([]); // State to store caretaker initials
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [caretakers, setCaretakers] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCaretakerInitials = async () => {
@@ -46,19 +48,28 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
   const handleCloseInitials = () => {
     setShowModalInitials(false);
     setSelectedInitials(null);
-    setShowConfirmButton(false); // Hide "Bekræft" button when modal closes
+    setShowConfirmButton(false);
   };
   const handleShowInitials = () => setShowModalInitials(true);
 
   const handleInitialsSelect = (initials: string) => {
     setSelectedInitials(initials);
-    setShowConfirmButton(true); // Show "Bekræft" button after an initials selection
+    setShowConfirmButton(true);
   };
 
-  const handleConfirm = () => {
-    setShowModalInitials(false); // Close initials modal on confirm
-    setSelectedInitials(null); // Reset initials selection after confirmation
-    setShowConfirmButton(false); // Hide "Bekræft" button
+
+  const handleConfirm = async () => {
+    if (selectedInitials) {
+      try {
+        const formattedInitials = selectedInitials.replace(/['"]+/g, '');
+        await ApiService.setInitialToBooking(booking.id, formattedInitials);
+        onComplete(booking.id);
+      } catch (error) {
+      }
+      handleCloseInitials();
+    } else {
+      console.warn("No initials selected");
+    }
   };
 
   return (
@@ -78,7 +89,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               Annuller
             </Button>
           )}
-          {!booking.isFutureBooking && (
+          {!booking.isFutureBooking && !booking.isPastBooking && (
             <Button variant="success" className="ms-2" onClick={handleShowInitials}>
               Modtag
             </Button>

@@ -9,7 +9,7 @@ interface UserInfo {
   name: string;
   houseAddress?: string;
   email: string;
-  mobile_number?: string;
+  mobileNumber: string;
   password: string;
 }
 
@@ -18,6 +18,8 @@ const SettingsForm: React.FC = () => {
     id: 0,
     username: "",
     name: "",
+    houseAddress: "",
+    mobileNumber: "",
     email: "",
     password: ""
   });
@@ -36,6 +38,7 @@ const SettingsForm: React.FC = () => {
         const response = await ApiService.fetchData<UserInfo>("tenant");
         console.log("User Information:", response.data);
         setUserInfo(response.data);
+        console.log("User info:", userInfo);
         // Assuming the profile picture URL is part of the user data
       //   const profilePictureResponse = await ApiService.fetchData<ArrayBuffer>("user/profilePicture");
       //   const base64Image = btoa(
@@ -178,15 +181,15 @@ const SettingsForm: React.FC = () => {
                     placeholder={userInfo.email}
                   />
                 </Form.Group>
-                <Form.Group controlId="formPhoneNumber">
+                <Form.Group controlId="formmobileNumber">
                   <Form.Label>Telefon nummer</Form.Label>
                   <Form.Control
                     type="text"
-                    name="phoneNumber"
-                    value={userInfo.mobile_number}
+                    name="mobileNumber"
+                    value={userInfo.mobileNumber}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    placeholder={userInfo.mobile_number}
+                    placeholder={userInfo.mobileNumber}
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">

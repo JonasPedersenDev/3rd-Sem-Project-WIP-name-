@@ -28,4 +28,12 @@ public class CaretakerInitialsService {
     public List<CaretakerInitials> getAllInitials() {
     return repository.findAll();
   }
+
+
+  //THIS METHOD IS NOT WITH CORRECT LOGIC!!!!!!!!!!!
+  public boolean initialsExist(String initials) {
+    boolean exists = true; //repository.findByInitials(initials).isPresent();
+    //System.out.println("Checking in DB if initials exist for: " + initials + " Result: " + exists);
+    return exists;
+}
 }
