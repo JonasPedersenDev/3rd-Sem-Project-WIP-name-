@@ -69,7 +69,7 @@ const SignUp: React.FC = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await ApiService.signUp({user: details});
+      const response = await ApiService.signUp({ user: details });
 
       console.log(response);
       console.log(response.data);

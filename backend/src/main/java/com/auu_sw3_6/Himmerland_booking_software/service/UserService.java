@@ -42,6 +42,8 @@ public abstract class UserService<T extends User> {
           user.setMobileNumber(updatedUser.getMobileNumber());
           user.setUsername(updatedUser.getUsername());
           user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+          user.setProfilePictureFileName(updatedUser.getProfilePictureFileName());
+          user.setHouseAddress(updatedUser.getHouseAddress());
           return repository.save(user);
         })
         .orElseThrow(() -> new UserNotFoundException("User not found"));

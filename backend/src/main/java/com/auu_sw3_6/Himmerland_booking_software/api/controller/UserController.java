@@ -36,9 +36,9 @@ public abstract class UserController<T extends User> {
     this.userService = userService;
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-    User user = userService.updateUser(id, updatedUser);
+  @PutMapping("/{updatedUserId}")
+  public ResponseEntity<User> updateUser(@PathVariable Long updatedUserId, @RequestBody User updatedUser) {
+    User user = userService.updateUser(updatedUserId, updatedUser);
     return ResponseEntity.ok(user);
   }
 
