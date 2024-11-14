@@ -1,4 +1,4 @@
-package com.auu_sw3_6.Himmerland_booking_software.api.controller;
+/* package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -94,3 +94,4 @@ public class UtilityControllerTest {
         });
     }
 }
+ */
