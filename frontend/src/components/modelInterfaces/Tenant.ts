@@ -1,7 +1,7 @@
 export default interface Tenant {
     id: number;
     name: string;
-    address: string;
-    phone: string;
+    houseAddress: string;
+    mobileNumber: string;
     email: string;
 }
