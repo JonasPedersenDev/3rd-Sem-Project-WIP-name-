@@ -10,8 +10,10 @@ interface CaretakerBooking {
   endDate: Date;
   pickupTime: string;
   dropoffTime: string;
-  phoneNumber: string;
+  mobileNumber: string;
+  houseAddress: string;
   email: string;
+  status: string;
   isFutureBooking: boolean;
   isPastBooking: boolean;
 }
@@ -105,7 +107,8 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
         <Modal.Body>
           <p><strong>Navn:</strong> {booking.name}</p>
           <p><strong>Ressource:</strong> {booking.resourceName}</p>
-          <p><strong>Telefon:</strong> {booking.phoneNumber}</p>
+          <p><strong>Telefon:</strong> {booking.mobileNumber}</p>
+          <p><strong>Adresse:</strong> {booking.houseAddress}</p>
           <p><strong>Email:</strong> {booking.email}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>

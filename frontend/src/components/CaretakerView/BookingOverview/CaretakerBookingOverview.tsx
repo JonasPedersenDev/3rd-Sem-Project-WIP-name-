@@ -12,7 +12,8 @@ interface CaretakerBooking {
   endDate: Date;
   pickupTime: string;
   dropoffTime: string;
-  phoneNumber: string;
+  mobileNumber: string;
+  houseAddress: string;
   email: string;
   status: string;
   isFutureBooking: boolean;
@@ -41,7 +42,8 @@ const CaretakerBookingOverview: React.FC = () => {
             status: booking.status,
             pickupTime: booking.pickupTime,
             dropoffTime: booking.dropoffTime,
-            phoneNumber: booking.user.mobile,
+            mobileNumber: booking.user.mobileNumber,
+            houseAddress: booking.user.houseAddress,
             email: booking.user.email, // Replace with address if available
             isFutureBooking: false, // This will be updated later
             isPastBooking: false, 
