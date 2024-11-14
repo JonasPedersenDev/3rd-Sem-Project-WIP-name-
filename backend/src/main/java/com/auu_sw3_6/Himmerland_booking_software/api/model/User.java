@@ -51,12 +51,15 @@ public abstract class User {
   @Schema(description = "File name of the user's profile picture", accessMode = Schema.AccessMode.READ_ONLY)
   private String profilePictureFileName;
 
+  @Schema(description = "The user's house address")
+  private String houseAddress;
+
   // Default no-argument constructor (required by JPA)
   public User() {
   }
 
   public User(long id, String name, String email, String mobileNumber, String username, String password,
-      String profilePictureFileName) {
+      String profilePictureFileName, String houseAddress) {
     this.id = id;
     this.name = name;
     this.email = email;
@@ -64,6 +67,7 @@ public abstract class User {
     this.username = username;
     this.password = password;
     this.profilePictureFileName = profilePictureFileName;
+    this.houseAddress = houseAddress;
   }
 
   public long getId() {
@@ -120,6 +124,14 @@ public abstract class User {
 
   public void setProfilePictureFileName(String profilePictureFileName) {
     this.profilePictureFileName = profilePictureFileName;
+  }
+
+  public String getHouseAddress() {
+    return houseAddress;
+  }
+
+  public void setHouseAddress(String houseAddress) {
+    this.houseAddress = houseAddress;
   }
 
 }
