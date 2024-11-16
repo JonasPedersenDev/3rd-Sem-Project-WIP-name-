@@ -86,7 +86,6 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
 
     const handleBooking = () => {
         if (selectedResource && selectedUser && selectedStart && selectedEnd) {
-            // Add booking logic here
             console.log("Booking:", {
                 resource: selectedResource,
                 user: selectedUser,
@@ -112,19 +111,21 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                         </option>
                     ))}
                 </select>
-                <select
-                    value={selectedUser?.id || ""}
-                    onChange={(e) =>
-                        setSelectedUser(users.find((user) => user.id === Number(e.target.value)) || null)
-                    }
-                >
-                    <option value="">Select User</option>
-                    {users.map((user) => (
-                        <option key={user.id} value={user.id}>
-                            {user.name}
-                        </option>
-                    ))}
-                </select>
+                {/*
+                                <select
+                                    value={selectedUser?.id || ""}
+                                    onChange={(e) =>
+                                        setSelectedUser(users.find((user) => user.id === Number(e.target.value)) || null)
+                                    }
+                                >
+                                    <option value="">Select User</option>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </option>
+                                    ))}
+                                </select>
+                */}
             </div>
             <Calendar
                 tileClassName={({ date }) => {
@@ -163,7 +164,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                     <span>Weekend (Kan ikke reserveres)</span>
                 </div>
             </div>
-            <button onClick={handleBooking} disabled={!selectedResource || !selectedUser || !selectedStart || !selectedEnd}>
+            <button type="button" className="btn btn-primary" onClick={handleBooking} disabled={!selectedResource || !selectedUser || !selectedStart || !selectedEnd}>
                 Book
             </button>
         </div>

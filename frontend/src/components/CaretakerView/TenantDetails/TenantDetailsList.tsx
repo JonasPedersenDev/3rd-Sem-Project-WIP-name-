@@ -5,6 +5,7 @@ import BookForTenant from "../../CaretakerView/TenantDetails/BookForTenant";
 import { Modal, Button } from "react-bootstrap";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import FilterSearch from "./FilterSearch";
+import DeleteUser from "./DeleteUser";
 
 const TenantDetailsList: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -39,8 +40,9 @@ const TenantDetailsList: React.FC = () => {
   const handleBookClick = async (tenant: Tenant) => {
     setSelectedTenant(tenant);
     try {
-      const response = await ApiService.fetchData("admin/getBookedDates");
+      const response = await ApiService.fetchData("booking/get-all");
       setBookedDates(response.data as BookingDate[]);
+      console.log(tenant);
     } catch (error) {
       console.error("Failed to fetch booked dates:", error);
     }
@@ -61,6 +63,16 @@ const TenantDetailsList: React.FC = () => {
     );
     setFilteredTenants(filtered);
   };
+
+  const handleDelete = async (tenantId: string) => {
+    try {
+      await ApiService.deleteData(`admin/deleteTenant/${tenantId}`);
+      setTenants((prev) => prev.filter((tenant) => tenant.id !== Number(tenantId)));
+      setFilteredTenants((prev) => prev.filter((tenant) => tenant.id !== Number(tenantId)));
+    } catch (error) {
+      console.error("Failed to delete tenant:", error);
+    }
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -85,9 +97,9 @@ const TenantDetailsList: React.FC = () => {
               <p>Email: {tenant.email}</p>
             </div>
             <div className="tenant-actions">
-              <button onClick={() => handleBookClick(tenant)}>Book for Udlejer</button>
-              <button>Edit</button>
-              <button>Delete</button>
+              <button className="btn btn-success" onClick={() => handleBookClick(tenant)}>Book for Udlejer</button>
+              <button className="btn btn-success" >Ændre</button>
+              <DeleteUser tenantId={tenant.id.toString()} onDelete={handleDelete} />
             </div>
           </div>
         ))}
@@ -95,7 +107,7 @@ const TenantDetailsList: React.FC = () => {
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Book for {selectedTenant?.name}</Modal.Title>
+          <Modal.Title>Book for {selectedTenant?.id}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedTenant && (

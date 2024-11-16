@@ -28,7 +28,10 @@ class ApiService {
       return response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error("Error updating user:", error.response?.data || error.message);
+        console.error(
+          "Error updating user:",
+          error.response?.data || error.message
+        );
       } else {
         console.error("Unexpected error:", error);
       }
@@ -36,7 +39,7 @@ class ApiService {
     }
   }
 
-  //JPA 
+  //JPA
   public async editData(id: number, data: string): Promise<AxiosResponse<any>> {
     try {
       return await axios.put(`${this.baseUrl}tool/${id}`, data, {
@@ -47,7 +50,6 @@ class ApiService {
       throw error;
     }
   }
-  
 
   public async signUp(details: {
     user: object;
@@ -147,19 +149,28 @@ class ApiService {
       let role = getUserRole();
       let userType = role === "ROLE_TENANT" ? "tenant" : "admin";
 
-      return await axios.post(`${this.baseUrl}${userType}/book-resource`, booking, {
-        withCredentials: true,
-      });
+      return await axios.post(
+        `${this.baseUrl}${userType}/book-resource`,
+        booking,
+        {
+          withCredentials: true,
+        }
+      );
     } catch (error) {
       throw error;
     }
   }
 
-  public async deleteResource(resourceID: number, resourceType: ResourceType): Promise<AxiosResponse<any>> {
+  public async deleteResource(
+    resourceID: number,
+    resourceType: ResourceType
+  ): Promise<AxiosResponse<any>> {
     try {
       //construct endpoint
-      const endpoint = `${this.baseUrl}${resourceType.toLocaleLowerCase()}/api/resource/${resourceID}`;
-      console.log("delete resource:", endpoint)
+      const endpoint = `${
+        this.baseUrl
+      }${resourceType.toLocaleLowerCase()}/api/resource/${resourceID}`;
+      console.log("delete resource:", endpoint);
 
       //call
       return await axios.delete(endpoint, { withCredentials: true });
@@ -169,13 +180,20 @@ class ApiService {
     }
   }
 
-  public async updateResource(resource: Resource, resourceType: ResourceType, resourceId: number): Promise<AxiosResponse<any>> { //NOT WORKING
+  public async updateResource(
+    resource: Resource,
+    resourceType: ResourceType,
+    resourceId: number
+  ): Promise<AxiosResponse<any>> {
+    //NOT WORKING
     try {
       //construct endpoint
-      let endpoint = `${this.baseUrl}${resourceType.toLowerCase()}/update/${resourceId}`;
-      console.log("update resource:", endpoint)
-      console.log("send resource:", resource)
-      console.log("send id:", resourceId)
+      let endpoint = `${
+        this.baseUrl
+      }${resourceType.toLowerCase()}/update/${resourceId}`;
+      console.log("update resource:", endpoint);
+      console.log("send resource:", resource);
+      console.log("send id:", resourceId);
       //call
       return await axios.put(endpoint, resource, {
         withCredentials: true,
@@ -190,7 +208,7 @@ class ApiService {
     try {
       //construct endpoint
       const endpoint = `${this.baseUrl}booking/delete/${bookingID}`;
-      console.log("delete booking:", endpoint)
+      console.log("delete booking:", endpoint);
 
       //call
       return await axios.delete(endpoint, { withCredentials: true });
@@ -201,34 +219,47 @@ class ApiService {
   }
 
   async getAllCaretakerInitials() {
-    const endpoint = 'caretaker-initials/get-all';
+    const endpoint = "caretaker-initials/get-all";
     try {
-        const response = await axios.get(this.baseUrl + endpoint, { withCredentials: true });
-        return response.data.map((item: { initials: string }) => item.initials); 
-    } catch (error) {
-        console.error("Error fetching caretaker initials:", error);
-        throw error;
-    }
-}
-
-public async setInitialToBooking(bookingId: number, initials: string) {
-  try {
-    const response = await axios.post(
-      `${this.baseUrl}booking/set-initials/${bookingId}`, initials,
-      {
+      const response = await axios.get(this.baseUrl + endpoint, {
         withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error setting initials:", error);
-    throw error;
+      });
+      return response.data.map((item: { initials: string }) => item.initials);
+    } catch (error) {
+      console.error("Error fetching caretaker initials:", error);
+      throw error;
+    }
   }
-}
 
+  public async setInitialToBooking(bookingId: number, initials: string) {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}booking/set-initials/${bookingId}`,
+        initials,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error setting initials:", error);
+      throw error;
+    }
+  }
+
+  public async deleteData(endpoint: string): Promise<AxiosResponse<any>> {
+    try {
+      return await axios.delete(this.baseUrl + endpoint, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Error deleting data:", error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

@@ -43,8 +43,8 @@ const FilterSearch: React.FC<FilterSearchProps> = ({ onSearch }) => {
         onChange={(e) => setPhone(e.target.value)}
       />
         <div style={{ marginBottom: "10px" }}></div>
-      <button onClick={handleSearch}>Søg</button>
-      <button onClick={handleReset}>Nulstil</button>
+      <button className="btn btn-success" onClick={handleSearch}>Søg</button>
+      <button className="btn btn-secondary" onClick={handleReset}>Nulstil</button>
     </div>
   );
 };

@@ -74,6 +74,10 @@ public class TenantService extends UserService<Tenant> {
     return getUserByUsername(username).isPresent() || adminService.getUserByUsername(username).isPresent();
   }
 
+  public void delete(Long id) {
+    tenantRepository.deleteById(id);
+  }
+
   @PostConstruct
   public void init() {
     restrictedUsernamesSet = initializeRestrictedUsernames();
