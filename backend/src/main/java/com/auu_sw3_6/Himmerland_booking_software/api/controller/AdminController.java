@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,7 +47,7 @@ public class AdminController extends UserController<Admin> {
 
   @PutMapping(value = "/updateTenant/{id}", produces = "application/json")
   @Operation(summary = "Update tenant", description = "This endpoint updates a tenant.")
-  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, Tenant tenant) {
+  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant) {
     Tenant updatedTenant = tenantService.update(id, tenant);
     return ResponseEntity.ok(updatedTenant);
   }

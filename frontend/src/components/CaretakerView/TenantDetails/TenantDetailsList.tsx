@@ -76,9 +76,15 @@ const TenantDetailsList: React.FC = () => {
     }
   }
 
-  const handleUpdate = (updatedTenant: Tenant) => {
-    setTenants((prev) => prev.map((tenant) => tenant.id === updatedTenant.id ? updatedTenant : tenant));
-    setFilteredTenants((prev) => prev.map((tenant) => tenant.id === updatedTenant.id ? updatedTenant : tenant));
+  const handleUpdate = async (updatedTenant: Tenant) => {
+    try {
+      await ApiService.editUserAdmin(updatedTenant.id, updatedTenant);
+      setTenants((prev) => prev.map((tenant) => (tenant.id === updatedTenant.id ? updatedTenant : tenant)));
+      setFilteredTenants((prev) => prev.map((tenant) => (tenant.id === updatedTenant.id ? updatedTenant : tenant)));
+    } catch (error) {
+      console.error("Failed to update tenant:", error);
+
+    }
   }
 
   const handleEditClick = (tenant: Tenant) => {
