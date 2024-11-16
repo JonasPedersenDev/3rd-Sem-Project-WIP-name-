@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
+import showAlert from "../../BothView/Alert/AlertFunction";
 
 interface DeleteUserProps {
   tenantId: string;
@@ -8,7 +9,14 @@ interface DeleteUserProps {
 
 const DeleteUser: React.FC<DeleteUserProps> = ({ tenantId, onDelete }) => {
   const handleDelete = () => {
-    onDelete(tenantId);
+    showAlert({
+      title: "Slet bruger",
+      message: "Er du sikker på, at du vil slette denne bruger?",
+      onConfirm: () => {
+        onDelete(tenantId);
+      },
+    });
+    
   };
 
   return (

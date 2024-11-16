@@ -78,6 +78,26 @@ public class TenantService extends UserService<Tenant> {
     tenantRepository.deleteById(id);
   }
 
+  public Tenant update(Long id, Tenant tenant) {
+    tenantRepository.findById(id).ifPresentOrElse(
+        existingTenant -> {
+          existingTenant.setUsername(tenant.getUsername());
+          existingTenant.setName(tenant.getName());
+          existingTenant.setEmail(tenant.getEmail());
+          existingTenant.setMobileNumber(tenant.getMobileNumber());
+          tenantRepository.save(existingTenant);
+        },
+        () -> {
+          throw new IllegalArgumentException("Tenant with id " + id + " does not exist.");
+        }
+    );
+    return tenant;
+  }
+
+  public Tenant get(Long id) {
+    return tenantRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Tenant with id " + id + " does not exist."));
+  }
+
   @PostConstruct
   public void init() {
     restrictedUsernamesSet = initializeRestrictedUsernames();
