@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import React, { useState, useRef } from "react";
+=======
+import React, { useState, useContext } from "react";
+>>>>>>> 3a94a6e84b83bf53b55d7e0adb5f188034058380
 import { useNavigate } from "react-router-dom";
 import ApiService from "../../../utils/ApiService";
 import { isAxiosError } from "axios";
+import { AuthContext } from './AuthContext';
 
 interface Credentials {
   username: string;
@@ -21,6 +26,8 @@ const Login: React.FC = () => {
   const loginButtonRef = useRef<HTMLButtonElement>(null);
   const createAccountButtonRef = useRef<HTMLButtonElement>(null);
 
+  const { setUserRole } = useContext(AuthContext); 
+
   const validateForm = (): boolean => {
     const { username, password } = credentials;
     if (!username || !password) {
@@ -38,9 +45,7 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -50,7 +55,14 @@ const Login: React.FC = () => {
       const response = await ApiService.login(credentials);
 
       if (response.status === 200) {
+<<<<<<< HEAD
         navigate("/hjem");
+=======
+        console.log("Login successful");
+        
+        setUserRole(response.data.user.role);  // Update role in context
+        navigate("/hjem");  // Navigate to homepage
+>>>>>>> 3a94a6e84b83bf53b55d7e0adb5f188034058380
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }

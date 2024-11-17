@@ -16,6 +16,8 @@ interface CaretakerBooking {
   houseAddress: string;
   email: string;
   status: string;
+  receiverInitials: string;
+  handoverInitials: string;
   isFutureBooking: boolean;
   isPastBooking: boolean;
 }
@@ -28,38 +30,48 @@ const CaretakerBookingOverview: React.FC = () => {
   
   useEffect(() => {
     const fetchBookings = async () => {
-    try {
+      try {
         const bookingsResponse = await ApiService.fetchData<any>("booking/get-all");
         console.log("booking response:", bookingsResponse);
 
         const transformedBookings: CaretakerBooking[] = bookingsResponse.data.map((booking: any) => {
-            const startDate = new Date(booking.startDate[0], booking.startDate[1] - 1, booking.startDate[2]);
-            const endDate = new Date(booking.endDate[0], booking.endDate[1] - 1, booking.endDate[2]);
-            return {
-                id: booking.id.toString(),
-                name: booking.user.name,
-                resourceName: booking.resource.name,
-                startDate,
-                endDate,
-                status: booking.status,
-                pickupTime: booking.pickupTime,
-                dropoffTime: booking.dropoffTime,
-                mobileNumber: booking.user.mobileNumber,
-                houseAddress: booking.user.houseAddress,
-                email: booking.user.email,
-                isFutureBooking: startDate > currentDate || booking.status === "PENDING",
-                isPastBooking: endDate < currentDate || booking.status === "COMPLETED",
-            };
-        });
+          const startDate = new Date(booking.startDate[0], booking.startDate[1] - 1, booking.startDate[2]);
+          const endDate = new Date(booking.endDate[0], booking.endDate[1] - 1, booking.endDate[2]);
+          return {
+            id: booking.id.toString(),
+            name: booking.user.name,
+            resourceName: booking.resource.name,
+            startDate,
+            endDate,
+            status: booking.status,
+            pickupTime: booking.pickupTime,
+            dropoffTime: booking.dropoffTime,
+            mobileNumber: booking.user.mobileNumber,
+            houseAddress: booking.user.houseAddress,
+            email: booking.user.email,
+            receiverInitials: booking.receiverInitials,
+            handoverInitials: booking.handoverInitials,
+            isFutureBooking: startDate > currentDate || booking.status === "PENDING",
+            isPastBooking: endDate < currentDate || booking.status === "COMPLETED",
+          };
 
+        });
+  
         setBookings(transformedBookings);
         updateFutureBookings(transformedBookings);
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching bookings:", error);
-    }
-};
+      }
+    };
   
     fetchBookings();
+  
+    const intervalId = setInterval(() => {
+      console.log("Refreshing bookings...");
+      fetchBookings();
+    }, 60000); // 1 minute
+  
+    return () => clearInterval(intervalId);
   }, []);
 
 
