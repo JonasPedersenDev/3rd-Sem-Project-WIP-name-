@@ -77,7 +77,7 @@ public class BookingService {
     if (isResourceAvailable(resource, startDate, endDate)) {
         Booking booking = new Booking(resource, user, startDate, endDate,
             details.getPickupTime(), details.getDropoffTime(),
-            BookingStatus.CONFIRMED, details.getInitials());
+            BookingStatus.PENDING, details.getReceiverInitials(), details.getHandoverInitials());
 
         return bookingRepository.save(booking);
     } else {
@@ -106,7 +106,7 @@ public class BookingService {
   }
 
   private boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
-    List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
+    List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.PENDING);
 
     for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
       LocalDate finalDate = date;
@@ -149,32 +149,49 @@ public class BookingService {
   public List<String> getAllInitials() {
     List<Booking> bookings = bookingRepository.findAll();
     return bookings.stream()
-        .map(booking -> booking.getInitials())
+        .map(booking -> booking.getReceiverInitials())
         .collect(Collectors.toList());
   }
 
-public boolean setInitialToBooking(long bookingId, String initial) {
-  System.out.println("Checking if initials exist: " + initial);
-  if (caretakerInitialsService.initialsExist(initial)) {
-      System.out.println("Initials exist. Fetching booking with ID: " + bookingId + " and initials: " + initial);
-      Booking booking = bookingRepository.findById(bookingId).orElse(null);
-      if (booking != null) {
-          System.out.println("Booking found. Setting initials.");
-          String formattedInitials = initial.replaceAll("[\"']", "");
-          booking.setInitials(formattedInitials);
-          booking.setStatus(BookingStatus.COMPLETED); // Move this line above save
-          bookingRepository.save(booking); // Save after both fields are set
-          System.out.println(booking.getStatus());
-          System.out.println("Initials set and booking saved.");
-          return true;
-      } else {
-          System.out.println("Booking not found for ID: " + bookingId);
-      }
-  } else {
-      System.out.println("Initials do not exist: " + initial);
-  }
-  return false;
+  private boolean setInitialsToBooking(long bookingId, String initials, boolean isReceiver) {
+    System.out.println("Checking if initials exist: " + initials);
+    if (caretakerInitialsService.initialsExist(initials)) {
+        System.out.println("Initials exist. Fetching booking with ID: " + bookingId + " and initials: " + initials);
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        if (booking != null) {
+            System.out.println("Booking found. Setting initials.");
+            String formattedInitials = initials.replaceAll("[\"']", "");
+
+            if (isReceiver) {
+                booking.setReceiverInitials(formattedInitials);
+                booking.setStatus(BookingStatus.COMPLETED);
+            } else {
+                booking.setHandoverInitials(formattedInitials);
+                booking.setStatus(BookingStatus.CONFIRMED);
+            }
+
+            Booking savedBooking = bookingRepository.save(booking);
+            System.out.println("Initials set and booking saved with status: " + savedBooking.getStatus());
+            return true;
+        } else {
+            System.out.println("Booking not found for ID: " + bookingId);
+        }
+    } else {
+        System.out.println("Initials do not exist: " + initials);
+    }
+    return false;
 }
+
+
+public boolean setRecieverInitialToBooking(long bookingId, String initial) {
+  return setInitialsToBooking(bookingId, initial, true);
+}
+
+
+public boolean setHandoverInitialToBooking(long bookingId, String initial) {
+  return setInitialsToBooking(bookingId, initial, false);
+}
+
 
 
 
