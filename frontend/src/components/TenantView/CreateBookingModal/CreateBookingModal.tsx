@@ -6,7 +6,7 @@ import Resource from "../../modelInterfaces/Resource";
 import Booking from "../../modelInterfaces/Booking";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import { isValidDateRange } from "../../../utils/BookingSupport";
-import { addBookingToSessionStorage } from "../../../utils/sessionStorageSupport";
+import { addBookingToSessionStorage, getHighestBookingID } from "../../../utils/sessionStorageSupport";
 import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface CreateBookingModalProps {
@@ -23,8 +23,14 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   onClose,
 }) => {
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
+
+  const generateBookingId = (): number => {
+    const bookingAmount = getHighestBookingID();
+    return bookingAmount + 1;
+  };
+
   const [bookingFormData, setBookingData] = useState<Booking>({
-    id: Math.floor(Math.random() * 10000) + 1,
+    id: generateBookingId(),
     resourceID: resource.id,
     resourceName: resource.name,
     resourceType: resource.type,
@@ -45,6 +51,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
         console.log("Booked dates response:", response);
 
         setBookedDates(response.data);
+
       } catch (error) {
         console.error("Failed to fetch booked dates:", error);
       }
@@ -155,7 +162,9 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             disabled={
               !isValidDateRange(
                 bookingFormData.startDate,
-                bookingFormData.endDate
+                bookingFormData.endDate,
+                bookedDates,
+                resource.capacity
               )
             }
           >

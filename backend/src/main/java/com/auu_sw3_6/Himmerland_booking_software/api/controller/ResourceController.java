@@ -10,16 +10,18 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDate;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
 @RequestMapping("api/resource")
@@ -37,10 +39,18 @@ public abstract class ResourceController<T extends Resource> {
   @Operation(summary = "Get a resource by ID", description = "Retrieve details of a specific resource by its ID")
   @GetMapping(value = "/{id}", produces = "application/json")
   public ResponseEntity<T> getResourceById(@PathVariable Long id) {
-    Optional<T> resource = resourceService.getResourceById(id);
-    return resource.map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-  }
+    try {
+        Optional<T> resource = resourceService.getResourceById(id);
+        return resource.map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    } catch (ResourceNotFoundException e) {
+        System.out.println("No resources found: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    } catch (Exception e) {
+        System.out.println("An unexpected error occurred: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
 
   @Operation(summary = "Get all resources", description = "Retrieve a list of all available resources")
   @GetMapping(value = "/get-all", produces = "application/json")
@@ -77,6 +87,13 @@ public abstract class ResourceController<T extends Resource> {
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+  }
+
+  @Operation(summary = "Update a resource", description = "Update the details of an existing resource") //NOT WORKING
+  @PutMapping(value = "/update/{updatedResourceId}", produces = "application/json")
+  public ResponseEntity<T> updateResource(@RequestBody T updatedResource, @PathVariable long updatedResourceId) {
+    T resource = resourceService.updateResource(updatedResource, updatedResourceId);
+    return ResponseEntity.ok(resource);
   }
 
 }

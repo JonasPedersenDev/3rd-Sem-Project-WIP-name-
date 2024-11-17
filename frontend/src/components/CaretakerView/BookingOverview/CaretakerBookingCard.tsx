@@ -1,29 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import ApiService from '../../../utils/ApiService';
 
 interface CaretakerBooking {
-  id: string;
+  id: number;
   name: string;
   resourceName: string;
   startDate: Date;
   endDate: Date;
   pickupTime: string;
   dropoffTime: string;
-  phoneNumber: string;
-  address: string;
+  mobileNumber: string;
+  houseAddress: string;
+  email: string;
+  status: string;
   isFutureBooking: boolean;
+  isPastBooking: boolean;
 }
 
 interface CaretakerBookingCardProps {
   booking: CaretakerBooking;
-  onCancel: (id: string) => void;
+  onCancel: (id: number) => void;
+  onComplete: (id: number) => void;
 }
 
-const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel }) => {
+const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel, onComplete }) => {
   const [showModal, setShowModal] = useState(false);
+  const [showModalInitials, setShowModalInitials] = useState(false);
+  const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
+  const [showConfirmButton, setShowConfirmButton] = useState(false);
+  const [caretakers, setCaretakers] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCaretakerInitials = async () => {
+      try {
+        const initials = await ApiService.getAllCaretakerInitials();
+        setCaretakers(initials);
+      } catch (error) {
+        console.error("Error fetching caretaker initials:", error);
+      }
+    };
+
+    fetchCaretakerInitials();
+  }, []);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+
+  const handleCloseInitials = () => {
+    setShowModalInitials(false);
+    setSelectedInitials(null);
+    setShowConfirmButton(false);
+  };
+  const handleShowInitials = () => setShowModalInitials(true);
+
+  const handleInitialsSelect = (initials: string) => {
+    setSelectedInitials(initials);
+    setShowConfirmButton(true);
+  };
+
+
+  const handleConfirm = async () => {
+    if (selectedInitials) {
+      try {
+        const formattedInitials = selectedInitials.replace(/['"]+/g, '');
+        await ApiService.setInitialToBooking(booking.id, formattedInitials);
+        onComplete(booking.id);
+      } catch (error) {
+      }
+      handleCloseInitials();
+    } else {
+      console.warn("No initials selected");
+    }
+  };
 
   return (
     <div className="card mb-3">
@@ -42,6 +91,11 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               Annuller
             </Button>
           )}
+          {!booking.isFutureBooking && !booking.isPastBooking && (
+            <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+              Modtag
+            </Button>
+          )}
         </div>
       </div>
 
@@ -53,10 +107,38 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
         <Modal.Body>
           <p><strong>Navn:</strong> {booking.name}</p>
           <p><strong>Ressource:</strong> {booking.resourceName}</p>
-          <p><strong>Telefon:</strong> {booking.phoneNumber}</p>
-          <p><strong>Adresse:</strong> {booking.address}</p>
+          <p><strong>Telefon:</strong> {booking.mobileNumber}</p>
+          <p><strong>Adresse:</strong> {booking.houseAddress}</p>
+          <p><strong>Email:</strong> {booking.email}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>
+        </Modal.Body>
+      </Modal>
+
+      {/* Modal for selecting caretaker initials */}
+      <Modal show={showModalInitials} onHide={handleCloseInitials}>
+        <Modal.Header closeButton>
+          <Modal.Title>Vælg modtager</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p><strong>Medarbejder initialer:</strong></p>
+          <div>
+            {caretakers.map((initials, index) => (
+              <Button
+                key={index}
+                variant="outline-primary"
+                onClick={() => handleInitialsSelect(initials)}
+                className="me-2 mb-2"
+              >
+                {initials}
+              </Button>
+            ))}
+          </div>
+          {showConfirmButton && (
+            <Button variant="outline-secondary" onClick={handleConfirm} className="mt-3">
+              Bekræft
+            </Button>
+          )}
         </Modal.Body>
       </Modal>
     </div>

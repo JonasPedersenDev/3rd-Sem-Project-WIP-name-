@@ -19,7 +19,9 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.LoginRequest;
 import com.auu_sw3_6.Himmerland_booking_software.config.security.JwtUtil;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 public class AuthController {
@@ -53,7 +55,7 @@ public class AuthController {
           .maxAge(60 * 60 * 5) // 5 hours
           .sameSite("none") // only for development, maybe
           .build();
-          
+
       ResponseCookie authIndicatorCookie = ResponseCookie.from("authIndicator", role)
           .httpOnly(false)
           .secure(true)
@@ -70,6 +72,31 @@ public class AuthController {
     } catch (AuthenticationException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid credentials"));
     }
+  }
+
+  @PostMapping("/api/logout")
+  public String logout(HttpServletRequest request, HttpServletResponse response) {
+    // Invalidate the session if it exists
+    HttpSession session = request.getSession(false);
+    if (session != null) {
+      session.invalidate();
+    }
+
+    // Clear the authentication
+    SecurityContextHolder.clearContext();
+
+    // Clear the JWT cookie
+    ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .maxAge(0) // Expire the cookie immediately
+        .sameSite("none") // only for development, maybe
+        .build();
+
+    response.addHeader("Set-Cookie", jwtCookie.toString());
+
+    return "User has been logged out successfully.";
   }
 
 }

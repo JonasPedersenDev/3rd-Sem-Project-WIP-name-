@@ -13,16 +13,24 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.service.UserService;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-      private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     // API error exception handling
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+        log.error("Endpoint not found: " + ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Endpoint not found", HttpStatus.NOT_FOUND);
+        errorResponse.setDetails(Map.of("reason", "The requested endpoint does not exist"));
+        return ResponseEntity.status(errorResponse.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
@@ -33,7 +41,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RestrictedUsernameException.class)
     public ResponseEntity<ErrorResponse> handleRestrictedUsernameException(RestrictedUsernameException ex) {
-        log.error("Username: " + ex.getMessage() + " is not allowed"); 
+        log.error("Username: " + ex.getMessage() + " is not allowed");
         ErrorResponse errorResponse = new ErrorResponse("Username: \"" + ex.getMessage() + "\" is not allowed",
                 HttpStatus.CONFLICT);
         return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
@@ -41,15 +49,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        log.error("User with username " + ex.getMessage() + " already exists"); 
-        ErrorResponse errorResponse = new ErrorResponse("User with username: \"" + ex.getMessage() + "\" already exists",
+        log.error("User with username " + ex.getMessage() + " already exists");
+        ErrorResponse errorResponse = new ErrorResponse(
+                "User with username: \"" + ex.getMessage() + "\" already exists",
                 HttpStatus.CONFLICT);
         return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        log.error(ex.getMessage()); 
+        log.error(ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),
                 ex.getStatus());
         return ResponseEntity.status(ex.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);

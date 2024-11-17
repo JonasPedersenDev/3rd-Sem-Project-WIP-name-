@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -33,6 +34,12 @@ public abstract class UserController<T extends User> {
   @Autowired
   public UserController(UserService<T> userService) {
     this.userService = userService;
+  }
+
+  @PutMapping("/{updatedUserId}")
+  public ResponseEntity<User> updateUser(@PathVariable Long updatedUserId, @RequestBody User updatedUser) {
+    User user = userService.updateUser(updatedUserId, updatedUser);
+    return ResponseEntity.ok(user);
   }
 
   @SecurityRequirement(name = "bearerAuth")

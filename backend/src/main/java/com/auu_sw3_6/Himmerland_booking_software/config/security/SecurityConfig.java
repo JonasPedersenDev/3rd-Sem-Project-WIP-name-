@@ -28,6 +28,12 @@ public class SecurityConfig {
   private JwtAuthorizationFilter jwtAuthorizationFilter;
 
   @Autowired
+  private CustomAccessDeniedHandler customAccessDeniedHandler;
+
+  @Autowired
+  private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+  @Autowired
   private UserDetailsService userDetailsService;
 
   @Bean
@@ -45,11 +51,13 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
-            .requestMatchers("/api/tool/**", "/api/utility/**", "api/hospitality/**").hasAnyRole("TENANT", "ADMIN")
+            .requestMatchers("/api/booking/**").hasRole("ADMIN")
             .anyRequest().authenticated()
         // Require JWT for all other requests: .authenticated()
         // Allow access for all other requests: .permitAll()
-        )
+        ).exceptionHandling(exceptionHandling -> exceptionHandling
+            .accessDeniedHandler(customAccessDeniedHandler)
+            .authenticationEntryPoint(customAuthenticationEntryPoint))
         .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
@@ -59,7 +67,7 @@ public class SecurityConfig {
   public CorsFilter corsFilter() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-    config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
     config.setAllowCredentials(true);
 

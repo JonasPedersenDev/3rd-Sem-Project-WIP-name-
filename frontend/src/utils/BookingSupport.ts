@@ -1,3 +1,4 @@
+import BookingDate from "../components/modelInterfaces/BookingDate";
 import { bookingConfig } from "./Config";
 import { WeekDayNum } from "./EnumSupport";
 
@@ -27,16 +28,41 @@ export const getValidBookingDaysCount = (start: Date, end: Date): number => {
   return count;
 };
 
-export const isValidDateRange = (start: Date | null, end: Date | null): boolean => {
-    
-    if (!start || !end) return false;
-    
-    if (isBeforeToday(start) || end <= start) return false;
-    if (isWeekend(start) || isWeekend(end)) return false;
-    
-    const dayCount = getValidBookingDaysCount(start, end);
-    if (dayCount < bookingConfig.minBookingLength || dayCount > bookingConfig.maxBookingLength) return false;
-    
-    return true;
-};
+export const isValidDateRange = (
+  start: Date | null,
+  end: Date | null,
+  bookedDates: BookingDate[],
+  capacity: number
+): boolean => {
+  if (!start || !end) return false;
 
+  if (isBeforeToday(start) || end <= start) return false;
+  if (isWeekend(start) || isWeekend(end)) return false;
+
+  const isFullyBooked = (date: Date, capacity: number) => {
+    const booked = bookedDates.find(
+      (booked) => new Date(booked.date).toDateString() === date.toDateString()
+    );
+    return booked && booked.amount >= capacity;
+  };
+
+
+  let startDate = new Date(start);
+  let endDate = new Date(end);
+  for (
+    let date = new Date(startDate);
+    date <= endDate;
+    date.setDate(date.getDate() + 1)
+  ) {
+    if (isFullyBooked(date, capacity)) return false;
+  }
+
+  const dayCount = getValidBookingDaysCount(start, end);
+  if (
+    dayCount < bookingConfig.minBookingLength ||
+    dayCount > bookingConfig.maxBookingLength
+  )
+    return false;
+
+  return true;
+};

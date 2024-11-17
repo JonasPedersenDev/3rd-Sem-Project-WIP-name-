@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
@@ -32,5 +35,12 @@ public class AdminController extends UserController<Admin> {
   public ResponseEntity<List<Tenant>> getAllTenants() {
     List<Tenant> tenants = tenantService.getAllTenants();
     return ResponseEntity.ok(tenants);
+  }
+
+  @DeleteMapping(value = "/deleteTenant/{id}")
+  @Operation(summary = "Delete tenant", description = "This endpoint deletes a tenant.")
+  public ResponseEntity<Void> deleteTenant(@PathVariable Long id) {
+    tenantService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

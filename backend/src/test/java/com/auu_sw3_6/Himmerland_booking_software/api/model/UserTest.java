@@ -20,15 +20,15 @@ public class UserTest {
     private static class ConcreteUser extends User {
 
         public ConcreteUser(long id, String name, String email, String mobileNumber, String username, String password,
-                            String profilePictureFileName) {
-            super(id, name, email, mobileNumber, username, password, profilePictureFileName);
+                            String profilePictureFileName, String houseAddress) {
+            super(id, name, email, mobileNumber, username, password, profilePictureFileName, houseAddress);
         }
     }
 
     @BeforeEach
     public void setUp() {
         user = new ConcreteUser(1L, "John Doe", "johndoe@example.com", "+1234567890", "johndoe", "password123",
-                "profile.jpg");
+                "profile.jpg", "123 Main St");
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();

@@ -42,12 +42,12 @@ const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
       // Set start date if none selected, or if both start and end are selected
       setSelectedStart(date);
       setSelectedEnd(null);
-      onDateChange(date, null); // Notify parent component of start date selection
+      onDateChange(date, null);
     } else {
       // Set end date if start date is already selected
       if (date > selectedStart) {
         setSelectedEnd(date);
-        onDateChange(selectedStart, date); // Notify parent component of start and end date selection
+        onDateChange(selectedStart, date);
       } else {
         // If selected end date is before start, reset start and end
         setSelectedStart(date);
@@ -71,11 +71,11 @@ const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
             return "booked-tile";
           }
           if (isInRange(date)) {
-            return "range-tile"; // Apply blue color for dates in the range
+            return "range-tile";
           }
           return "free-tile";
         }}
-        onClickDay={handleDateClick} // Handle date clicks to set start and end dates
+        onClickDay={handleDateClick}
         tileDisabled={({ date }) => isBeforeToday(date)}
       />
       <div className="calendar-legend">
