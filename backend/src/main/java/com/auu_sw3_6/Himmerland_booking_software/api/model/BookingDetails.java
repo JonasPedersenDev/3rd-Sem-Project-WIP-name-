@@ -47,21 +47,23 @@ public class BookingDetails {
   @JsonProperty("dropoffTime")
   private TimeRange dropoffTime;
 
-  private String initials;
+  private String receiverInitials;
+
+  private String handoverInitials;
 
   public BookingDetails() {
   }
 
   public BookingDetails(Long resourceID, ResourceType resourceType, LocalDate startDate, LocalDate endDate,
-      TimeRange startTime, TimeRange endTime, String initials) {
+      TimeRange startTime, TimeRange endTime, String receiverInitials, String handoverInitials) {
     this.resourceID = resourceID;
     this.resourceType = resourceType;
     this.startDate = startDate;
     this.endDate = endDate;
     this.pickupTime = startTime;
     this.dropoffTime = endTime;
-    this.initials = initials;
-
+    this.receiverInitials = receiverInitials;
+    this.handoverInitials = handoverInitials;
   }
 
   public Long getResourceID() {
@@ -112,11 +114,19 @@ public class BookingDetails {
     this.dropoffTime = endTime;
   }
 
-  public String getInitials(){
-    return initials;
+  public String getReceiverInitials(){
+    return receiverInitials;
   }
 
-  public void setInitials(String initials){
-    this.initials = initials;
+  public void setReceiverInitials(String receiverInitials){
+    this.receiverInitials = receiverInitials;
+  }
+
+  public String getHandoverInitials(){
+    return handoverInitials;
+  }
+
+  public void getHandoverInitials(String handoverInitials){
+    this.handoverInitials = handoverInitials;
   }
 }

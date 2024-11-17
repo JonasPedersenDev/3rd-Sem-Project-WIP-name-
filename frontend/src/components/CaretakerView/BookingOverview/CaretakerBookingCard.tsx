@@ -59,15 +59,22 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
     setShowConfirmButton(true);
   };
 
-
   const handleConfirm = async () => {
     if (selectedInitials) {
       try {
         const formattedInitials = selectedInitials.replace(/['"]+/g, '');
-        await ApiService.setInitialToBooking(booking.id, formattedInitials);
+
+        if (booking.status === "CONFIRMED") {
+          await ApiService.setInitialToBooking(booking.id, formattedInitials);
+        } else {
+          await ApiService.setHandoverInitialToBooking(booking.id, formattedInitials);
+        }
+
         onComplete(booking.id);
       } catch (error) {
+        console.error("Error handling initials:", error);
       }
+
       handleCloseInitials();
     } else {
       console.warn("No initials selected");
@@ -87,15 +94,21 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
             Detaljer
           </Button>
           {booking.isFutureBooking && (
-            <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
-              Annuller
-            </Button>
-          )}
-          {!booking.isFutureBooking && !booking.isPastBooking && (
-            <Button variant="success" className="ms-2" onClick={handleShowInitials}>
-              Modtag
-            </Button>
-          )}
+    <>
+        <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
+            Annuller
+        </Button>
+        <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+            Udlever
+        </Button>
+    </>
+)}
+
+{!booking.isFutureBooking && !booking.isPastBooking && booking.status === "CONFIRMED" && (
+    <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+        Modtag
+    </Button>
+)}
         </div>
       </div>
 
