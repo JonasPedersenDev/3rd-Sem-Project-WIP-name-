@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../../../utils/ApiService";
 import { isAxiosError } from "axios";
+import { AuthContext } from '../../../contexts/AuthContext'; // Ensure this path is correct
 
 interface Credentials {
   username: string;
@@ -16,6 +17,8 @@ const Login: React.FC = () => {
   });
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const { setUserRole } = useContext(AuthContext); // Use AuthContext to access setUserRole
 
   const validateForm = (): boolean => {
     const { username, password } = credentials;
@@ -34,9 +37,7 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -45,18 +46,15 @@ const Login: React.FC = () => {
     try {
       const response = await ApiService.login(credentials);
 
-      console.log(response);
-      console.log(response.data);
-
       if (response.status === 200) {
         console.log("Login successful");
-      
-        navigate("/hjem");
+        // Assume response data has a user object containing the role
+        setUserRole(response.data.user.role);  // Update role in context
+        navigate("/hjem");  // Navigate to homepage
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }
     } catch (error) {
-
       if (isAxiosError(error)) {
         if (error.response && error.response.status === 401) {
           setErrorMessage("Forkert brugernavn eller adgangskode.");
@@ -132,7 +130,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-function sleep(arg0: number) {
-  throw new Error("Function not implemented.");
-}
-

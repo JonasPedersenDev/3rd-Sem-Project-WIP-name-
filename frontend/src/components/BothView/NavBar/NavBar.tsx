@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { getBookingCount } from "../../../utils/sessionStorageSupport";
 import { useDarkMode } from "../../DarkModeContext";
-import { AuthContext } from './components/BothView/NavBar/AuthContext.js';
+import { AuthContext } from './AuthContext';
 
 function Navbar() {
   const { toggleDarkMode } = useDarkMode();

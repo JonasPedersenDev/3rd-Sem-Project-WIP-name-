@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import ProtectedRoute from "./components/ProtectedRoute";
 import { getUserRole, defaultHomePages, UserRole } from "./utils/authConfig";
 import Navbar from "./components/BothView/NavBar/NavBar";
-import { AuthProvider } from "./components/BothView/NavBar/AuthContext.js";
+import { AuthContext } from './AuthContext';
 
 // Pages
 import HomePage from "./pages/HomePage";
