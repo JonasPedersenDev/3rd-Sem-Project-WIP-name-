@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../../../utils/ApiService";
 import { isAxiosError } from "axios";
-import { AuthContext } from '../../../contexts/AuthContext'; // Ensure this path is correct
+import { AuthContext } from './AuthContext';
 
 interface Credentials {
   username: string;
@@ -18,7 +18,7 @@ const Login: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const { setUserRole } = useContext(AuthContext); // Use AuthContext to access setUserRole
+  const { setUserRole } = useContext(AuthContext); 
 
   const validateForm = (): boolean => {
     const { username, password } = credentials;
@@ -48,7 +48,7 @@ const Login: React.FC = () => {
 
       if (response.status === 200) {
         console.log("Login successful");
-        // Assume response data has a user object containing the role
+        
         setUserRole(response.data.user.role);  // Update role in context
         navigate("/hjem");  // Navigate to homepage
       } else {
