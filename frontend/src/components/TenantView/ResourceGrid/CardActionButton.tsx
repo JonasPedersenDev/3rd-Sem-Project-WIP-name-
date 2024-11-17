@@ -1,27 +1,28 @@
 import React from "react";
+import { FaRegCheckCircle, FaTools, FaTimesCircle } from 'react-icons/fa';
 
 interface CardActionProps {
   status: string;
-  toggleModal: () => void
+  toggleModal: () => void;
 }
 
 const CardAction: React.FC<CardActionProps> = ({ status, toggleModal }) => {
   if (status === "available") {
     return (
-      <a href="#" className="btn btn-primary" onClick={toggleModal}>
-        Book
-      </a>
+      <button className="btn btn-success" onClick={toggleModal}>
+        <FaRegCheckCircle /> Book Now
+      </button>
     );
   } else if (status === "maintenance") {
     return (
       <button className="btn btn-warning" disabled>
-        Under Maintenance
+        <FaTools /> Under Maintenance
       </button>
     );
   } else {
     return (
       <button className="btn btn-secondary" disabled>
-        Unavailable
+        <FaTimesCircle /> Unavailable
       </button>
     );
   }
