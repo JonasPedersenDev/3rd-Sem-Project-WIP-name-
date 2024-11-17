@@ -1,14 +1,16 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { getBookingCount } from "../../../utils/sessionStorageSupport";
 import { useDarkMode } from "../../DarkModeContext";
+import { AuthContext } from './AuthContext';
 
 function Navbar() {
-
   const { toggleDarkMode } = useDarkMode();
-
   const navigate = useNavigate();
-  const [bookingCount, setBookingCount] = useState<number>(0);
+  const [bookingCount, setBookingCount] = useState(0);
+
+  // Use useContext to access AuthContext
+  const { userRole } = useContext(AuthContext);
 
   useEffect(() => {
     setBookingCount(getBookingCount());
@@ -33,7 +35,6 @@ function Navbar() {
           </span>
         </a>
 
-        {/* Navbar toggler */}
         <button
           className="navbar-toggler"
           type="button"
@@ -46,61 +47,29 @@ function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Navbar links */}
-        <div
-          className="collapse navbar-collapse justify-content-end align-center"
-          id="main-nav"
-        >
+        <div className="collapse navbar-collapse justify-content-end" id="main-nav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/hjem")}
-              >
-                Hjem
-              </button>
+              <button className="nav-link btn btn-link" onClick={() => navigate("/hjem")}>Hjem</button>
             </li>
-            <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/kontakt")}
-              >
-                Kontakt
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/mine-reservationer")}
-              >
-                Reservationer
-              </button>
-            </li>
-            {/* New Reservation Overblik link with counter */}
+            {/* Conditional rendering based on userRole from AuthContext */}
+            {userRole === 'tenant' && (
+              <li className="nav-item">
+                <button className="nav-link btn btn-link" onClick={() => navigate("/kontakt")}>Kontakt</button>
+              </li>
+            )}
             <li className="nav-item d-flex align-items-center">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/reservation-overblik")}
-              >
+              <button className="nav-link btn btn-link" onClick={() => navigate("/reservation-overblik")}>
                 Reservation Overblik
               </button>
               <span className="badge bg-danger ms-2">{bookingCount}</span>
             </li>
             <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/konto")}
-              >
-                Konto
-              </button>
+              <button className="nav-link btn btn-link" onClick={() => navigate("/konto")}>Konto</button>
             </li>
-            {/* Dark Mode Toggle */}
             <li className="nav-item">
-              <button className="nav-link btn btn-link" onClick={toggleDarkMode}>
-                Toggle Dark Mode
-              </button>
+              <button className="nav-link btn btn-link" onClick={toggleDarkMode}>Toggle Dark Mode</button>
             </li>
-
           </ul>
         </div>
       </div>
