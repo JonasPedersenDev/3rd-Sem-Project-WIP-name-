@@ -6,25 +6,22 @@ import CreateBookingModal from '../CreateBookingModal/CreateBookingModal';
 import Placeholder from '../../BothView/Placeholder/Placeholder';
 import Resource from '../../modelInterfaces/Resource';
 
-
-
 interface ResourceCardProps {
   resource: Resource;
   loading?: boolean;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleBookingAdded = () => {
-    console.log("booking added to cart")
-    setIsModalOpen(false)
-  }
 
+  const handleBookingAdded = () => {
+    console.log("Booking added to cart");
+    setIsModalOpen(false);
+  };
 
   return (
-    <div className="col-sm-2 mb-4 mb-sm-0 mt-1">
-      <div className="card">
+    <div className="col-sm-4 col-md-3 mb-4">
+      <div className="card shadow-sm">
         {loading ? (
           <>
             <Placeholder width="100%" height="150px" color="secondary" />
@@ -40,10 +37,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
               description={resource.description}
               status={resource.status}
             />
-            <CardAction 
-              status={resource.status}
-              toggleModal={() => setIsModalOpen(true)}
-            />
+            <div className="card-footer">
+              <CardAction status={resource.status} toggleModal={() => setIsModalOpen(true)} />
+            </div>
           </>
         )}
       </div>
