@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../../../utils/ApiService";
 import { isAxiosError } from "axios";
+import { AuthContext } from './AuthContext';
 
 interface Credentials {
   username: string;
@@ -38,9 +39,7 @@ const Login: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -91,7 +90,37 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown" || e.key === "Tab") {
+      e.preventDefault();
+      if (e.target === usernameRef.current && passwordRef.current) {
+        passwordRef.current.focus();
+      } else if (e.target === passwordRef.current && loginButtonRef.current) {
+        loginButtonRef.current.focus();
+      } else if (e.target === loginButtonRef.current && createAccountButtonRef.current) {
+        createAccountButtonRef.current.focus();
+      }
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (e.target === createAccountButtonRef.current && loginButtonRef.current) {
+        loginButtonRef.current.focus();
+      } else if (e.target === loginButtonRef.current && passwordRef.current) {
+        passwordRef.current.focus();
+      } else if (e.target === passwordRef.current && usernameRef.current) {
+        usernameRef.current.focus();
+      }
+    }
+  };
+
   return (
+    <div className="d-flex justify-content-center align-items-center vh-100" style={{ margin: 0 }}>
+      <form className="w-25 p-5 border rounded shadow-lg bg-white" onSubmit={handleSubmit}>
+        <h4 className="text-center mb-4" style={{ color: "#388e3c" }}>
+          Login
+        </h4>
+
     <div className="d-flex justify-content-center align-items-center vh-100" style={{ margin: 0 }}>
       <form className="w-25 p-5 border rounded shadow-lg bg-white" onSubmit={handleSubmit}>
         <h4 className="text-center mb-4" style={{ color: "#388e3c" }}>
@@ -102,13 +131,21 @@ const Login: React.FC = () => {
           <div className="alert alert-danger mb-3 text-center">
             {errorMessage}
           </div>
+          <div className="alert alert-danger mb-3 text-center">
+            {errorMessage}
+          </div>
         )}
 
         <div className="mb-3">
           <label htmlFor="username" className="form-label">
             Brugernavn
           </label>
+        <div className="mb-3">
+          <label htmlFor="username" className="form-label">
+            Brugernavn
+          </label>
           <input
+            ref={usernameRef}
             ref={usernameRef}
             type="text"
             className="form-control form-control-lg"
@@ -118,6 +155,7 @@ const Login: React.FC = () => {
             placeholder="Skriv brugernavn"
             required
             onKeyDown={handleKeyDown}
+            onKeyDown={handleKeyDown}
           />
         </div>
 
@@ -125,8 +163,13 @@ const Login: React.FC = () => {
           <label htmlFor="password" className="form-label">
             Adgangskode
           </label>
+        <div className="form-group mb-4">
+          <label htmlFor="password" className="form-label">
+            Adgangskode
+          </label>
           <div className="input-group">
             <input
+              ref={passwordRef}
               ref={passwordRef}
               type={passwordVisible ? "text" : "password"}
               className="form-control form-control-lg"
@@ -135,6 +178,7 @@ const Login: React.FC = () => {
               onChange={handleChange}
               placeholder="Skriv adgangskode"
               required
+              onKeyDown={handleKeyDown}
               onKeyDown={handleKeyDown}
             />
             <button
@@ -153,13 +197,20 @@ const Login: React.FC = () => {
           type="submit"
           className="btn btn-success btn-lg btn-block mt-4"
         >
+        <button
+          ref={loginButtonRef}
+          type="submit"
+          className="btn btn-success btn-lg btn-block mt-4"
+        >
           Login
         </button>
 
         <div className="text-center mt-3">
           <button
             ref={createAccountButtonRef}
+            ref={createAccountButtonRef}
             type="button"
+            className="btn btn-outline-success btn-lg"
             className="btn btn-outline-success btn-lg"
             onClick={() => navigate("/opret-konto")}
           >
