@@ -44,10 +44,10 @@ public class AppConfig {
         hospitality.setDescription("Festlokale med minibar");
         hospitality.setResourcePictureFileName("festlokale.jpg");
         hospitality.setType(ResourceType.HOSPITALITY);
-        hospitality.setCapacity(1L);
+        hospitality.setCapacity(5L);
         hospitality.setStatus("available");
 
-        hospitalityService.createHospitality(hospitality, null); // No profile pic
+        hospitalityService.createHospitality(hospitality, null);
       }
     };
   }
@@ -62,7 +62,7 @@ public class AppConfig {
         tool.setDescription("En elektrisk boremaskine, i modsætning til en benzin drevet boremaskine");
         tool.setResourcePictureFileName("boremaskine.jpg");
         tool.setType(ResourceType.TOOL);
-        tool.setCapacity(3L);
+        tool.setCapacity(5L);
         tool.setStatus("available");
 
         toolService.createTool(tool, null);
@@ -81,7 +81,7 @@ public class AppConfig {
         utility.setDescription("Havetrailer med en vægtkapacitet på 500 Kg.");
         utility.setResourcePictureFileName("trailer.jpg");
         utility.setType(ResourceType.UTILITY);
-        utility.setCapacity(2L);
+        utility.setCapacity(5L);
         utility.setStatus("available");
 
         utilityService.createUtility(utility, null);

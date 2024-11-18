@@ -10,19 +10,19 @@ const CardAction: React.FC<CardActionProps> = ({ status, toggleModal }) => {
   if (status === "available") {
     return (
       <button className="btn btn-success" onClick={toggleModal}>
-        <FaRegCheckCircle /> Book Now
+        <FaRegCheckCircle /> Reserver
       </button>
     );
   } else if (status === "maintenance") {
     return (
       <button className="btn btn-warning" disabled>
-        <FaTools /> Under Maintenance
+        <FaTools /> Under vedligeholdelse
       </button>
     );
   } else {
     return (
       <button className="btn btn-secondary" disabled>
-        <FaTimesCircle /> Unavailable
+        <FaTimesCircle /> Utilgængelig
       </button>
     );
   }

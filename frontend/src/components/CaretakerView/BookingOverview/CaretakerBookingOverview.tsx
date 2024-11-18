@@ -120,7 +120,8 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
   const activeBookings = bookings.filter(
     (booking) =>
         booking.startDate <= currentDate &&
-        booking.endDate >= currentDate ||
+        booking.endDate >= currentDate &&
+        booking.status === "CONFIRMED" ||
         booking.status === "CONFIRMED"
 );
 
@@ -128,12 +129,14 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
 const futureBookings = bookings.filter(
     (booking) =>
         booking.startDate > currentDate &&
+        booking.status === "PENDING" ||
         booking.status === "PENDING"
 );
 
 const pastBookings = bookings.filter(
     (booking) =>
-        booking.endDate < currentDate ||
+        booking.endDate < currentDate &&
+        booking.status === "COMPLETED" ||
         booking.status === "COMPLETED"
 );
 
