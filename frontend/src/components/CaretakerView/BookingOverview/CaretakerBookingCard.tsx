@@ -150,7 +150,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
             ))}
           </div>
           {showConfirmButton && (
-            <Button variant="outline-secondary" onClick={handleConfirm} className="mt-3">
+            <Button variant="success" onClick={handleConfirm} className="mt-3">
               Bekræft
             </Button>
           )}

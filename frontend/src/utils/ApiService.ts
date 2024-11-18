@@ -250,6 +250,41 @@ class ApiService {
     }
   }
 
+  public async createCaretakerInitials(caretakerInitials: { initials: string }): Promise<any> {
+    const endpoint = "caretaker-initials/create";
+    try {
+      const response = await axios.post(
+        this.baseUrl + endpoint,
+        caretakerInitials,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating caretaker initials:", error);
+      throw error;
+    }
+  }
+
+  public async deleteCaretakerInitials(initials: string): Promise<void> {
+    const endpoint = `caretaker-initials/delete/${initials}`;
+    try {
+      await axios.delete(this.baseUrl + endpoint, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Error deleting caretaker initials:", error);
+      throw error;
+    }
+  }
+
   public async setInitialToBooking(bookingId: number, initials: string): Promise<any> {
     try {
         const response = await axios.post(
@@ -300,6 +335,7 @@ class ApiService {
       throw error;
     }
   }
+
 }
 
 export default new ApiService();

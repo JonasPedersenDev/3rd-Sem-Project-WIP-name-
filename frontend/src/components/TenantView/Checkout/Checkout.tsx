@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import BookingCard from "./BookingCard";
-import { Link } from "react-router-dom";
 import Booking from "../../modelInterfaces/Booking";
 import {
   loadBookingsFromSessionStorage,
@@ -84,8 +83,6 @@ const Checkout: React.FC = () => {
           Bekræft
         </button>
       )}
-      <Link to="/ressource-overblik">Go to Admin</Link>
-      <Link to="/admin-overblik">Go to Admin</Link>
     </div>
   );
 };
