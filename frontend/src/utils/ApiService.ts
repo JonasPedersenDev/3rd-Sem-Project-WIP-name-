@@ -250,24 +250,45 @@ class ApiService {
     }
   }
 
-  public async setInitialToBooking(bookingId: number, initials: string) {
+  public async setInitialToBooking(bookingId: number, initials: string): Promise<any> {
     try {
-      const response = await axios.post(
-        `${this.baseUrl}booking/set-initials/${bookingId}`,
-        initials,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
+        const response = await axios.post(
+            `${this.baseUrl}booking/set-receiver-initials/${bookingId}`,
+            initials,
+            {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        return response.data;
     } catch (error) {
-      console.error("Error setting initials:", error);
-      throw error;
+        console.error("Error setting receiver initials:", error);
+        throw error;
     }
-  }
+}
+
+
+
+  public async setHandoverInitialToBooking(bookingId: number, initials: string): Promise<any> {
+    try {
+        const response = await axios.post(
+            `${this.baseUrl}booking/set-handover-initials/${bookingId}`,
+            initials,
+            {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error setting handover initials:", error);
+        throw error;
+    }
+}
 
   public async deleteData(endpoint: string): Promise<AxiosResponse<any>> {
     try {

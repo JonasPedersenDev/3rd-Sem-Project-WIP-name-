@@ -14,6 +14,8 @@ interface CaretakerBooking {
   houseAddress: string;
   email: string;
   status: string;
+  receiverInitials: string;
+  handoverInitials: string;
   isFutureBooking: boolean;
   isPastBooking: boolean;
 }
@@ -59,15 +61,22 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
     setShowConfirmButton(true);
   };
 
-
   const handleConfirm = async () => {
     if (selectedInitials) {
       try {
         const formattedInitials = selectedInitials.replace(/['"]+/g, '');
-        await ApiService.setInitialToBooking(booking.id, formattedInitials);
+
+        if (booking.status === "CONFIRMED") {
+          await ApiService.setInitialToBooking(booking.id, formattedInitials);
+        } else {
+          await ApiService.setHandoverInitialToBooking(booking.id, formattedInitials);
+        }
+
         onComplete(booking.id);
       } catch (error) {
+        console.error("Error handling initials:", error);
       }
+
       handleCloseInitials();
     } else {
       console.warn("No initials selected");
@@ -87,15 +96,21 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
             Detaljer
           </Button>
           {booking.isFutureBooking && (
-            <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
-              Annuller
-            </Button>
-          )}
-          {!booking.isFutureBooking && !booking.isPastBooking && (
-            <Button variant="success" className="ms-2" onClick={handleShowInitials}>
-              Modtag
-            </Button>
-          )}
+    <>
+        <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
+            Annuller
+        </Button>
+        <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+            Udlever
+        </Button>
+    </>
+)}
+
+{!booking.isFutureBooking && !booking.isPastBooking && booking.status === "CONFIRMED" && (
+    <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+        Modtag
+    </Button>
+)}
         </div>
       </div>
 
@@ -105,13 +120,18 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <Modal.Title>Booking detaljer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <h4>Beboer information:</h4>
           <p><strong>Navn:</strong> {booking.name}</p>
-          <p><strong>Ressource:</strong> {booking.resourceName}</p>
-          <p><strong>Telefon:</strong> {booking.mobileNumber}</p>
           <p><strong>Adresse:</strong> {booking.houseAddress}</p>
+          <p><strong>Telefon:</strong> {booking.mobileNumber}</p>
           <p><strong>Email:</strong> {booking.email}</p>
+          <br />
+          <h4>Reservation information:</h4>
+          <p><strong>Ressource:</strong> {booking.resourceName}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>
+          <p><strong>Udlevering:</strong> {booking.receiverInitials}</p>
+          <p><strong>Modtagelse:</strong> {booking.handoverInitials}</p>
         </Modal.Body>
       </Modal>
 

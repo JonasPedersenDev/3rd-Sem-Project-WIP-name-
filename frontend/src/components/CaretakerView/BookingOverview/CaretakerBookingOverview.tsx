@@ -16,6 +16,8 @@ interface CaretakerBooking {
   houseAddress: string;
   email: string;
   status: string;
+  receiverInitials: string;
+  handoverInitials: string;
   isFutureBooking: boolean;
   isPastBooking: boolean;
 }
@@ -31,27 +33,30 @@ const CaretakerBookingOverview: React.FC = () => {
       try {
         const bookingsResponse = await ApiService.fetchData<any>("booking/get-all");
         console.log("booking response:", bookingsResponse);
-  
-        // Transform the API response into CaretakerBooking objects
-        const transformedBookings: CaretakerBooking[] = bookingsResponse.data.map((booking: any) => ({
+
+        const transformedBookings: CaretakerBooking[] = bookingsResponse.data.map((booking: any) => {
+          const startDate = new Date(booking.startDate[0], booking.startDate[1] - 1, booking.startDate[2]);
+          const endDate = new Date(booking.endDate[0], booking.endDate[1] - 1, booking.endDate[2]);
+          return {
             id: booking.id.toString(),
             name: booking.user.name,
             resourceName: booking.resource.name,
-            startDate: new Date(booking.startDate[0], booking.startDate[1] - 1, booking.startDate[2]),
-            endDate: new Date(booking.endDate[0], booking.endDate[1] - 1, booking.endDate[2]),
+            startDate,
+            endDate,
             status: booking.status,
             pickupTime: booking.pickupTime,
             dropoffTime: booking.dropoffTime,
             mobileNumber: booking.user.mobileNumber,
             houseAddress: booking.user.houseAddress,
-            email: booking.user.email, // Replace with address if available
-            isFutureBooking: false, // This will be updated later
-            isPastBooking: false, 
-          })
-        );
-        
+            email: booking.user.email,
+            receiverInitials: booking.receiverInitials,
+            handoverInitials: booking.handoverInitials,
+            isFutureBooking: startDate > currentDate || booking.status === "PENDING",
+            isPastBooking: endDate < currentDate || booking.status === "COMPLETED",
+          };
+
+        });
   
-        // Update state with the transformed bookings
         setBookings(transformedBookings);
         updateFutureBookings(transformedBookings);
       } catch (error) {
@@ -60,6 +65,13 @@ const CaretakerBookingOverview: React.FC = () => {
     };
   
     fetchBookings();
+  
+    const intervalId = setInterval(() => {
+      console.log("Refreshing bookings...");
+      fetchBookings();
+    }, 60000); // 1 minute
+  
+    return () => clearInterval(intervalId);
   }, []);
 
 
@@ -73,31 +85,57 @@ const CaretakerBookingOverview: React.FC = () => {
   };
 
   const onBookingComplete = (id: number) => {
-    const updatedBookings = bookings.map((booking) =>
-        booking.id === id ? { ...booking, status: "COMPLETED", isPastBooking: true } : booking
-    );
-    setBookings(updatedBookings);
-    updateFutureBookings(updatedBookings); 
-};
-
-  const updateFutureBookings = (bookings: CaretakerBooking[]) => {
-    const updatedBookings = bookings.map((booking) => ({
-        ...booking,
-        isFutureBooking: booking.startDate > currentDate,
-        isPastBooking: booking.endDate < currentDate || booking.status === "COMPLETED",
-    }));
+    const updatedBookings = bookings.map((booking) => {
+        if (booking.id === id) {
+            return {
+                ...booking,
+                status: booking.status === "CONFIRMED" ? "COMPLETED" : "CONFIRMED",
+                isFutureBooking: false,
+                isPastBooking: booking.status === "CONFIRMED",
+            };
+        }
+        return booking;
+    });
 
     setBookings(updatedBookings);
+    updateFutureBookings(updatedBookings);
 };
+
+
+
+
+const updateFutureBookings = (bookings: CaretakerBooking[]) => {
+  const updatedBookings = bookings.map((booking) => ({
+      ...booking,
+      isFutureBooking: booking.startDate > currentDate && booking.status === "PENDING",
+      isPastBooking: booking.endDate < currentDate || booking.status === "COMPLETED",
+  }));
+  
+  setBookings(updatedBookings);
+};
+
   
   const currentDate = new Date();
 
-  const activeBookings = bookings.filter((booking) =>
-    booking.startDate <= currentDate && booking.endDate >= currentDate && booking.status !== "COMPLETED");
-  const futureBookings = bookings.filter((booking) => 
-    booking.startDate > currentDate);
-  const pastBookings = bookings.filter((booking) =>
-    booking.endDate < currentDate || booking.status === "COMPLETED");
+  const activeBookings = bookings.filter(
+    (booking) =>
+        booking.startDate <= currentDate &&
+        booking.endDate >= currentDate ||
+        booking.status === "CONFIRMED"
+);
+
+
+const futureBookings = bookings.filter(
+    (booking) =>
+        booking.startDate > currentDate &&
+        booking.status === "PENDING"
+);
+
+const pastBookings = bookings.filter(
+    (booking) =>
+        booking.endDate < currentDate ||
+        booking.status === "COMPLETED"
+);
 
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
