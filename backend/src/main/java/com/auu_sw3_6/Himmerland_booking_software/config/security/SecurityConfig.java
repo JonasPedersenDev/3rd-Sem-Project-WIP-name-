@@ -1,7 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.config.security;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -66,7 +65,7 @@ public class SecurityConfig {
   @Bean
   public CorsFilter corsFilter() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+    config.setAllowedOrigins(Arrays.asList("https://tbd.com", "http://localhost:4173"));
     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
     config.setAllowCredentials(true);

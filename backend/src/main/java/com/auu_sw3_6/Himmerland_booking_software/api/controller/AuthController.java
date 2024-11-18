@@ -53,7 +53,7 @@ public class AuthController {
           .secure(true)
           .path("/")
           .maxAge(60 * 60 * 5) // 5 hours
-          .sameSite("none") // only for development, maybe
+          .sameSite("none")
           .build();
 
       ResponseCookie authIndicatorCookie = ResponseCookie.from("authIndicator", role)
@@ -61,7 +61,7 @@ public class AuthController {
           .secure(true)
           .path("/")
           .maxAge(60 * 60 * 5) // 5 hours
-          .sameSite("none") // only for development, maybe
+          .sameSite("none")
           .build();
 
       response.addHeader("Set-Cookie", jwtCookie.toString());

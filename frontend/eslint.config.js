@@ -31,7 +31,7 @@ export default tseslint.config(
       'react/jsx-uses-react': 2,
       'react/jsx-no-undef': 2,
       'react/prop-types': 2,
-
+      'no-unused-vars': 'warn'
     },
   },
 )

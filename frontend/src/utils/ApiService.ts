@@ -1,13 +1,13 @@
 import axios, { AxiosResponse } from "axios";
 import { ResourceType } from "./EnumSupport";
-import { getUserRole, UserRole } from "./authConfig";
+import { getUserRole } from "./authConfig";
 import Resource from "../components/modelInterfaces/Resource";
 
 class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "http://localhost:8080/api/";
+    this.baseUrl = "https://tbd/api/";
   }
 
   public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {

@@ -4,7 +4,6 @@ import "./App.css";
 import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { getUserRole, defaultHomePages, UserRole } from "./utils/authConfig";
-import Navbar from "./components/BothView/NavBar/NavBar";
 // Pages
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -18,7 +17,6 @@ import OwnBookingsPage from "./pages/OwnBookingsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ContactPage from "./pages/ContactPage";
 import { DarkModeProvider } from "./components/DarkModeContext";
-import TenantDetailsList from "./components/CaretakerView/TenantDetails/TenantDetailsList";
 
 const routesConfig: {
   path: string;
