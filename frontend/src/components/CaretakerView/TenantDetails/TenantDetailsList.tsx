@@ -6,6 +6,7 @@ import { Modal, Button } from "react-bootstrap";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import FilterSearch from "./FilterSearch";
 import DeleteUser from "./DeleteUser";
+import EditTenantDetails from "./EditTenantDetails";
 
 const TenantDetailsList: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -15,6 +16,7 @@ const TenantDetailsList: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchTenants = async () => {
@@ -74,6 +76,27 @@ const TenantDetailsList: React.FC = () => {
     }
   }
 
+  const handleUpdate = async (updatedTenant: Tenant) => {
+    try {
+      await ApiService.editUserAdmin(updatedTenant.id, updatedTenant);
+      setTenants((prev) => prev.map((tenant) => (tenant.id === updatedTenant.id ? updatedTenant : tenant)));
+      setFilteredTenants((prev) => prev.map((tenant) => (tenant.id === updatedTenant.id ? updatedTenant : tenant)));
+    } catch (error) {
+      console.error("Failed to update tenant:", error);
+
+    }
+  }
+
+  const handleEditClick = (tenant: Tenant) => {
+    setSelectedTenant(tenant);
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedTenant(null);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -97,8 +120,11 @@ const TenantDetailsList: React.FC = () => {
               <p>Email: {tenant.email}</p>
             </div>
             <div className="tenant-actions">
-              <button className="btn btn-success" onClick={() => handleBookClick(tenant)}>Book for Udlejer</button>
-              <button className="btn btn-success" >Ændre</button>
+              <button className="btn btn-success" onClick={() => handleBookClick(tenant)}>Book for {tenant.name}</button>
+              {showEditModal && selectedTenant?.id === tenant.id && (
+                <EditTenantDetails tenantId={tenant.id.toString()} onUpdate={handleUpdate} onClose={handleCloseEditModal} />
+              )}
+              <button className="btn btn-success" onClick={() => handleEditClick(tenant)}>Ændre</button>
               <DeleteUser tenantId={tenant.id.toString()} onDelete={handleDelete} />
             </div>
           </div>

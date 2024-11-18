@@ -5,11 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
+import org.springframework.web.bind.annotation.PutMapping;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
@@ -42,5 +43,19 @@ public class AdminController extends UserController<Admin> {
   public ResponseEntity<Void> deleteTenant(@PathVariable Long id) {
     tenantService.delete(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @PutMapping(value = "/updateTenant/{id}", produces = "application/json")
+  @Operation(summary = "Update tenant", description = "This endpoint updates a tenant.")
+  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant) {
+    Tenant updatedTenant = tenantService.update(id, tenant);
+    return ResponseEntity.ok(updatedTenant);
+  }
+
+  @GetMapping(value = "/getTenant/{id}", produces = "application/json")
+  @Operation(summary = "Get tenant", description = "This endpoint returns a tenant.")
+  public ResponseEntity<Tenant> getTenant(@PathVariable Long id) {
+    Tenant tenant = tenantService.get(id);
+    return ResponseEntity.ok(tenant);
   }
 }
