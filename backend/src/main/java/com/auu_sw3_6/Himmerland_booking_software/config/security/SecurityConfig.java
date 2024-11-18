@@ -65,7 +65,7 @@ public class SecurityConfig {
   @Bean
   public CorsFilter corsFilter() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("https://tbd.com", "http://localhost:4173"));
+    config.setAllowedOrigins(Arrays.asList("https://tbd.com", "http://localhost:8080", "http://localhost:4173"));
     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
     config.setAllowCredentials(true);
