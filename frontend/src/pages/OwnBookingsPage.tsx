@@ -1,4 +1,4 @@
-import Navbar from "../components/BothView/NavBar/NavBar.tsx";
+import Navbar from "../components/BothView/NavBar/TenantNavBar.tsx";
 import Footer from "../components/BothView/Footer/Footer.tsx";
 import TenantBookingOverview from "../components/TenantView/BookingOverview/TenantBookingOverview.tsx";
 

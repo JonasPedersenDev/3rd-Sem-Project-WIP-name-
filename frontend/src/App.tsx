@@ -4,8 +4,8 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { getUserRole, defaultHomePages, UserRole } from "./utils/authConfig";
-import Navbar from "./components/BothView/NavBar/NavBar";
-import { AuthContext } from './AuthContext';
+import TenantNavbar from "./components/BothView/NavBar/TenantNavBar";
+import CaretakerNavbar from "./components/BothView/NavBar/CaretakerNavBar";
 
 // Pages
 import HomePage from "./pages/HomePage";
@@ -44,9 +44,11 @@ function App() {
 
   return (
     <Router>
-      <AuthProvider> {/* Wrapping everything inside AuthProvider */}
         <DarkModeProvider>
-          <Navbar />
+        
+        {role === "ROLE_TENANT" && <TenantNavbar />} 
+        {role === "ROLE_ADMIN" && <CaretakerNavbar />}
+
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -66,7 +68,6 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </DarkModeProvider>
-      </AuthProvider>
     </Router>
   );
 }

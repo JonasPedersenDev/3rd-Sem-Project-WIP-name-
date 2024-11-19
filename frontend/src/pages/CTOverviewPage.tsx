@@ -1,4 +1,4 @@
-import NavBar from "../components/BothView/NavBar/NavBar.tsx";
+import NavBar from "../components/BothView/NavBar/CaretakerNavBar.tsx";
 import Footer from "../components/BothView/Footer/Footer.tsx";
 import CaretakerBookingOverview from "../components/CaretakerView/BookingOverview/CaretakerBookingOverview.tsx";
 
