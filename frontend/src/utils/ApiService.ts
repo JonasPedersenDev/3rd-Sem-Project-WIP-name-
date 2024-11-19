@@ -7,7 +7,8 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = "http://localhost:8080/api/";
+    //this.baseUrl = "http://localhost:8080/api/";
+    this.baseUrl = "https://himmerland-booking-system-334425538486.europe-north1.run.app/api/";
   }
 
   public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {

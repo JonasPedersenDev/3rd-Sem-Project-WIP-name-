@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.auu_sw3_6.Himmerland_booking_software.config.PathConstants;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -45,12 +47,26 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            // Static react build files
+            .requestMatchers(
+                "/",
+                "/index.html",
+                "/assets/**",
+                "/static/**",
+                "/favicon.ico",
+                "/vite.svg")
+            .permitAll()
+            // Public website paths
+            .requestMatchers(PathConstants.WEBSITE_PATHS).permitAll()
+            // Public endpoints
             .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+            // Role based endpoints
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
             .requestMatchers("/api/booking/**").hasRole("ADMIN")
+            // All other requests
             .anyRequest().authenticated()
         // Require JWT for all other requests: .authenticated()
         // Allow access for all other requests: .permitAll()
@@ -65,7 +81,7 @@ public class SecurityConfig {
   @Bean
   public CorsFilter corsFilter() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("https://tbd.com", "http://localhost:8080", "http://localhost:4173"));
+    config.setAllowedOrigins(Arrays.asList("https://himmerland-booking-system-334425538486.europe-north1.run.app", "http://localhost:8080", "http://localhost:4173"));
     config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
     config.setAllowCredentials(true);
