@@ -1,12 +1,13 @@
 import React from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
+
 const Contact: React.FC = () => {
   return (
     <Container className="my-5">
       <Row className="justify-content-center">
         <Col md={8}>
           <Card className="shadow-sm">
-            <Card.Header className="bg-primary text-white text-center">
+            <Card.Header className="text-white text-center" style={{ backgroundColor: '#28a745' }}>
               <h3>Kontakt Os</h3>
             </Card.Header>
             <Card.Body>
@@ -24,7 +25,7 @@ const Contact: React.FC = () => {
                   <h5>Kontakt Information</h5>
                   <p>
                     Phone: <a href="tel:+4598158422">+45 98 15 84 22</a><br />
-                    Email: <a href="kanalkvarteret@abhim.dk">kanalkvarteret@abhim.dk</a><br />
+                    Email: <a href="mailto:kanalkvarteret@abhim.dk">kanalkvarteret@abhim.dk</a><br />
                     Website: <a href="https://www.abhim.dk/" target="_blank" rel="noopener noreferrer">www.abhim.dk</a>
                   </p>
                 </Col>
@@ -52,4 +53,5 @@ const Contact: React.FC = () => {
     </Container>
   );
 };
+
 export default Contact;

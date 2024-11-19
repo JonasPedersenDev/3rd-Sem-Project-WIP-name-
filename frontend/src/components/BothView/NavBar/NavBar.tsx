@@ -1,13 +1,13 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getBookingCount } from "../../../utils/sessionStorageSupport";
 import { useDarkMode } from "../../DarkModeContext";
+import { FaHome, FaEnvelope, FaList, FaUser, FaSun, FaMoon } from "react-icons/fa"; // Import icons
 
 function Navbar() {
-
   const { toggleDarkMode } = useDarkMode();
-
   const navigate = useNavigate();
+  const location = useLocation(); // Track current location
   const [bookingCount, setBookingCount] = useState<number>(0);
 
   useEffect(() => {
@@ -24,11 +24,14 @@ function Navbar() {
     };
   }, []);
 
+  // Function to determine if the current route matches
+  const isActive = (path: string) => location.pathname === path ? 'active' : '';
+
   return (
-    <nav className="navbar navbar-expand-md navbar-dark bg-custom">
+    <nav className="navbar navbar-expand-md navbar-dark" style={{ backgroundColor: '#28a745' }}>
       <div className="container-fluid">
         <a href="#intro" className="navbar-title">
-          <span style={{ color: "#00ac58", fontWeight: "bold" }}>
+          <span style={{ color: "#fff", fontWeight: "bold" }}>
             Himmerland <br /> Boligforening
           </span>
         </a>
@@ -52,55 +55,46 @@ function Navbar() {
           id="main-nav"
         >
           <ul className="navbar-nav">
-            <li className="nav-item">
+            <li className={`nav-item ${isActive('/hjem')}`}>
               <button
-                className="nav-link btn btn-link"
+                className="nav-link btn btn-link text-white"
                 onClick={() => navigate("/hjem")}
               >
-                Hjem
+                <FaHome /> Hjem
               </button>
             </li>
-            <li className="nav-item">
+            <li className={`nav-item ${isActive('/kontakt')}`}>
               <button
-                className="nav-link btn btn-link"
+                className="nav-link btn btn-link text-white"
                 onClick={() => navigate("/kontakt")}
               >
-                Kontakt
+                <FaEnvelope /> Kontakt
               </button>
             </li>
-            <li className="nav-item">
+            <li className={`nav-item ${isActive('/mine-reservationer')}`}>
               <button
-                className="nav-link btn btn-link"
+                className="nav-link btn btn-link text-white"
                 onClick={() => navigate("/mine-reservationer")}
               >
-                Reservationer
-              </button>
-            </li>
-            {/* New Reservation Overblik link with counter */}
-            <li className="nav-item d-flex align-items-center">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/reservation-overblik")}
-              >
-                Reservation Overblik
-              </button>
-              <span className="badge bg-danger ms-2">{bookingCount}</span>
-            </li>
-            <li className="nav-item">
-              <button
-                className="nav-link btn btn-link"
-                onClick={() => navigate("/konto")}
-              >
-                Konto
-              </button>
-            </li>
-            {/* Dark Mode Toggle */}
-            <li className="nav-item">
-              <button className="nav-link btn btn-link" onClick={toggleDarkMode}>
-                Toggle Dark Mode
+                <FaList /> Reservationer
               </button>
             </li>
 
+            <li className={`nav-item ${isActive('/konto')}`}>
+              <button
+                className="nav-link btn btn-link text-white"
+                onClick={() => navigate("/konto")}
+              >
+                <FaUser /> Konto
+              </button>
+            </li>
+
+            {/* Dark Mode Toggle */}
+            <li className="nav-item">
+              <button className="nav-link btn btn-link text-white" onClick={toggleDarkMode}>
+                {location.pathname === "/konto" ? <FaSun /> : <FaMoon />} Toggle Dark Mode
+              </button>
+            </li>
           </ul>
         </div>
       </div>

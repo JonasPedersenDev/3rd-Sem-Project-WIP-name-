@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../../../utils/ApiService";
 import { isAxiosError } from "axios";
@@ -16,6 +16,10 @@ const Login: React.FC = () => {
   });
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const loginButtonRef = useRef<HTMLButtonElement>(null);
+  const createAccountButtonRef = useRef<HTMLButtonElement>(null);
 
   const validateForm = (): boolean => {
     const { username, password } = credentials;
@@ -45,18 +49,12 @@ const Login: React.FC = () => {
     try {
       const response = await ApiService.login(credentials);
 
-      console.log(response);
-      console.log(response.data);
-
       if (response.status === 200) {
-        console.log("Login successful");
-      
         navigate("/hjem");
       } else {
         setErrorMessage("Forkert brugernavn eller adgangskode.");
       }
     } catch (error) {
-
       if (isAxiosError(error)) {
         if (error.response && error.response.status === 401) {
           setErrorMessage("Forkert brugernavn eller adgangskode.");
@@ -69,17 +67,49 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown" || e.key === "Tab") {
+      e.preventDefault();
+      if (e.target === usernameRef.current && passwordRef.current) {
+        passwordRef.current.focus();
+      } else if (e.target === passwordRef.current && loginButtonRef.current) {
+        loginButtonRef.current.focus();
+      } else if (e.target === loginButtonRef.current && createAccountButtonRef.current) {
+        createAccountButtonRef.current.focus();
+      }
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (e.target === createAccountButtonRef.current && loginButtonRef.current) {
+        loginButtonRef.current.focus();
+      } else if (e.target === loginButtonRef.current && passwordRef.current) {
+        passwordRef.current.focus();
+      } else if (e.target === passwordRef.current && usernameRef.current) {
+        usernameRef.current.focus();
+      }
+    }
+  };
+
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
-      <form className="w-25 p-4 border rounded shadow" onSubmit={handleSubmit}>
-        <h4 className="text-center mb-4">Login</h4>
+    <div className="d-flex justify-content-center align-items-center vh-100" style={{ margin: 0 }}>
+      <form className="w-25 p-5 border rounded shadow-lg bg-white" onSubmit={handleSubmit}>
+        <h4 className="text-center mb-4" style={{ color: "#388e3c" }}>
+          Login
+        </h4>
+
         {errorMessage && (
-          <div className="alert alert-danger">{errorMessage}</div>
+          <div className="alert alert-danger mb-3 text-center">
+            {errorMessage}
+          </div>
         )}
 
-        <div className="mb-3 mt-5">
-          <label htmlFor="username">Brugernavn</label>
+        <div className="mb-3">
+          <label htmlFor="username" className="form-label">
+            Brugernavn
+          </label>
           <input
+            ref={usernameRef}
             type="text"
             className="form-control form-control-lg"
             id="username"
@@ -87,13 +117,17 @@ const Login: React.FC = () => {
             onChange={handleChange}
             placeholder="Skriv brugernavn"
             required
+            onKeyDown={handleKeyDown}
           />
         </div>
 
-        <div className="form-group mt-3">
-          <label htmlFor="password">Adgangskode</label>
+        <div className="form-group mb-4">
+          <label htmlFor="password" className="form-label">
+            Adgangskode
+          </label>
           <div className="input-group">
             <input
+              ref={passwordRef}
               type={passwordVisible ? "text" : "password"}
               className="form-control form-control-lg"
               id="password"
@@ -101,6 +135,7 @@ const Login: React.FC = () => {
               onChange={handleChange}
               placeholder="Skriv adgangskode"
               required
+              onKeyDown={handleKeyDown}
             />
             <button
               type="button"
@@ -113,14 +148,19 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary btn-lg btn-block mt-4">
+        <button
+          ref={loginButtonRef}
+          type="submit"
+          className="btn btn-success btn-lg btn-block mt-4"
+        >
           Login
         </button>
 
         <div className="text-center mt-3">
           <button
+            ref={createAccountButtonRef}
             type="button"
-            className="btn btn-secondary btn-lg"
+            className="btn btn-outline-success btn-lg"
             onClick={() => navigate("/opret-konto")}
           >
             Lav bruger
@@ -132,7 +172,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-function sleep(arg0: number) {
-  throw new Error("Function not implemented.");
-}
-

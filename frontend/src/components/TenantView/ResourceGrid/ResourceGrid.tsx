@@ -3,6 +3,8 @@ import ResourceCard from "./ResourceCard";
 import ApiService from "../../../utils/ApiService";
 import { ResourceType } from "../../../utils/EnumSupport";
 import Resource from "../../modelInterfaces/Resource";
+import { Tab, Tabs } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 
 const mapToResourceType = (type: string | null | undefined): ResourceType | undefined => {
   if (type) {
@@ -19,8 +21,16 @@ const ResourceGrid: React.FC = () => {
   const [tools, setTools] = useState<Resource[]>([]);
   const [hospitalities, setHospitalities] = useState<Resource[]>([]);
   const [otherResources, setOtherResources] = useState<Resource[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('tools');
+  const [bookingCount, setBookingCount] = useState<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const storedBookingCount = sessionStorage.getItem("bookingCount");
+    if (storedBookingCount) {
+      setBookingCount(Number(storedBookingCount));
+    }
+
     const fetchResources = async () => {
       try {
         const toolsResponse = await ApiService.fetchResources(ResourceType.TOOL);
@@ -46,44 +56,94 @@ const ResourceGrid: React.FC = () => {
       } catch (error) {
         console.error("Error fetching resources", error);
       }
-
     };
 
     fetchResources();
   }, []);
 
+  useEffect(() => {
+    const handleBookingUpdated = () => {
+      const newBookingCount = bookingCount + 1;
+      setBookingCount(newBookingCount);
+      sessionStorage.setItem("bookingCount", newBookingCount.toString());
+    };
+
+    window.addEventListener("bookingsUpdated", handleBookingUpdated);
+    return () => {
+      window.removeEventListener("bookingsUpdated", handleBookingUpdated);
+    };
+  }, [bookingCount]);
+
+  const getActiveTabClass = (tab: string) => (activeTab === tab ? 'active-tab' : '');
+
   return (
     <div>
-      {/* Display Tools */}
-      {tools.length > 0 && (
-        <div className="row">
-          <h3 className="resourceHeading">Værktøj</h3>
-          <div className="underline"></div>
-          {tools.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
-      )}
+      {/* Resource Categories */}
+      <Tabs 
+        activeKey={activeTab} 
+        onSelect={(key) => setActiveTab(key!)}
+        id="resource-tabs" 
+        className="mb-3"
+      >
+        <Tab 
+          eventKey="tools" 
+          title={<span className={`resource-heading ${getActiveTabClass('tools')}`}>Værktøj</span>}
+        >
+          <div className="row">
+            {tools.length > 0 ? (
+              tools.map((resource) => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))
+            ) : (
+              <p>No tools available.</p>
+            )}
+          </div>
+        </Tab>
+        <Tab 
+          eventKey="hospitalities" 
+          title={<span className={`resource-heading ${getActiveTabClass('hospitalities')}`}>Gæstehuse & Lokaler</span>}
+        >
+          <div className="row">
+            {hospitalities.length > 0 ? (
+              hospitalities.map((resource) => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))
+            ) : (
+              <p>No guest houses available.</p>
+            )}
+          </div>
+        </Tab>
+        <Tab 
+          eventKey="others" 
+          title={<span className={`resource-heading ${getActiveTabClass('others')}`}>Andet</span>}
+        >
+          <div className="row">
+            {otherResources.length > 0 ? (
+              otherResources.map((resource) => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))
+            ) : (
+              <p>No other resources available.</p>
+            )}
+          </div>
+        </Tab>
+      </Tabs>
 
-      {/* Display Guest Houses */}
-      {hospitalities.length > 0 && (
-        <div className="row">
-          <h3 className="resourceHeading">Gæstehuse & Lokaler</h3>
-          <div className="underline"></div>
-          {hospitalities.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
-      )}
-
-      {/* Display Other Resources */}
-      {otherResources.length > 0 && (
-        <div className="row">
-          <h3 className="resourceHeading">Andet</h3>
-          <div className="underline"></div>
-          {otherResources.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
+      {/* Conditionally render the "Se Reservationer" button at the top right */}
+      {bookingCount > 0 && (
+        <div className="mt-4">
+          <button 
+            className="btn btn-success d-flex align-items-center" 
+            style={{
+              position: 'absolute',
+              top: '90px',
+              right: '20px',
+            }}
+            onClick={() => navigate("/reservation-overblik")}
+          >
+            Se Reservationer
+            <span className="badge bg-danger ms-2">{bookingCount}</span>
+          </button>
         </div>
       )}
     </div>
