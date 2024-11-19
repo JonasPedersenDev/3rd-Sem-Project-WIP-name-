@@ -180,6 +180,36 @@ class ApiService {
     }
   }
 
+  public async createResource(
+    resource: object,
+    img: File,
+    resourceType: ResourceType
+  ): Promise<AxiosResponse<any>> {
+    try {
+      //construct endpoint
+      const endpoint = `${this.baseUrl}${resourceType.toLocaleLowerCase()}/create`;
+      console.log("create resource endpoint:", endpoint);
+      //call
+      const formData = new FormData();
+      formData.append(resourceType.toLowerCase(), JSON.stringify(resource));
+      formData.append("resourcePictures", img);
+      
+      for (const pair of formData.entries()) {
+        console.log(pair[0]+ ': ' + pair[1]);
+      }
+
+      return await axios.post(endpoint, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.error("Error creating resource:", error);
+      throw error;
+    }
+  }
+
   public async deleteResource(
     resourceID: number,
     resourceType: ResourceType

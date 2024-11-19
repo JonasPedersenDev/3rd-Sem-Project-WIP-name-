@@ -1,43 +1,77 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { Modal, Button, Form } from 'react-bootstrap';
-
-interface AddResourceModalProps {
-  onResourceAdded: () => void;
-  onClose: () => void;
-}
+import { Modal, Button, Form } from "react-bootstrap";
+import Resource from "../../modelInterfaces/Resource";
+import { ResourceType } from "../../../utils/EnumSupport";
+import ApiService from "../../../utils/ApiService";
 
 interface AddResourceModalProps {
   show: boolean;
-  onResourceAdded: () => void;
   onClose: () => void;
+  onTrigger: () => void;
 }
 
-const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdded, onClose }) => {
-  const [resourceData, setResourceData] = useState({
+const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTrigger }) => {
+  const [resourceData, setResourceData] = useState<Resource>({
+    id: 0,
+    type: ResourceType.UTILITY,
     name: "",
-    type: "",
     img: "",
     description: "",
     status: "available",
+    capacity: 1,
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setResourceData({
-      ...resourceData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    if (e.target.type === "file") {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        setImageFile(file);
+      }
+    } else {
+      setResourceData((prevData) => ({
+        ...prevData,
+        [name]: name === "capacity" ? Number(value) : value,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/api/resources", resourceData);
-      onResourceAdded();
+      if (imageFile === null) {console.log("image is null"); return}
+      const transformedResource = transformResourceSubmit()
+      const response = await ApiService.createResource(transformedResource, imageFile, resourceData.type)
+      console.log("create response:", response)
+
+      console.log("the resource: ", resourceData)
+      onClose();
+      onTrigger();
+      setResourceData({ //Reset form data
+        id: 0,
+        type: ResourceType.UTILITY,
+        name: "",
+        img: "",
+        description: "",
+        status: "available",
+        capacity: 1,});
     } catch (error) {
       console.error("Error adding resource:", error);
     }
   };
+
+  const transformResourceSubmit = () => {
+    const transformedResource = {
+      name: resourceData.name,
+      description: resourceData.description,
+      type: resourceData.type,
+      capacity: resourceData.capacity,
+      status: resourceData.status
+    }
+    return transformedResource
+  }
 
   return (
     <Modal show={show} onHide={onClose}>
@@ -47,7 +81,7 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdd
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="name">
-            <Form.Label>Name:</Form.Label>
+            <Form.Label>Navn:</Form.Label>
             <Form.Control
               type="text"
               name="name"
@@ -59,25 +93,28 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdd
           <Form.Group controlId="type">
             <Form.Label>Type:</Form.Label>
             <Form.Control
-              type="text"
+              as="select"
               name="type"
               value={resourceData.type}
               onChange={handleChange}
               required
-            />
+            >
+              <option value={ResourceType.TOOL}>Værktøj</option>
+              <option value={ResourceType.HOSPITALITY}>Gæste hus</option>
+              <option value={ResourceType.UTILITY}>Andet</option>
+            </Form.Control>
           </Form.Group>
-          <Form.Group controlId="img">
-            <Form.Label>Image:</Form.Label>
+          <Form.Group controlId="imageFile">
+            <Form.Label>Billede:</Form.Label>
             <Form.Control
-              type="text"
-              name="img"
-              value={resourceData.img}
+              type="file"
+              name="imageFile"
               onChange={handleChange}
               required
             />
           </Form.Group>
           <Form.Group controlId="description">
-            <Form.Label>Description:</Form.Label>
+            <Form.Label>Beskrivelse:</Form.Label>
             <Form.Control
               type="text"
               name="description"
@@ -93,17 +130,27 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdd
               name="status"
               value={resourceData.status}
               onChange={handleChange}
+              required
             >
               <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
               <option value="maintenance">Maintenance</option>
             </Form.Control>
           </Form.Group>
-          <Button variant="primary" type="submit">
-            Add Resource
+          <Form.Group controlId="capacity">
+            <Form.Label>Antal:</Form.Label>
+            <Form.Control
+              type="number"
+              name="capacity"
+              value={resourceData.capacity}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+          <Button variant="primary" type="submit" className="mt-2">
+            Tilføj Ressource
           </Button>
-          <Button variant="secondary" onClick={onClose} className="ms-2">
-            Cancel
+          <Button variant="secondary" onClick={onClose} className="ms-2 mt-2">
+            Anuller
           </Button>
         </Form>
       </Modal.Body>
@@ -112,3 +159,4 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onResourceAdd
 };
 
 export default AddResourceModal;
+

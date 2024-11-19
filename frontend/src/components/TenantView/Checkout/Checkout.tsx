@@ -10,11 +10,12 @@ import ApiService from "../../../utils/ApiService";
 
 const Checkout: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [trigger, setTrigger] = useState(false);
 
   // Load bookings from session storage on mount
   useEffect(() => {
     setBookings(loadBookingsFromSessionStorage());
-  }, []);
+  }, [trigger]);
 
   const handleEdit = (id: number, updatedBooking: Booking) => {
     updateBookingInSessionStorage(id, updatedBooking);
@@ -41,6 +42,7 @@ const Checkout: React.FC = () => {
       }
       removeBookingFromSessionStorage(booking.id);
     }
+    setTrigger((prev) => !prev); //used to reload the bookings
   };
 
   const transformBooking = (booking: any) => {

@@ -4,12 +4,15 @@ import CaretakerResourceCard from './CaretakerResourceCard';
 import Resource from '../../modelInterfaces/Resource';
 import { ResourceType } from '../../../utils/EnumSupport';
 import ApiService from '../../../utils/ApiService';
+import AddResourceModal from '../AddResourceModal/AddResourceModal';
 
 const CaretakerResourceOverview: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [showVærktøj, setShowVærktøj] = useState(true);
   const [showGæstehuse, setShowGæstehuse] = useState(true);
   const [showAndet, setShowAndet] = useState(true);
+  const [showAddResourceModal, setShowAddResourceModal] = useState(false);
+  const [trigger, setTrigger] = useState(false);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -53,7 +56,7 @@ const CaretakerResourceOverview: React.FC = () => {
     };
 
     fetchResources();
-  }, []);
+  }, [trigger]);
 
   //Categorize
   const værktøjResources = resources.filter(
@@ -79,22 +82,41 @@ const CaretakerResourceOverview: React.FC = () => {
         )
       );
       console.log("response:", response)
+      setTrigger((prev) => !prev); //used to reload the resources
     } catch (error) {
       console.error('Error updating resource:', error);
     }
   };
 
-  const handleToggleService = (id: number) => {
-    setResources((prevResources) =>
-      prevResources.map((resource) =>
-        resource.id === id
-          ? {
-              ...resource,
-              status: resource.status === 'available' ? 'maintenance' : 'available',
-            }
-          : resource
-      )
-    );
+  const handleToggleService = async (id: number) => {
+    try {
+      const resourceToUpdate = resources.find((resource) => resource.id === id);
+      if (!resourceToUpdate) {
+        console.error("Resource not found for toggling service");
+        return;
+      }
+
+      const updatedResource = {
+        ...resourceToUpdate,
+        status: resourceToUpdate.status === 'available' ? 'maintenance' : 'available',
+      };
+  
+      const response = await ApiService.updateResource(
+        updatedResource,
+        ResourceType[updatedResource.type.toUpperCase() as keyof typeof ResourceType],
+        updatedResource.id
+      );
+  
+      setResources((prevResources) =>
+        prevResources.map((resource) =>
+          resource.id === response.data.id ? response.data : resource
+        )
+      );
+      console.log("response:", response);
+      setTrigger((prev) => !prev); //used to reload the resources
+    } catch (error) {
+      console.error("Error updating resource status:", error);
+    }
   };
 
   const handleDelete = async (id: number, type: ResourceType) => {
@@ -109,6 +131,13 @@ const CaretakerResourceOverview: React.FC = () => {
   return (
     <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
       <h2 className="text-center mb-4"><strong>Ressourcer</strong></h2>
+
+      <div className="text-center mb-4">
+        <Button variant="primary" onClick={() => setShowAddResourceModal(true)}>
+          Add Resource
+        </Button>
+      </div>
+
       <h3>
         <Button
           variant="secondary"
@@ -198,6 +227,12 @@ const CaretakerResourceOverview: React.FC = () => {
           )}
         </div>
       </Collapse>
+
+      <AddResourceModal
+        show={showAddResourceModal}
+        onClose={() => setShowAddResourceModal(false)}
+        onTrigger={() => setTrigger((prev) => !prev)}
+      />
     </div>
   );
 };

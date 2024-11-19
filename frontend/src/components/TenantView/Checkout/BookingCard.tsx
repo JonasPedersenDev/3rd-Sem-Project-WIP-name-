@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Booking from "../../modelInterfaces/Booking";
 import { TimeRange } from "../../modelInterfaces/TimeRange";
+import ApiService from "../../../utils/ApiService";
+import { ResourceType } from "../../../utils/EnumSupport";
+import BookingModalCalendar from "../CreateBookingModal/BookingModalCalendar";
+import BookingDate from "../../modelInterfaces/BookingDate";
+import Resource from "../../modelInterfaces/Resource";
+import { isValidDateRange } from "../../../utils/BookingSupport";
 
 interface BookingCardProps {
   booking: Booking;
@@ -13,11 +19,49 @@ const BookingCard: React.FC<BookingCardProps> = ({
   onEdit,
   onRemove,
 }) => {
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking>(booking);
+  const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
+  const [capacity, setCapacity] = useState<number>(0)
+
+  useEffect (() => {
+    getBookings(booking.resourceType, booking.resourceID)
+    getCapacity()
+    console.log("EDITED BOOKING", editedBooking)
+  }, []);
+
 
   const parseDate = (date: string | Date | null): string => {
     return date ? new Date(date).toLocaleDateString() : "N/A";
+  };
+
+  const getBookings = async ( resourceType: ResourceType, id: number) => {
+    try {
+      const bookedDatesResponse = await ApiService.fetchBookings(resourceType, id)
+      console.log("bookedDates for", booking.resourceName, bookedDatesResponse);
+      setBookedDates(bookedDatesResponse.data)
+    } catch(error) {
+      console.log(error)
+    }
+  }
+
+  const getCapacity = async () => {
+    try {
+      const resourceResponse = await ApiService.fetchData<Resource>(`${booking.resourceType.toLowerCase()}/${booking.resourceID}`)
+      console.log("capacity for", booking.resourceName, resourceResponse.data.capacity);
+      setCapacity(resourceResponse.data.capacity)
+    } catch(error) {
+      console.log(error)
+    }
+  }
+
+  const handleDateChange = (start: Date | null, end: Date | null) => {
+    setEditedBooking({
+      ...editedBooking,
+      startDate: start,
+      endDate: end,
+    });
   };
 
   const handleChange = (
@@ -28,7 +72,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
     const { name, value } = e.target;
     setEditedBooking({
       ...editedBooking,
-      [name]: name.includes("Time") ? new Date(value) : value,
+      [name]: value as TimeRange,
     });
   };
 
@@ -42,6 +86,11 @@ const BookingCard: React.FC<BookingCardProps> = ({
       <div className="card-body">
         {isEditing ? (
           <div>
+            <BookingModalCalendar
+              bookedDates={bookedDates}
+              onDateChange={handleDateChange}
+              resourceCapacity={capacity}
+            />
             <label
               htmlFor={`resourceName-${booking.id}`}
               className="form-label"
@@ -63,26 +112,26 @@ const BookingCard: React.FC<BookingCardProps> = ({
               Reservation Start Dato
             </label>
             <input
-              type="date"
+              type="text"
               id={`bookStartTime-${booking.id}`}
-              name="bookStartTime"
-              value={parseDate(booking.startDate)}
-              onChange={handleChange}
+              name="startDate"
+              value={parseDate(editedBooking.startDate)}
               className="form-control mb-2"
               aria-label="Booking Start Time"
+              disabled
             />
 
             <label htmlFor={`bookEndTime-${booking.id}`} className="form-label">
               Reservation Slut Dato
             </label>
             <input
-              type="date"
+              type="text"
               id={`bookEndTime-${booking.id}`}
-              name="bookEndTime"
-              value={parseDate(booking.endDate)}
-              onChange={handleChange}
+              name="endDate"
+              value={parseDate(editedBooking.endDate)}
               className="form-control mb-2"
               aria-label="Booking End Time"
+              disabled
             />
 
             <label htmlFor={`pickup-${booking.id}`} className="form-label">
@@ -90,7 +139,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
             </label>
             <select
               id={`pickup-${booking.id}`}
-              name="pickup"
+              name="pickupTime"
               value={editedBooking.pickupTime.toString()}
               className="form-control mb-2"
               onChange={handleChange}
@@ -105,7 +154,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
             </label>
             <select
               id={`dropoff-${booking.id}`}
-              name="dropoff"
+              name="dropoffTime"
               value={editedBooking.dropoffTime.toString()}
               className="form-control mb-2"
               onChange={handleChange}
@@ -115,7 +164,17 @@ const BookingCard: React.FC<BookingCardProps> = ({
               <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
             </select>
 
-            <button onClick={handleSave} className="btn btn-success me-2">
+            <button 
+              onClick={handleSave} 
+              className="btn btn-success me-2" 
+              disabled={
+                !isValidDateRange(
+                  editedBooking.startDate,
+                  editedBooking.endDate,
+                  bookedDates,
+                  capacity
+                )
+              }>
               Gem
             </button>
             <button
