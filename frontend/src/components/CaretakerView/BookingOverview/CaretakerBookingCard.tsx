@@ -95,22 +95,22 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <Button variant="outline-secondary" onClick={handleShow}>
             Detaljer
           </Button>
-          {booking.isFutureBooking && (
-    <>
-        <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
-            Annuller
-        </Button>
-        <Button variant="success" className="ms-2" onClick={handleShowInitials}>
-            Udlever
-        </Button>
-    </>
-)}
+          {(booking.isFutureBooking || (booking.startDate.toDateString() === new Date().toDateString() && booking.status === "PENDING")) && (
+            <>
+              <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
+                Annuller
+              </Button>
+              <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+                Udlever
+              </Button>
+            </>
+          )}
 
-{!booking.isFutureBooking && !booking.isPastBooking && booking.status === "CONFIRMED" && (
-    <Button variant="success" className="ms-2" onClick={handleShowInitials}>
-        Modtag
-    </Button>
-)}
+          {!booking.isFutureBooking && !booking.isPastBooking && booking.status === "CONFIRMED" && (
+            <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+              Modtag
+            </Button>
+          )}
         </div>
       </div>
 
@@ -130,8 +130,8 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <p><strong>Ressource:</strong> {booking.resourceName}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>
-          <p><strong>Udlevering:</strong> {booking.receiverInitials}</p>
-          <p><strong>Modtagelse:</strong> {booking.handoverInitials}</p>
+          <p><strong>Udlevering:</strong> {booking.handoverInitials}</p>
+          <p><strong>Modtagelse:</strong> {booking.receiverInitials}</p>
         </Modal.Body>
       </Modal>
 
@@ -144,18 +144,13 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <p><strong>Medarbejder initialer:</strong></p>
           <div>
             {caretakers.map((initials, index) => (
-              <Button
-                key={index}
-                variant="outline-primary"
-                onClick={() => handleInitialsSelect(initials)}
-                className="me-2 mb-2"
-              >
+              <Button key={index} variant="outline-primary" onClick={() => handleInitialsSelect(initials)} className="me-2 mb-2">
                 {initials}
               </Button>
             ))}
           </div>
           {showConfirmButton && (
-            <Button variant="outline-secondary" onClick={handleConfirm} className="mt-3">
+            <Button variant="success" onClick={handleConfirm} className="mt-3">
               Bekræft
             </Button>
           )}

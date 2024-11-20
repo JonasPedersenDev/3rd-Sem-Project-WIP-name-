@@ -20,7 +20,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
   };
 
   return (
-    <div className="col-sm-4 col-md-3 mb-4">
+    <div className="col-sm-4 col-md-2 mb-4">
       <div className="card shadow-sm">
         {loading ? (
           <>

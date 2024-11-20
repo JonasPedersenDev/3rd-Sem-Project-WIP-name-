@@ -3,6 +3,7 @@ import CaretakerBookingCard from './CaretakerBookingCard';
 import { Collapse, Button } from 'react-bootstrap';
 import Booking from '../../modelInterfaces/Booking';
 import ApiService from '../../../utils/ApiService';
+import CaretakerOptions from './CaretakerOptions';
 
 interface CaretakerBooking {
   id: number;
@@ -120,7 +121,8 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
   const activeBookings = bookings.filter(
     (booking) =>
         booking.startDate <= currentDate &&
-        booking.endDate >= currentDate ||
+        booking.endDate >= currentDate &&
+        booking.status === "CONFIRMED" ||
         booking.status === "CONFIRMED"
 );
 
@@ -128,16 +130,22 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
 const futureBookings = bookings.filter(
     (booking) =>
         booking.startDate > currentDate &&
+        booking.status === "PENDING" ||
         booking.status === "PENDING"
 );
 
 const pastBookings = bookings.filter(
     (booking) =>
-        booking.endDate < currentDate ||
+        booking.endDate < currentDate &&
+        booking.status === "COMPLETED" ||
         booking.status === "COMPLETED"
 );
 
   return (
+    <>
+    <div>
+      <CaretakerOptions />
+    </div>
     <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
       <h2 className="text-center mb-5"><strong>Reservationer</strong></h2>
       {/* Active Bookings */}
@@ -206,6 +214,7 @@ const pastBookings = bookings.filter(
         </div>
       </Collapse>
     </div>
+    </>
   );
 };
 

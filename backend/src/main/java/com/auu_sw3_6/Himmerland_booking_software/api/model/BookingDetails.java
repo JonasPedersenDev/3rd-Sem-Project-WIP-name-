@@ -1,6 +1,7 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
@@ -47,23 +48,23 @@ public class BookingDetails {
   @JsonProperty("dropoffTime")
   private TimeRange dropoffTime;
 
-  private String receiverInitials;
+  private String receiverName;
 
-  private String handoverInitials;
+  private String handoverName;
 
   public BookingDetails() {
   }
 
   public BookingDetails(Long resourceID, ResourceType resourceType, LocalDate startDate, LocalDate endDate,
-      TimeRange startTime, TimeRange endTime, String receiverInitials, String handoverInitials) {
+      TimeRange startTime, TimeRange endTime, String receiverName, String handoverName) {
     this.resourceID = resourceID;
     this.resourceType = resourceType;
     this.startDate = startDate;
     this.endDate = endDate;
     this.pickupTime = startTime;
     this.dropoffTime = endTime;
-    this.receiverInitials = receiverInitials;
-    this.handoverInitials = handoverInitials;
+    this.receiverName = receiverName;
+    this.handoverName = handoverName;
   }
 
   public Long getResourceID() {
@@ -114,19 +115,19 @@ public class BookingDetails {
     this.dropoffTime = endTime;
   }
 
-  public String getReceiverInitials(){
-    return receiverInitials;
+  public String getReceiverName(){
+    return receiverName;
   }
 
-  public void setReceiverInitials(String receiverInitials){
-    this.receiverInitials = receiverInitials;
+  public void setReceiverName(String receiverName){
+    this.receiverName = receiverName;
   }
 
-  public String getHandoverInitials(){
-    return handoverInitials;
+  public String getHandoverName(){
+    return handoverName;
   }
 
-  public void getHandoverInitials(String handoverInitials){
-    this.handoverInitials = handoverInitials;
+  public void getHandoverName(String handoverName){
+    this.handoverName = handoverName;
   }
 }

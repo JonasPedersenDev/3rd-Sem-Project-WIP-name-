@@ -38,15 +38,15 @@ public class Booking {
   @Enumerated(EnumType.STRING)
   private BookingStatus status;
 
-  private String receiverInitials;
+  private String receiverName;
 
-  private String handoverInitials;
+  private String handoverName;
 
   public Booking() {
   }
 
   public Booking(Resource resource, User user, LocalDate startDate, LocalDate endDate,
-  TimeRange pickupTime, TimeRange dropoffTime, BookingStatus status, String receiverInitials, String handoverInitials) {
+  TimeRange pickupTime, TimeRange dropoffTime, BookingStatus status, String receiverName, String handoverName) {
     this.resource = resource;
     this.user = user;
     this.startDate = startDate;
@@ -54,8 +54,8 @@ public class Booking {
     this.pickupTime = pickupTime;
     this.dropoffTime = dropoffTime;
     this.status = status;
-    this.receiverInitials = receiverInitials;
-    this.handoverInitials = handoverInitials;
+    this.receiverName = receiverName;
+    this.handoverName = handoverName;
   }
 
   public long getId() {
@@ -122,20 +122,20 @@ public class Booking {
     this.status = status;
   }
 
-  public String getReceiverInitials(){
-    return receiverInitials;
+  public String getReceiverName(){
+    return receiverName;
   }
 
-  public void setReceiverInitials(String receiverInitials){
-    this.receiverInitials = receiverInitials;
+  public void setReceiverName(String receiverName){
+    this.receiverName = receiverName;
   }
 
-  public String getHandoverInitials(){
-    return handoverInitials;
+  public String getHandoverName(){
+    return handoverName;
   }
 
-  public void setHandoverInitials(String handoverInitials){
-    this.handoverInitials = handoverInitials;
+  public void setHandoverName(String handoverName){
+    this.handoverName = handoverName;
   }
 
 }

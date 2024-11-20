@@ -4,7 +4,7 @@ import ApiService from "../../../utils/ApiService";
 import { ResourceType } from "../../../utils/EnumSupport";
 import Resource from "../../modelInterfaces/Resource";
 import { Tab, Tabs } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom"; // Add the navigate hook
+import { useNavigate } from "react-router-dom";
 
 const mapToResourceType = (type: string | null | undefined): ResourceType | undefined => {
   if (type) {
@@ -21,15 +21,14 @@ const ResourceGrid: React.FC = () => {
   const [tools, setTools] = useState<Resource[]>([]);
   const [hospitalities, setHospitalities] = useState<Resource[]>([]);
   const [otherResources, setOtherResources] = useState<Resource[]>([]);
-  const [activeTab, setActiveTab] = useState<string>('tools'); // Track the active tab
-  const [bookingCount, setBookingCount] = useState<number>(0); // Track booking count
-  const navigate = useNavigate(); // Hook for navigation
+  const [activeTab, setActiveTab] = useState<string>('tools');
+  const [bookingCount, setBookingCount] = useState<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check sessionStorage for booking count when the component mounts
     const storedBookingCount = sessionStorage.getItem("bookingCount");
     if (storedBookingCount) {
-      setBookingCount(Number(storedBookingCount)); // Set the count from sessionStorage
+      setBookingCount(Number(storedBookingCount));
     }
 
     const fetchResources = async () => {
@@ -62,12 +61,11 @@ const ResourceGrid: React.FC = () => {
     fetchResources();
   }, []);
 
-  // Update booking count logic (this would normally come from your sessionStorage or state)
   useEffect(() => {
     const handleBookingUpdated = () => {
       const newBookingCount = bookingCount + 1;
-      setBookingCount(newBookingCount); // Update state
-      sessionStorage.setItem("bookingCount", newBookingCount.toString()); // Store the count in sessionStorage
+      setBookingCount(newBookingCount);
+      sessionStorage.setItem("bookingCount", newBookingCount.toString());
     };
 
     window.addEventListener("bookingsUpdated", handleBookingUpdated);
@@ -76,7 +74,6 @@ const ResourceGrid: React.FC = () => {
     };
   }, [bookingCount]);
 
-  // Dynamically set the active class for the tab header
   const getActiveTabClass = (tab: string) => (activeTab === tab ? 'active-tab' : '');
 
   return (

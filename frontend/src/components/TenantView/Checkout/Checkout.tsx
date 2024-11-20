@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import BookingCard from "./BookingCard";
-import { Link } from "react-router-dom";
 import Booking from "../../modelInterfaces/Booking";
 import {
   loadBookingsFromSessionStorage,
@@ -11,11 +10,12 @@ import ApiService from "../../../utils/ApiService";
 
 const Checkout: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [trigger, setTrigger] = useState(false);
 
   // Load bookings from session storage on mount
   useEffect(() => {
     setBookings(loadBookingsFromSessionStorage());
-  }, []);
+  }, [trigger]);
 
   const handleEdit = (id: number, updatedBooking: Booking) => {
     updateBookingInSessionStorage(id, updatedBooking);
@@ -42,6 +42,7 @@ const Checkout: React.FC = () => {
       }
       removeBookingFromSessionStorage(booking.id);
     }
+    setTrigger((prev) => !prev); //used to reload the bookings
   };
 
   const transformBooking = (booking: any) => {
@@ -84,8 +85,6 @@ const Checkout: React.FC = () => {
           Bekræft
         </button>
       )}
-      <Link to="/ressource-overblik">Go to Admin</Link>
-      <Link to="/admin-overblik">Go to Admin</Link>
     </div>
   );
 };

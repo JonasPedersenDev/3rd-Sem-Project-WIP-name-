@@ -180,6 +180,36 @@ class ApiService {
     }
   }
 
+  public async createResource(
+    resource: object,
+    img: File,
+    resourceType: ResourceType
+  ): Promise<AxiosResponse<any>> {
+    try {
+      //construct endpoint
+      const endpoint = `${this.baseUrl}${resourceType.toLocaleLowerCase()}/create`;
+      console.log("create resource endpoint:", endpoint);
+      //call
+      const formData = new FormData();
+      formData.append(resourceType.toLowerCase(), JSON.stringify(resource));
+      formData.append("resourcePictures", img);
+      
+      for (const pair of formData.entries()) {
+        console.log(pair[0]+ ': ' + pair[1]);
+      }
+
+      return await axios.post(endpoint, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.error("Error creating resource:", error);
+      throw error;
+    }
+  }
+
   public async deleteResource(
     resourceID: number,
     resourceType: ResourceType
@@ -250,6 +280,41 @@ class ApiService {
     }
   }
 
+  public async createCaretakerInitials(caretakerInitials: { initials: string }): Promise<any> {
+    const endpoint = "caretaker-initials/create";
+    try {
+      const response = await axios.post(
+        this.baseUrl + endpoint,
+        caretakerInitials,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating caretaker initials:", error);
+      throw error;
+    }
+  }
+
+  public async deleteCaretakerInitials(initials: string): Promise<void> {
+    const endpoint = `caretaker-initials/delete/${initials}`;
+    try {
+      await axios.delete(this.baseUrl + endpoint, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("Error deleting caretaker initials:", error);
+      throw error;
+    }
+  }
+
   public async setInitialToBooking(bookingId: number, initials: string): Promise<any> {
     try {
         const response = await axios.post(
@@ -300,6 +365,7 @@ class ApiService {
       throw error;
     }
   }
+
 }
 
 export default new ApiService();
