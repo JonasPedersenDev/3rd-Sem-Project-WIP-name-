@@ -58,4 +58,16 @@ public class AdminController extends UserController<Admin> {
     Tenant tenant = tenantService.get(id);
     return ResponseEntity.ok(tenant);
   }
+
+  @PutMapping("/addCaretakerName")
+  public ResponseEntity<Void> addCaretakerName(@RequestBody String caretakerName) {
+      ((AdminService) userService).addCaretakerName(caretakerName);
+      return ResponseEntity.ok().build();
+  }
+  
+  @GetMapping("/getAllCaretakerNames")
+public ResponseEntity<List<String>> getAllCaretakerNames() {
+    List<String> caretakerNames = ((AdminService) userService).getAllCaretakerNames();
+    return ResponseEntity.ok(caretakerNames);
+}
 }

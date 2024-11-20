@@ -1,6 +1,7 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -53,38 +56,16 @@ public class BookingController {
     }
   }
 
-  @Operation(summary = "Get all initials", description = "Retrieve a list of all initials from bookings")
-    @GetMapping(value = "/get-all-initials", produces = "application/json")
-    public ResponseEntity<List<String>> getAllInitials() {
-        List<String> initials = bookingService.getAllInitials();
-        if (initials.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } else {
-            return ResponseEntity.ok(initials);
-        }
+  @PutMapping("/{bookingId}/receiver-name")
+    public ResponseEntity<Void> updateReceiverName(@PathVariable long bookingId, @RequestParam String receiverName) {
+        bookingService.setReceiverName(bookingId, receiverName);
+        return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Set receiver initials", description = "Set receiver initials for a specific booking by its ID")
-    @PostMapping(value = "/set-receiver-initials/{bookingId}", consumes = "application/json")
-    public ResponseEntity<Void> setReceiverInitialToBooking(@PathVariable long bookingId, @RequestBody String initials) {
-        System.out.println("Received request to set receiver initials for booking with ID: " + bookingId);
-        boolean isAdded = bookingService.setRecieverInitialToBooking(bookingId, initials);
-        if (isAdded) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    @PutMapping("/{bookingId}/handover-name")
+    public ResponseEntity<Void> updateHandoverName(@PathVariable long bookingId, @RequestParam String handoverName) {
+        bookingService.setHandoverName(bookingId, handoverName);
+        return ResponseEntity.ok().build();
     }
-
-    @Operation(summary = "Set handover initials", description = "Set handover initials for a specific booking by its ID")
-    @PostMapping(value = "/set-handover-initials/{bookingId}", consumes = "application/json")
-    public ResponseEntity<Void> setHandoverInitialToBooking(@PathVariable long bookingId, @RequestBody String initials) {
-        System.out.println("Received request to set handover initials for booking with ID: " + bookingId);
-        boolean isAdded = bookingService.setHandoverInitialToBooking(bookingId, initials);
-        if (isAdded) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
+  
 }

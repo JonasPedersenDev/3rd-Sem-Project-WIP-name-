@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -25,16 +26,17 @@ public class BookingService {
 
   @Autowired
   private final BookingRepository bookingRepository;
-  private final CaretakerInitialsService caretakerInitialsService;
-
   private final ResourceServiceFactory resourceServiceFactory;
+
+  @Lazy
+  @Autowired
+  private AdminService adminService;
 
   private static final int MAX_BOOKING_DAYS = 5;
 
-  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory, CaretakerInitialsService caretakerInitialsService) {
+  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory) {
     this.bookingRepository = bookingRepository;
     this.resourceServiceFactory = resourceServiceFactory;
-    this.caretakerInitialsService = caretakerInitialsService;
   }
 
   public Booking createBooking(Booking booking) {
@@ -77,7 +79,7 @@ public class BookingService {
     if (isResourceAvailable(resource, startDate, endDate)) {
         Booking booking = new Booking(resource, user, startDate, endDate,
             details.getPickupTime(), details.getDropoffTime(),
-            BookingStatus.PENDING, details.getReceiverInitials(), details.getHandoverInitials());
+            BookingStatus.PENDING, details.getReceiverName(), details.getHandoverName());
 
         return bookingRepository.save(booking);
     } else {
@@ -146,52 +148,29 @@ public class BookingService {
     return bookedDatesWithCapacity;
   }
 
-  public List<String> getAllInitials() {
-    List<Booking> bookings = bookingRepository.findAll();
-    return bookings.stream()
-        .map(booking -> booking.getReceiverInitials())
-        .collect(Collectors.toList());
-  }
-
-  private boolean setInitialsToBooking(long bookingId, String initials, boolean isReceiver) {
-    System.out.println("Checking if initials exist: " + initials);
-    if (caretakerInitialsService.initialsExist(initials)) {
-        System.out.println("Initials exist. Fetching booking with ID: " + bookingId + " and initials: " + initials);
-        Booking booking = bookingRepository.findById(bookingId).orElse(null);
-        if (booking != null) {
-            System.out.println("Booking found. Setting initials.");
-            String formattedInitials = initials.replaceAll("[\"']", "");
-
-            if (isReceiver) {
-                booking.setReceiverInitials(formattedInitials);
-                booking.setStatus(BookingStatus.COMPLETED);
-            } else {
-                booking.setHandoverInitials(formattedInitials);
-                booking.setStatus(BookingStatus.CONFIRMED);
-            }
-
-            Booking savedBooking = bookingRepository.save(booking);
-            System.out.println("Initials set and booking saved with status: " + savedBooking.getStatus());
-            return true;
-        } else {
-            System.out.println("Booking not found for ID: " + bookingId);
-        }
+  public void setReceiverName(long bookingId, String receiverName) {
+    Booking booking = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+    
+    if (receiverName != null && !receiverName.trim().isEmpty()) {
+        booking.setReceiverName(receiverName.trim());
+        bookingRepository.save(booking);
     } else {
-        System.out.println("Initials do not exist: " + initials);
+        throw new IllegalArgumentException("Receiver name cannot be null or empty.");
     }
-    return false;
 }
 
-
-public boolean setRecieverInitialToBooking(long bookingId, String initial) {
-  return setInitialsToBooking(bookingId, initial, true);
+public void setHandoverName(long bookingId, String handoverName) {
+    Booking booking = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+    
+    if (handoverName != null && !handoverName.trim().isEmpty()) {
+        booking.setHandoverName(handoverName.trim());
+        bookingRepository.save(booking);
+    } else {
+        throw new IllegalArgumentException("Handover name cannot be null or empty.");
+    }
 }
-
-
-public boolean setHandoverInitialToBooking(long bookingId, String initial) {
-  return setInitialsToBooking(bookingId, initial, false);
-}
-
 
 
 
