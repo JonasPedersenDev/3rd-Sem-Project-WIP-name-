@@ -32,7 +32,6 @@ const SettingsForm: React.FC = () => {
   const [selectedProfilePicture, setSelectedProfilePicture] = useState<File | null>(null);
 
   useEffect(() => {
-    // Fetch authenticated user information from the backend
     const fetchUserInfo = async () => {
       try {
         const response = await ApiService.fetchData<UserInfo>("tenant");
@@ -82,11 +81,7 @@ const SettingsForm: React.FC = () => {
         return;
       }
       try {
-        const response = await ApiService.editUser(Number(userInfo.id), {
-          user: userInfo,
-          profilePicture: selectedProfilePicture,
-        });
-        console.log("Updated User Information:", response.data);
+        await ApiService.editUser(userInfo.id, userInfo, selectedProfilePicture || undefined);
         setShowSuccessModal(true);
       } catch (error) {
         console.error("Error updating user:", error);
@@ -153,7 +148,7 @@ const SettingsForm: React.FC = () => {
                 value={userInfo.houseAddress}
                 onChange={handleInputChange}
                 disabled={!isEditing}
-                />
+              />
             </Form.Group>
             <Form.Group controlId="password">
               <Form.Label>Password</Form.Label>
@@ -170,7 +165,7 @@ const SettingsForm: React.FC = () => {
                 onChange={togglePasswordVisibility}
               />
             </Form.Group>
-          
+
             <Button onClick={handleEditToggle}>
               {isEditing ? "Save" : "Edit"}
             </Button>
@@ -206,7 +201,6 @@ const SettingsForm: React.FC = () => {
       </Row>
       <Row>
         <Col>
-          {/* Success Modal */}
           <Modal show={showSuccessModal} onHide={handleCloseModal} centered>
             <Modal.Header closeButton>
               <Modal.Title>Ændringer er gemt</Modal.Title>
