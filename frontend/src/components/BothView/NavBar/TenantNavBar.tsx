@@ -4,7 +4,7 @@ import { getBookingCount } from "../../../utils/sessionStorageSupport";
 import { useDarkMode } from "../../DarkModeContext";
 import { FaHome, FaEnvelope, FaList, FaUser } from "react-icons/fa";
 
-function Navbar() {
+function TenantNavbar() {
   const { toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
   const location = useLocation(); // Track current location
@@ -104,4 +104,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default TenantNavbar;
