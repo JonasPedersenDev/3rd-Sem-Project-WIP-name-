@@ -31,7 +31,7 @@ const FilterSearch: React.FC<FilterSearchProps> = ({ onSearch }) => {
     <div style={{ marginBottom: "10px" }}></div>
       <input
         type="text"
-        placeholder="Addresse"
+        placeholder="Adresse"
         value={address}
         onChange={(e) => setAddress(e.target.value)}
       />
