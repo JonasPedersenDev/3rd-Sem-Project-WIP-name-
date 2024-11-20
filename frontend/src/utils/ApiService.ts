@@ -22,7 +22,7 @@ class ApiService {
 
   public async editUser(id: number, data: object): Promise<AxiosResponse<any>> {
     try {
-      const response = await axios.put(`${this.baseUrl}tenant/${id}`, data, {
+      const response = await axios.put(`${this.baseUrl}tenant/updateUser/${id}`, data, {
         withCredentials: true,
       });
       return response;

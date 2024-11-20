@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Modal, Row, Col, Container, Image } from "react-bootstrap";
+import { Form, Button, Modal, Row, Col, Container } from "react-bootstrap";
 import LogoutButton from "../Logout/Logout";
 import ApiService from "../../../utils/ApiService";
 
@@ -9,8 +9,8 @@ interface UserInfo {
   name: string;
   houseAddress?: string;
   email: string;
-  mobileNumber: string;
   password: string;
+  mobileNumber: string;
 }
 
 const SettingsForm: React.FC = () => {
@@ -20,16 +20,16 @@ const SettingsForm: React.FC = () => {
     name: "",
     houseAddress: "",
     mobileNumber: "",
+    password: "",
     email: "",
-    password: ""
   });
 
-  //const [profilePicture, setProfilePicture] = useState<string | null>("https://placehold.co/150");
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentView, setCurrentView] = useState("settings");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState<File | null>(null);
 
   useEffect(() => {
     // Fetch authenticated user information from the backend
@@ -38,16 +38,6 @@ const SettingsForm: React.FC = () => {
         const response = await ApiService.fetchData<UserInfo>("tenant");
         console.log("User Information:", response.data);
         setUserInfo(response.data);
-        console.log("User info:", userInfo);
-        // Assuming the profile picture URL is part of the user data
-      //   const profilePictureResponse = await ApiService.fetchData<ArrayBuffer>("user/profilePicture");
-      //   const base64Image = btoa(
-      //    new Uint8Array(profilePictureResponse.data).reduce(
-      //      (data, byte) => data + String.fromCharCode(byte),
-      //      ''
-      //    )
-      //  );
-      //  setProfilePicture(`data:image/jpeg;base64,${base64Image}`);
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -59,6 +49,13 @@ const SettingsForm: React.FC = () => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedProfilePicture(file);
+    }
   };
 
   const validateForm = () => {
@@ -85,7 +82,10 @@ const SettingsForm: React.FC = () => {
         return;
       }
       try {
-        const response = await ApiService.editUser(userInfo.id, userInfo);
+        const response = await ApiService.editUser(Number(userInfo.id), {
+          user: userInfo,
+          profilePicture: selectedProfilePicture,
+        });
         console.log("Updated User Information:", response.data);
         setShowSuccessModal(true);
       } catch (error) {
@@ -96,36 +96,6 @@ const SettingsForm: React.FC = () => {
     setValidationError(null);
   };
 
-  // const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     const formData = new FormData();
-  //     formData.append("profilePicture", file);
-  //     try {
-  //       const response = await axios.post("/api/user/profilePicture", formData, {
-  //         headers: {
-  //           "Content-Type": "multipart/form-data"
-  //         }
-  //       });
-  //       if (response.status === 200) {
-  //         const base64Image = await convertFileToBase64(file);
-  //         setProfilePicture(base64Image);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error uploading profile picture:", error);
-  //     }
-  //   }
-  // };
-
-  // const convertFileToBase64 = (file: File): Promise<string> => {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(file);
-  //     reader.onload = () => resolve(reader.result as string);
-  //     reader.onerror = error => reject(error);
-  //   });
-  // };
-
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
@@ -134,102 +104,78 @@ const SettingsForm: React.FC = () => {
     switch (currentView) {
       case "settings":
         return (
-          <Row>
-            <Col md={8}>
-              <Form>
-                <Form.Group controlId="formUsername">
-                  <Form.Label>Brugernavn</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="username"
-                    value={userInfo.username}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.username}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formName">
-                  <Form.Label>Navn</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={userInfo.name}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.name}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formHouseAddress">
-                  <Form.Label>Adresse</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="houseAddress"
-                    value={userInfo.houseAddress}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.houseAddress}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formEmail">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={userInfo.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.email}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formmobileNumber">
-                  <Form.Label>Telefon nummer</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="mobileNumber"
-                    value={userInfo.mobileNumber}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.mobileNumber}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formPassword">
-                  <Form.Label>Adgangskode</Form.Label>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Form.Control
-                      type={passwordVisible ? "text" : "password"}
-                      name="password"
-                      value={userInfo.password}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={{ marginRight: '10px' }}
-                      placeholder="Enter new password"
-                    />
-                    <Button variant="secondary" onClick={togglePasswordVisibility}>
-                      {passwordVisible ? "Hide" : "Show"}
-                    </Button>
-                  </div>
-                </Form.Group>
-                {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
-                <Button variant="primary" onClick={handleEditToggle}>
-                  {isEditing ? "Save Changes" : "Edit"}
-                </Button>
-              </Form>
-            </Col>
-            <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {/* //<Image src={profilePicture || "https://placehold.co/150"} roundedCircle style={{ width: '150px', height: '150px' }} /> */}
-              <Form.Group controlId="formProfilePicture" style={{ marginTop: '20px', display: isEditing ? 'block' : 'none' }}>
-                <Form.Label>Upload Profil billede</Form.Label>
-                <Form.Control
-                  type="file"
-                  // onChange={handleFileChange}
-                  disabled={!isEditing}
+          <Form>
+            <Form.Group controlId="username">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                name="username"
+                value={userInfo.username}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            <Form.Group controlId="name">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={userInfo.name}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            <Form.Group controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={userInfo.email}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            <Form.Group controlId="mobileNumber">
+              <Form.Label>Mobile Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="mobileNumber"
+                value={userInfo.mobileNumber}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </Form.Group>
+            <Form.Group controlId="houseAddress">
+              <Form.Label>House Address</Form.Label>
+              <Form.Control
+                type="text"
+                name="houseAddress"
+                value={userInfo.houseAddress}
+                onChange={handleInputChange}
+                disabled={!isEditing}
                 />
-              </Form.Group>
-            </Col>
-          </Row>
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type={passwordVisible ? "text" : "password"}
+                name="password"
+                value={userInfo.password}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+              <Form.Check
+                type="checkbox"
+                label="Show password"
+                onChange={togglePasswordVisibility}
+              />
+            </Form.Group>
+          
+            <Button onClick={handleEditToggle}>
+              {isEditing ? "Save" : "Edit"}
+            </Button>
+          </Form>
         );
-      case "text":
-        return <div>"Et eller andet tekst IDK"</div>;
       case "notifications":
         return (
           <div>
@@ -265,10 +211,12 @@ const SettingsForm: React.FC = () => {
             <Modal.Header closeButton>
               <Modal.Title>Ændringer er gemt</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Ændringer foretaget er opdateret!</Modal.Body>
+            <Modal.Body>
+              User information updated successfully!
+            </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>
-                Luk
+                Close
               </Button>
             </Modal.Footer>
           </Modal>

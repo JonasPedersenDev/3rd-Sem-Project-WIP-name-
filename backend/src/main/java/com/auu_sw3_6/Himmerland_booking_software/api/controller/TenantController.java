@@ -3,7 +3,11 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +47,18 @@ public class TenantController extends UserController<Tenant> {
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 
+  @PutMapping(value = "/updateUser/{id}", produces = "application/json")
+  @Operation(summary = "Update user", description = "This endpoint updates a user.")
+  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant) {
+    Tenant updatedTenant = tenantService.update(id, tenant);
+    return ResponseEntity.ok(updatedTenant);
+  }
 
-  
+  @GetMapping(value = "/getUser/{id}", produces = "application/json")
+  @Operation(summary = "Get user", description = "This endpoint returns a user.")
+  public ResponseEntity<Tenant> getTenant(@PathVariable Long id) {
+    Tenant tenant = tenantService.get(id);
+    return ResponseEntity.ok(tenant);
+  }
+
 }
-  
