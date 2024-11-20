@@ -1,25 +1,67 @@
 import axios, { AxiosResponse } from "axios";
 import { ResourceType } from "./EnumSupport";
-import { getUserRole, UserRole } from "./authConfig";
+import { getUserRole } from "./authConfig";
 import Resource from "../components/modelInterfaces/Resource";
 
 class ApiService {
   private baseUrl: string;
 
   constructor() {
+    // Dev backend url
     this.baseUrl = "http://localhost:8080/api/";
+    // Production backend url
+    // TBD
   }
 
-  public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
+  private async makeRequest<T>(
+    method: 'get' | 'post' | 'put' | 'delete',
+    endpoint: string,
+    data?: any
+  ): Promise<AxiosResponse<T>> {
     try {
-      return await axios.get<T>(this.baseUrl + endpoint, {
+      return await axios.request<T>({
+        method,
+        url: this.baseUrl + endpoint,
+        data,
         withCredentials: true,
       });
     } catch (error) {
       throw error;
     }
   }
+  
+  public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>('get', endpoint);
+  }
+  
+  public async sendData<T>(endpoint: string, data?: any): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>('post', endpoint, data);
+  }
+  
+  public async updateData<T>(endpoint: string, data?: any): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>('put', endpoint, data);
+  }
+  
+  public async deleteData<T>(endpoint: string): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>('delete', endpoint);
+  }
 
+
+  public async deleteBooking(bookingID: number): Promise<AxiosResponse<any>> {
+    try {
+      //construct endpoint
+      const endpoint = `${this.baseUrl}booking/delete/${bookingID}`;
+      console.log("delete booking:", endpoint);
+
+      //call
+      return await axios.delete(endpoint, { withCredentials: true });
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      throw error;
+    }
+  }
+
+  
   public async editUser(id: number, data: object): Promise<AxiosResponse<any>> {
     try {
       const response = await axios.put(`${this.baseUrl}tenant/${id}`, data, {
@@ -39,11 +81,20 @@ class ApiService {
     }
   }
 
-  public async editUserAdmin(id: number, data: object): Promise<AxiosResponse<any>> {
+
+
+  public async editUserAdmin(
+    id: number,
+    data: object
+  ): Promise<AxiosResponse<any>> {
     try {
-      const response = await axios.put(`${this.baseUrl}admin/updateTenant/${id}`, data, {
-        withCredentials: true,
-      });
+      const response = await axios.put(
+        `${this.baseUrl}admin/updateTenant/${id}`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
       return response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -187,15 +238,17 @@ class ApiService {
   ): Promise<AxiosResponse<any>> {
     try {
       //construct endpoint
-      const endpoint = `${this.baseUrl}${resourceType.toLocaleLowerCase()}/create`;
+      const endpoint = `${
+        this.baseUrl
+      }${resourceType.toLocaleLowerCase()}/create`;
       console.log("create resource endpoint:", endpoint);
       //call
       const formData = new FormData();
       formData.append(resourceType.toLowerCase(), JSON.stringify(resource));
       formData.append("resourcePictures", img);
-      
+
       for (const pair of formData.entries()) {
-        console.log(pair[0]+ ': ' + pair[1]);
+        console.log(pair[0] + ": " + pair[1]);
       }
 
       return await axios.post(endpoint, formData, {
@@ -253,19 +306,7 @@ class ApiService {
     }
   }
 
-  public async deleteBooking(bookingID: number): Promise<AxiosResponse<any>> {
-    try {
-      //construct endpoint
-      const endpoint = `${this.baseUrl}booking/delete/${bookingID}`;
-      console.log("delete booking:", endpoint);
 
-      //call
-      return await axios.delete(endpoint, { withCredentials: true });
-    } catch (error) {
-      console.error("Error deleting booking:", error);
-      throw error;
-    }
-  }
 
   async getAllCaretakerInitials() {
     const endpoint = "caretaker-initials/get-all";
@@ -280,7 +321,9 @@ class ApiService {
     }
   }
 
-  public async createCaretakerInitials(caretakerInitials: { initials: string }): Promise<any> {
+  public async createCaretakerInitials(caretakerInitials: {
+    initials: string;
+  }): Promise<any> {
     const endpoint = "caretaker-initials/create";
     try {
       const response = await axios.post(
@@ -315,57 +358,49 @@ class ApiService {
     }
   }
 
-  public async setInitialToBooking(bookingId: number, initials: string): Promise<any> {
+  public async setInitialToBooking(
+    bookingId: number,
+    initials: string
+  ): Promise<any> {
     try {
-        const response = await axios.post(
-            `${this.baseUrl}booking/set-receiver-initials/${bookingId}`,
-            initials,
-            {
-                withCredentials: true,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-        return response.data;
+      const response = await axios.post(
+        `${this.baseUrl}booking/set-receiver-initials/${bookingId}`,
+        initials,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
     } catch (error) {
-        console.error("Error setting receiver initials:", error);
-        throw error;
-    }
-}
-
-
-
-  public async setHandoverInitialToBooking(bookingId: number, initials: string): Promise<any> {
-    try {
-        const response = await axios.post(
-            `${this.baseUrl}booking/set-handover-initials/${bookingId}`,
-            initials,
-            {
-                withCredentials: true,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-        return response.data;
-    } catch (error) {
-        console.error("Error setting handover initials:", error);
-        throw error;
-    }
-}
-
-  public async deleteData(endpoint: string): Promise<AxiosResponse<any>> {
-    try {
-      return await axios.delete(this.baseUrl + endpoint, {
-        withCredentials: true,
-      });
-    } catch (error) {
-      console.error("Error deleting data:", error);
+      console.error("Error setting receiver initials:", error);
       throw error;
     }
   }
 
+  public async setHandoverInitialToBooking(
+    bookingId: number,
+    initials: string
+  ): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${this.baseUrl}booking/set-handover-initials/${bookingId}`,
+        initials,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error setting handover initials:", error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

@@ -1,7 +1,7 @@
 import React from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import showAlert from '../Alert/AlertFunction';
+import ApiService from '../../../utils/ApiService';
 
 interface LogoutButtonProps {
   onLogout?: () => void;
@@ -28,8 +28,8 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
         }
         try {
           // API call to the logout endpoint
-          await axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true });
-          
+          await ApiService.sendData("logout");
+
           console.log('User logged out');
           
           // Delete authIndicator from cookies

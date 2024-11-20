@@ -2,12 +2,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getBookingCount } from "../../../utils/sessionStorageSupport";
 import { useDarkMode } from "../../DarkModeContext";
-import { FaHome, FaEnvelope, FaList, FaUser, FaSun, FaMoon } from "react-icons/fa"; // Import icons
+import { FaHome, FaEnvelope, FaList, FaUser, FaSun, FaMoon } from "react-icons/fa";
 
 function TenantNavbar() {
   const { toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
-  const location = useLocation(); // Track current location
+  const location = useLocation();
   const [bookingCount, setBookingCount] = useState<number>(0);
 
   useEffect(() => {
