@@ -76,8 +76,17 @@ const EditTenantDetails: React.FC<EditTenantDetailsProps> = ({ tenantId, onClose
                 onChange={handleChange}
               />
             </Form.Group>
+            <Form.Group controlId="formTenantUsername">
+              <Form.Label>Brugernavn</Form.Label>
+              <Form.Control
+                type="text"
+                name="username"
+                value={tenant.username}
+                onChange={handleChange}
+              />
+            </Form.Group>
             <Form.Group controlId="formTenantAddress">
-              <Form.Label>Addresse</Form.Label>
+              <Form.Label>Adresse</Form.Label>
               <Form.Control
                 type="text"
                 name="houseAddress"

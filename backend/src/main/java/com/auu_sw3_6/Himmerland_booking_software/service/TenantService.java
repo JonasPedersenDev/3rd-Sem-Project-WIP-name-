@@ -83,6 +83,7 @@ public class TenantService extends UserService<Tenant> {
         existingTenant -> {
           existingTenant.setUsername(tenant.getUsername());
           existingTenant.setName(tenant.getName());
+          existingTenant.setHouseAddress(tenant.getHouseAddress());
           existingTenant.setEmail(tenant.getEmail());
           existingTenant.setMobileNumber(tenant.getMobileNumber());
           tenantRepository.save(existingTenant);
