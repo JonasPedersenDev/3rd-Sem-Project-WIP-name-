@@ -4,51 +4,51 @@ import { Button, Form } from "react-bootstrap";
 
 const CaretakerOptions = () => {
   const [caretakers, setCaretakers] = useState<string[]>([]);
-  const [newInitials, setNewInitials] = useState<string>("");
+  const [newCaretakerName, setNewCaretakerName] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchCaretakerInitials = async () => {
+    const fetchCaretakerNames = async () => {
       try {
-        const initials = await ApiService.getAllCaretakerInitials();
-        setCaretakers(initials);
+        const response = await ApiService.getAllCaretakerNames();
+        setCaretakers(response.data);
       } catch (error) {
-        console.error("Error fetching caretaker initials:", error);
+        console.error("Error fetching caretaker names:", error);
       }
     };
 
-    fetchCaretakerInitials();
+    fetchCaretakerNames();
   }, []);
 
-  const handleEditInitials = async () => {
-    if (!newInitials.trim()) {
-      console.log("Please enter valid initials");
+  const handleAddCaretakerName = async () => {
+    if (!newCaretakerName.trim()) {
+      console.log("Please enter a valid name");
       return;
     }
 
     try {
-      await ApiService.createCaretakerInitials({ initials: newInitials });
-      setCaretakers((prev) => [...prev, newInitials]);
-      setNewInitials("");
+      await ApiService.addCaretakerName(newCaretakerName);
+      setCaretakers((prev) => [...prev, newCaretakerName]);
+      setNewCaretakerName("");
       setIsEditing(false);
     } catch (error) {
-      console.error("Error updating caretaker initials:", error);
+      console.error("Error adding caretaker name:", error);
     }
   };
 
-  const handleDeleteInitials = async (initials: string) => {
+  const handleDeleteCaretakerName = async (caretakerName: string) => {
     try {
-      await ApiService.deleteCaretakerInitials(initials);
-      setCaretakers((prev) => prev.filter((item) => item !== initials));
+      await ApiService.removeCaretakerName(caretakerName);
+      setCaretakers((prev) => prev.filter((name) => name !== caretakerName));
     } catch (error) {
-      console.error("Error deleting caretaker initials:", error);
+      console.error("Error deleting caretaker name:", error);
     }
   };
 
   return (
     <div>
       <button
-        className="btn btn-primary"
+        className="btn btn-success"
         type="button"
         data-bs-toggle="offcanvas"
         data-bs-target="#offcanvasExample"
@@ -79,17 +79,17 @@ const CaretakerOptions = () => {
             <h6>Medarbejdere</h6>
             <ul className="list-group" style={{ textAlign: "center" }}>
               {caretakers.length > 0 ? (
-                caretakers.map((initial, index) => (
+                caretakers.map((name, index) => (
                   <li
                     key={index}
                     className="list-group-item d-flex justify-content-between align-items-center"
                   >
-                    {initial}
+                    {name}
                     {isEditing && (
                       <Button
                         variant="outline-danger"
                         size="sm"
-                        onClick={() => handleDeleteInitials(initial)}
+                        onClick={() => handleDeleteCaretakerName(name)}
                       >
                         Slet
                       </Button>
@@ -117,17 +117,17 @@ const CaretakerOptions = () => {
             {isEditing && (
               <>
                 <Form.Group>
-                  <Form.Label>Tilføj medarbejder initialer</Form.Label>
+                  <Form.Label>Tilføj medarbejdernavn</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Indtast initialer"
-                    value={newInitials}
-                    onChange={(e) => setNewInitials(e.target.value)}
+                    placeholder="Indtast navn"
+                    value={newCaretakerName}
+                    onChange={(e) => setNewCaretakerName(e.target.value)}
                   />
                 </Form.Group>
                 <Button
                   variant="outline-secondary"
-                  onClick={handleEditInitials}
+                  onClick={handleAddCaretakerName}
                   className="mt-3"
                 >
                   Bekræft

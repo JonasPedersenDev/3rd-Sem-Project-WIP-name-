@@ -17,8 +17,8 @@ interface CaretakerBooking {
   houseAddress: string;
   email: string;
   status: string;
-  receiverInitials: string;
-  handoverInitials: string;
+  receiverName: string;
+  handoverName: string;
   isFutureBooking: boolean;
   isPastBooking: boolean;
 }
@@ -50,8 +50,8 @@ const CaretakerBookingOverview: React.FC = () => {
             mobileNumber: booking.user.mobileNumber,
             houseAddress: booking.user.houseAddress,
             email: booking.user.email,
-            receiverInitials: booking.receiverInitials,
-            handoverInitials: booking.handoverInitials,
+            receiverName: booking.receiverName,
+            handoverName: booking.handoverName,
             isFutureBooking: startDate > currentDate || booking.status === "PENDING",
             isPastBooking: endDate < currentDate || booking.status === "COMPLETED",
           };

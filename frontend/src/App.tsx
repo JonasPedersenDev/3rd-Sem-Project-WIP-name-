@@ -43,7 +43,7 @@ const routesConfig: {
   {
     path: "/kontakt",
     component: <ContactPage />,
-    allowedRoles: ["ROLE_TENANT", "ROLE_ADMIN"],
+    allowedRoles: ["ROLE_TENANT"],
   },
   // Admin routes
   {
