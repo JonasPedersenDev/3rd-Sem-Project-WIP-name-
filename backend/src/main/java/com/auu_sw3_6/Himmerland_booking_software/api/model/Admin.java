@@ -1,8 +1,9 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
+import java.util.List;
+
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import java.util.List;
 
 @Entity
 public class Admin extends User {
@@ -26,6 +27,6 @@ public class Admin extends User {
     }
 
     public void removeCaretakerName(String caretakerName) {
-        this.caretakerNames.remove(caretakerName);
+        this.caretakerNames.removeIf(name -> name.equalsIgnoreCase(caretakerName.trim()));
     }
 }

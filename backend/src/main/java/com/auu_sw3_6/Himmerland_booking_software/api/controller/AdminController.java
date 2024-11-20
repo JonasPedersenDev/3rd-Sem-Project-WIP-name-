@@ -61,13 +61,19 @@ public class AdminController extends UserController<Admin> {
 
   @PutMapping("/addCaretakerName")
   public ResponseEntity<Void> addCaretakerName(@RequestBody String caretakerName) {
-      ((AdminService) userService).addCaretakerName(caretakerName);
-      return ResponseEntity.ok().build();
+    ((AdminService) userService).addCaretakerName(caretakerName);
+    return ResponseEntity.ok().build();
   }
-  
+
   @GetMapping("/getAllCaretakerNames")
-public ResponseEntity<List<String>> getAllCaretakerNames() {
+  public ResponseEntity<List<String>> getAllCaretakerNames() {
     List<String> caretakerNames = ((AdminService) userService).getAllCaretakerNames();
     return ResponseEntity.ok(caretakerNames);
-}
+  }
+
+  @DeleteMapping("/removeCaretakerName")
+  public ResponseEntity<Void> removeCaretakerName(@RequestBody String caretakerName) {
+    ((AdminService) userService).removeCaretakerName(caretakerName);
+    return ResponseEntity.ok().build();
+  }
 }

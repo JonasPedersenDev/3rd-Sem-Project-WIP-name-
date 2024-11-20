@@ -7,6 +7,7 @@ import BookingDate from "../../modelInterfaces/BookingDate";
 import FilterSearch from "./FilterSearch";
 import DeleteUser from "./DeleteUser";
 import EditTenantDetails from "./EditTenantDetails";
+import CreateBookingModal from "../../TenantView/CreateBookingModal/CreateBookingModal";
 
 const TenantDetailsList: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -133,14 +134,15 @@ const TenantDetailsList: React.FC = () => {
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Book for {selectedTenant?.id}</Modal.Title>
+          <Modal.Title>Book for {selectedTenant?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedTenant && (
             <BookForTenant
               bookedDates={bookedDates}
-              onDateChange={(start, end) => console.log("Date changed:", start, end)}
-              resourceCapacity={5} // Example capacity, replace with actual value
+              onDateChange={(start, end) => console.log("Date range selected:", start, end)}
+              resourceCapacity={10} 
+              onBookingComplete={() => console.log("Booking complete")}
             />
           )}
         </Modal.Body>

@@ -14,8 +14,8 @@ interface CaretakerBooking {
   houseAddress: string;
   email: string;
   status: string;
-  receiverInitials: string;
-  handoverInitials: string;
+  receiverName: string;
+  handoverName: string;
   isFutureBooking: boolean;
   isPastBooking: boolean;
 }
@@ -28,58 +28,58 @@ interface CaretakerBookingCardProps {
 
 const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel, onComplete }) => {
   const [showModal, setShowModal] = useState(false);
-  const [showModalInitials, setShowModalInitials] = useState(false);
-  const [selectedInitials, setSelectedInitials] = useState<string | null>(null);
+  const [showModalNames, setShowModalNames] = useState(false);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [showConfirmButton, setShowConfirmButton] = useState(false);
   const [caretakers, setCaretakers] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchCaretakerInitials = async () => {
+    const fetchCaretakerNames = async () => {
       try {
-        const initials = await ApiService.getAllCaretakerInitials();
-        setCaretakers(initials);
+        const response = await ApiService.getAllCaretakerNames();
+        setCaretakers(response.data);
       } catch (error) {
-        console.error("Error fetching caretaker initials:", error);
+        console.error("Error fetching caretaker names:", error);
       }
     };
 
-    fetchCaretakerInitials();
+    fetchCaretakerNames();
   }, []);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
 
-  const handleCloseInitials = () => {
-    setShowModalInitials(false);
-    setSelectedInitials(null);
+  const handleCloseNames = () => {
+    setShowModalNames(false);
+    setSelectedName(null);
     setShowConfirmButton(false);
   };
-  const handleShowInitials = () => setShowModalInitials(true);
+  const handleShowNames = () => setShowModalNames(true);
 
-  const handleInitialsSelect = (initials: string) => {
-    setSelectedInitials(initials);
+  const handleNameSelect = (name: string) => {
+    setSelectedName(name);
     setShowConfirmButton(true);
   };
 
   const handleConfirm = async () => {
-    if (selectedInitials) {
+    if (selectedName) {
       try {
-        const formattedInitials = selectedInitials.replace(/['"]+/g, '');
+        const formattedName = selectedName.replace(/['"]+/g, '');
 
         if (booking.status === "CONFIRMED") {
-          await ApiService.setInitialToBooking(booking.id, formattedInitials);
+          await ApiService.setReceiverName(booking.id, formattedName);
         } else {
-          await ApiService.setHandoverInitialToBooking(booking.id, formattedInitials);
+          await ApiService.setHandoverName(booking.id, formattedName);
         }
 
         onComplete(booking.id);
       } catch (error) {
-        console.error("Error handling initials:", error);
+        console.error("Error handling caretaker name:", error);
       }
 
-      handleCloseInitials();
+      handleCloseNames();
     } else {
-      console.warn("No initials selected");
+      console.warn("No name selected");
     }
   };
 
@@ -100,14 +100,14 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
                 Annuller
               </Button>
-              <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+              <Button variant="success" className="ms-2" onClick={handleShowNames}>
                 Udlever
               </Button>
             </>
           )}
 
           {!booking.isFutureBooking && !booking.isPastBooking && booking.status === "CONFIRMED" && (
-            <Button variant="success" className="ms-2" onClick={handleShowInitials}>
+            <Button variant="success" className="ms-2" onClick={handleShowNames}>
               Modtag
             </Button>
           )}
@@ -130,22 +130,22 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <p><strong>Ressource:</strong> {booking.resourceName}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()} kl. {booking.pickupTime}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()} kl. {booking.dropoffTime}</p>
-          <p><strong>Udlevering:</strong> {booking.handoverInitials}</p>
-          <p><strong>Modtagelse:</strong> {booking.receiverInitials}</p>
+          <p><strong>Udlevering:</strong> {booking.handoverName}</p>
+          <p><strong>Modtagelse:</strong> {booking.receiverName}</p>
         </Modal.Body>
       </Modal>
 
-      {/* Modal for selecting caretaker initials */}
-      <Modal show={showModalInitials} onHide={handleCloseInitials}>
+      {/* Modal for selecting caretaker names */}
+      <Modal show={showModalNames} onHide={handleCloseNames}>
         <Modal.Header closeButton>
           <Modal.Title>Vælg modtager</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p><strong>Medarbejder initialer:</strong></p>
+          <p><strong>Medarbejder navne:</strong></p>
           <div>
-            {caretakers.map((initials, index) => (
-              <Button key={index} variant="outline-primary" onClick={() => handleInitialsSelect(initials)} className="me-2 mb-2">
-                {initials}
+            {caretakers.map((name, index) => (
+              <Button key={index} variant="outline-primary" onClick={() => handleNameSelect(name)} className="me-2 mb-2">
+                {name}
               </Button>
             ))}
           </div>

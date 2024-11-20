@@ -306,101 +306,83 @@ class ApiService {
     }
   }
 
+public async getAllCaretakerNames(): Promise<AxiosResponse<string[]>> {
+  try {
+    return await axios.get<string[]>(`${this.baseUrl}admin/getAllCaretakerNames`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.error("Error fetching caretaker names:", error);
+    throw error;
+  }
+}
 
+public async addCaretakerName(caretakerName: string): Promise<AxiosResponse<void>> {
+  try {
+    return await axios.put(`${this.baseUrl}admin/addCaretakerName`, caretakerName, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  } catch (error) {
+    console.error("Error adding caretaker name:", error);
+    throw error;
+  }
+}
 
-  async getAllCaretakerInitials() {
-    const endpoint = "caretaker-initials/get-all";
+public async removeCaretakerName(caretakerName: string): Promise<AxiosResponse<void>> {
+  try {
+    return await axios.delete(`${this.baseUrl}admin/removeCaretakerName`, {
+      data: caretakerName,
+      withCredentials: true,
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    });
+  } catch (error) {
+    console.error("Error removing caretaker name:", error);
+    throw error;
+  }
+}
+
+public async setReceiverName(bookingId: number, receiverName: string): Promise<AxiosResponse<void>> {
+  try {
+    const endpoint = `${this.baseUrl}booking/${bookingId}/receiver-name`;
+    return await axios.put(endpoint, null, {
+      params: { receiverName },
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.error("Error setting receiver name:", error);
+    throw error;
+  }
+}
+
+public async setHandoverName(bookingId: number, handoverName: string): Promise<AxiosResponse<void>> {
+  try {
+    const endpoint = `${this.baseUrl}booking/${bookingId}/handover-name`;
+    return await axios.put(endpoint, null, {
+      params: { handoverName },
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.error("Error setting handover name:", error);
+    throw error;
+  }
+}
+
+  public async deleteData(endpoint: string): Promise<AxiosResponse<any>> {
     try {
-      const response = await axios.get(this.baseUrl + endpoint, {
+      return await axios.delete(this.baseUrl + endpoint, {
         withCredentials: true,
       });
-      return response.data.map((item: { initials: string }) => item.initials);
     } catch (error) {
-      console.error("Error fetching caretaker initials:", error);
+      console.error("Error deleting data:", error);
       throw error;
     }
   }
 
-  public async createCaretakerInitials(caretakerInitials: {
-    initials: string;
-  }): Promise<any> {
-    const endpoint = "caretaker-initials/create";
-    try {
-      const response = await axios.post(
-        this.baseUrl + endpoint,
-        caretakerInitials,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error creating caretaker initials:", error);
-      throw error;
-    }
-  }
-
-  public async deleteCaretakerInitials(initials: string): Promise<void> {
-    const endpoint = `caretaker-initials/delete/${initials}`;
-    try {
-      await axios.delete(this.baseUrl + endpoint, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error("Error deleting caretaker initials:", error);
-      throw error;
-    }
-  }
-
-  public async setInitialToBooking(
-    bookingId: number,
-    initials: string
-  ): Promise<any> {
-    try {
-      const response = await axios.post(
-        `${this.baseUrl}booking/set-receiver-initials/${bookingId}`,
-        initials,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error setting receiver initials:", error);
-      throw error;
-    }
-  }
-
-  public async setHandoverInitialToBooking(
-    bookingId: number,
-    initials: string
-  ): Promise<any> {
-    try {
-      const response = await axios.post(
-        `${this.baseUrl}booking/set-handover-initials/${bookingId}`,
-        initials,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error setting handover initials:", error);
-      throw error;
-    }
-  }
 }
 
 export default new ApiService();

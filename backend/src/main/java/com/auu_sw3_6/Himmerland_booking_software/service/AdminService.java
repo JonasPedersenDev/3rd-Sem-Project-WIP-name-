@@ -35,12 +35,20 @@ public class AdminService extends UserService<Admin> {
         .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
     admin.addCaretakerName(cleanedName);
     adminRepository.save(admin);
-}
+  }
 
-public List<String> getAllCaretakerNames() {
-  Admin admin = adminRepository.findById(ADMIN_ID)
-      .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
-  return admin.getCaretakerNames();
-}
+  public List<String> getAllCaretakerNames() {
+    Admin admin = adminRepository.findById(ADMIN_ID)
+        .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
+    return admin.getCaretakerNames();
+  }
+
+  public void removeCaretakerName(String caretakerName) {
+    Admin admin = adminRepository.findById(ADMIN_ID)
+        .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
+    String cleanedName = caretakerName.trim().replaceAll("^\"|\"$", "");
+    admin.removeCaretakerName(cleanedName);
+    adminRepository.save(admin);
+  }
 
 }

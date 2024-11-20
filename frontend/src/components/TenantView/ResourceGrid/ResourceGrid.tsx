@@ -77,7 +77,7 @@ const ResourceGrid: React.FC = () => {
   const getActiveTabClass = (tab: string) => (activeTab === tab ? 'active-tab' : '');
 
   return (
-    <div className="container">
+    <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
       {/* Resource Categories */}
       <Tabs 
         activeKey={activeTab} 

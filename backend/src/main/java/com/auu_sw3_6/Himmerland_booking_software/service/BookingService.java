@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -151,9 +150,10 @@ public class BookingService {
   public void setReceiverName(long bookingId, String receiverName) {
     Booking booking = bookingRepository.findById(bookingId)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-    
+  
     if (receiverName != null && !receiverName.trim().isEmpty()) {
         booking.setReceiverName(receiverName.trim());
+        booking.setStatus(BookingStatus.COMPLETED);
         bookingRepository.save(booking);
     } else {
         throw new IllegalArgumentException("Receiver name cannot be null or empty.");
@@ -166,6 +166,7 @@ public void setHandoverName(long bookingId, String handoverName) {
     
     if (handoverName != null && !handoverName.trim().isEmpty()) {
         booking.setHandoverName(handoverName.trim());
+        booking.setStatus(BookingStatus.CONFIRMED);
         bookingRepository.save(booking);
     } else {
         throw new IllegalArgumentException("Handover name cannot be null or empty.");
