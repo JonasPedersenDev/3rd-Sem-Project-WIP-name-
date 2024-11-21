@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { ResourceType } from "./EnumSupport";
 import { getUserRole } from "./authConfig";
 import Resource from "../components/modelInterfaces/Resource";
@@ -14,9 +14,10 @@ class ApiService {
   }
 
   private async makeRequest<T>(
-    method: 'get' | 'post' | 'put' | 'delete',
+    method: "get" | "post" | "put" | "delete",
     endpoint: string,
-    data?: any
+    data?: any,
+    options: AxiosRequestConfig = {}
   ): Promise<AxiosResponse<T>> {
     try {
       return await axios.request<T>({
@@ -24,28 +25,48 @@ class ApiService {
         url: this.baseUrl + endpoint,
         data,
         withCredentials: true,
+        ...options, // Merge additional options
       });
     } catch (error) {
       throw error;
     }
   }
-  
-  public async fetchData<T>(endpoint: string): Promise<AxiosResponse<T>> {
-    return this.makeRequest<T>('get', endpoint);
-  }
-  
-  public async sendData<T>(endpoint: string, data?: any): Promise<AxiosResponse<T>> {
-    return this.makeRequest<T>('post', endpoint, data);
-  }
-  
-  public async updateData<T>(endpoint: string, data?: any): Promise<AxiosResponse<T>> {
-    return this.makeRequest<T>('put', endpoint, data);
-  }
-  
-  public async deleteData<T>(endpoint: string): Promise<AxiosResponse<T>> {
-    return this.makeRequest<T>('delete', endpoint);
+
+  public async fetchData<T>(
+    endpoint: string,
+    options: AxiosRequestConfig = {}
+  ): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>("get", endpoint, undefined, options);
   }
 
+  public async sendData<T>(
+    endpoint: string,
+    data?: any,
+    options: AxiosRequestConfig = {}
+  ): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>("post", endpoint, data, options);
+  }
+
+  public async updateData<T>(
+    endpoint: string,
+    data?: any,
+    options: AxiosRequestConfig = {}
+  ): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>("put", endpoint, data, options);
+  }
+
+  public async deleteData<T>(
+    endpoint: string,
+    options: AxiosRequestConfig = {}
+  ): Promise<AxiosResponse<T>> {
+    return this.makeRequest<T>("delete", endpoint, undefined, options);
+  }
+
+  public async fetchImage(endpoint: string): Promise<AxiosResponse<Blob>> {
+    return this.makeRequest<Blob>("get", endpoint, undefined, {
+      responseType: "blob",
+    });
+  }
 
   public async deleteBooking(bookingID: number): Promise<AxiosResponse<any>> {
     try {
@@ -61,7 +82,6 @@ class ApiService {
     }
   }
 
-  
   public async editUser(id: number, data: object): Promise<AxiosResponse<any>> {
     try {
       const response = await axios.put(`${this.baseUrl}tenant/${id}`, data, {
@@ -80,8 +100,6 @@ class ApiService {
       throw error;
     }
   }
-
-
 
   public async editUserAdmin(
     id: number,
@@ -306,83 +324,88 @@ class ApiService {
     }
   }
 
-public async getAllCaretakerNames(): Promise<AxiosResponse<string[]>> {
-  try {
-    return await axios.get<string[]>(`${this.baseUrl}admin/getAllCaretakerNames`, {
-      withCredentials: true,
-    });
-  } catch (error) {
-    console.error("Error fetching caretaker names:", error);
-    throw error;
-  }
-}
-
-public async addCaretakerName(caretakerName: string): Promise<AxiosResponse<void>> {
-  try {
-    return await axios.put(`${this.baseUrl}admin/addCaretakerName`, caretakerName, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "text/plain",
-      },
-    });
-  } catch (error) {
-    console.error("Error adding caretaker name:", error);
-    throw error;
-  }
-}
-
-public async removeCaretakerName(caretakerName: string): Promise<AxiosResponse<void>> {
-  try {
-    return await axios.delete(`${this.baseUrl}admin/removeCaretakerName`, {
-      data: caretakerName,
-      withCredentials: true,
-      headers: {
-        "Content-Type": "text/plain",
-      },
-    });
-  } catch (error) {
-    console.error("Error removing caretaker name:", error);
-    throw error;
-  }
-}
-
-public async setReceiverName(bookingId: number, receiverName: string): Promise<AxiosResponse<void>> {
-  try {
-    const endpoint = `${this.baseUrl}booking/${bookingId}/receiver-name`;
-    return await axios.put(endpoint, null, {
-      params: { receiverName },
-      withCredentials: true,
-    });
-  } catch (error) {
-    console.error("Error setting receiver name:", error);
-    throw error;
-  }
-}
-
-public async setHandoverName(bookingId: number, handoverName: string): Promise<AxiosResponse<void>> {
-  try {
-    const endpoint = `${this.baseUrl}booking/${bookingId}/handover-name`;
-    return await axios.put(endpoint, null, {
-      params: { handoverName },
-      withCredentials: true,
-    });
-  } catch (error) {
-    console.error("Error setting handover name:", error);
-    throw error;
-  }
-}
-
-  public async deleteData(endpoint: string): Promise<AxiosResponse<any>> {
+  public async getAllCaretakerNames(): Promise<AxiosResponse<string[]>> {
     try {
-      return await axios.delete(this.baseUrl + endpoint, {
-        withCredentials: true,
-      });
+      return await axios.get<string[]>(
+        `${this.baseUrl}admin/getAllCaretakerNames`,
+        {
+          withCredentials: true,
+        }
+      );
     } catch (error) {
-      console.error("Error deleting data:", error);
+      console.error("Error fetching caretaker names:", error);
       throw error;
     }
   }
 
+  public async addCaretakerName(
+    caretakerName: string
+  ): Promise<AxiosResponse<void>> {
+    try {
+      return await axios.put(
+        `${this.baseUrl}admin/addCaretakerName`,
+        caretakerName,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error adding caretaker name:", error);
+      throw error;
+    }
+  }
+
+  public async removeCaretakerName(
+    caretakerName: string
+  ): Promise<AxiosResponse<void>> {
+    try {
+      return await axios.delete(`${this.baseUrl}admin/removeCaretakerName`, {
+        data: caretakerName,
+        withCredentials: true,
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      });
+    } catch (error) {
+      console.error("Error removing caretaker name:", error);
+      throw error;
+    }
+  }
+
+  public async setReceiverName(
+    bookingId: number,
+    receiverName: string
+  ): Promise<AxiosResponse<void>> {
+    try {
+      const endpoint = `${this.baseUrl}booking/${bookingId}/receiver-name`;
+      return await axios.put(endpoint, null, {
+        params: { receiverName },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Error setting receiver name:", error);
+      throw error;
+    }
+  }
+
+  public async setHandoverName(
+    bookingId: number,
+    handoverName: string
+  ): Promise<AxiosResponse<void>> {
+    try {
+      const endpoint = `${this.baseUrl}booking/${bookingId}/handover-name`;
+      return await axios.put(endpoint, null, {
+        params: { handoverName },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Error setting handover name:", error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Modal, Row, Col, Container, Image } from "react-bootstrap";
 import LogoutButton from "../Logout/Logout";
+import ProfilePicture from "./ProfilePicture";
 import ApiService from "../../../utils/ApiService";
 
 interface UserInfo {
@@ -24,7 +25,6 @@ const SettingsForm: React.FC = () => {
     password: ""
   });
 
-  //const [profilePicture, setProfilePicture] = useState<string | null>("https://placehold.co/150");
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentView, setCurrentView] = useState("settings");
@@ -38,21 +38,10 @@ const SettingsForm: React.FC = () => {
         const response = await ApiService.fetchData<UserInfo>("tenant");
         console.log("User Information:", response.data);
         setUserInfo(response.data);
-        console.log("User info:", userInfo);
-        // Assuming the profile picture URL is part of the user data
-      //   const profilePictureResponse = await ApiService.fetchData<ArrayBuffer>("user/profilePicture");
-      //   const base64Image = btoa(
-      //    new Uint8Array(profilePictureResponse.data).reduce(
-      //      (data, byte) => data + String.fromCharCode(byte),
-      //      ''
-      //    )
-      //  );
-      //  setProfilePicture(`data:image/jpeg;base64,${base64Image}`);
-      } catch (error) {
+       } catch (error) {
         console.error("Error fetching user information:", error);
       }
     };
-
     fetchUserInfo();
   }, []);
 
@@ -95,36 +84,6 @@ const SettingsForm: React.FC = () => {
     setIsEditing(!isEditing);
     setValidationError(null);
   };
-
-  // const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     const formData = new FormData();
-  //     formData.append("profilePicture", file);
-  //     try {
-  //       const response = await axios.post("/api/user/profilePicture", formData, {
-  //         headers: {
-  //           "Content-Type": "multipart/form-data"
-  //         }
-  //       });
-  //       if (response.status === 200) {
-  //         const base64Image = await convertFileToBase64(file);
-  //         setProfilePicture(base64Image);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error uploading profile picture:", error);
-  //     }
-  //   }
-  // };
-
-  // const convertFileToBase64 = (file: File): Promise<string> => {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(file);
-  //     reader.onload = () => resolve(reader.result as string);
-  //     reader.onerror = error => reject(error);
-  //   });
-  // };
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -216,15 +175,7 @@ const SettingsForm: React.FC = () => {
               </Form>
             </Col>
             <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {/* //<Image src={profilePicture || "https://placehold.co/150"} roundedCircle style={{ width: '150px', height: '150px' }} /> */}
-              <Form.Group controlId="formProfilePicture" style={{ marginTop: '20px', display: isEditing ? 'block' : 'none' }}>
-                <Form.Label>Upload Profil billede</Form.Label>
-                <Form.Control
-                  type="file"
-                  // onChange={handleFileChange}
-                  disabled={!isEditing}
-                />
-              </Form.Group>
+              <ProfilePicture />
             </Col>
           </Row>
         );
