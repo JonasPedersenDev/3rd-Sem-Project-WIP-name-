@@ -44,8 +44,9 @@ public class AppConfig {
         hospitality.setDescription("Festlokale med minibar");
         hospitality.setResourcePictureFileName("festlokale.jpg");
         hospitality.setType(ResourceType.HOSPITALITY);
-        hospitality.setCapacity(5L);
+        hospitality.setCapacity(1L);
         hospitality.setStatus("available");
+        hospitality.setResourcePictureFileName("d449efbd-3287-42a3-a36b-ead5861de11d.jpg");
 
         hospitalityService.createHospitality(hospitality, null);
       }
@@ -62,14 +63,14 @@ public class AppConfig {
         tool.setDescription("En elektrisk boremaskine, i modsætning til en benzin drevet boremaskine");
         tool.setResourcePictureFileName("boremaskine.jpg");
         tool.setType(ResourceType.TOOL);
-        tool.setCapacity(5L);
+        tool.setCapacity(3L);
         tool.setStatus("available");
+        tool.setResourcePictureFileName("7eb0600a9ab776a1769474bb2c5b68e1201c2e56.jpg");
 
         toolService.createTool(tool, null);
       }
     };
   }
-
 
   @Bean
   public CommandLineRunner setupUtility(UtilityService utilityService) {
@@ -81,13 +82,20 @@ public class AppConfig {
         utility.setDescription("Havetrailer med en vægtkapacitet på 500 Kg.");
         utility.setResourcePictureFileName("trailer.jpg");
         utility.setType(ResourceType.UTILITY);
-        utility.setCapacity(5L);
+        utility.setCapacity(2L);
         utility.setStatus("available");
+        utility.setResourcePictureFileName("cb0e74d5-f347-4b89-a257-a4c6ac59329e.jpg");
 
         utilityService.createUtility(utility, null);
       }
     };
   }
 
+  @Bean
+  public CommandLineRunner sendSimpleMessage() {
+    return args -> {
+      EmailTest.sendSimpleMessage("testemail@gmail.com");
+    };
+  }
 
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDate;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
@@ -40,17 +42,17 @@ public abstract class ResourceController<T extends Resource> {
   @GetMapping(value = "/{id}", produces = "application/json")
   public ResponseEntity<T> getResourceById(@PathVariable Long id) {
     try {
-        Optional<T> resource = resourceService.getResourceById(id);
-        return resource.map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+      Optional<T> resource = resourceService.getResourceById(id);
+      return resource.map(ResponseEntity::ok)
+          .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     } catch (ResourceNotFoundException e) {
-        System.out.println("No resources found: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      System.out.println("No resources found: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     } catch (Exception e) {
-        System.out.println("An unexpected error occurred: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      System.out.println("An unexpected error occurred: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-}
+  }
 
   @Operation(summary = "Get all resources", description = "Retrieve a list of all available resources")
   @GetMapping(value = "/get-all", produces = "application/json")
@@ -89,11 +91,22 @@ public abstract class ResourceController<T extends Resource> {
     }
   }
 
-  @Operation(summary = "Update a resource", description = "Update the details of an existing resource") //NOT WORKING
+  @Operation(summary = "Update a resource", description = "Update the details of an existing resource") // NOT WORKING
   @PutMapping(value = "/update/{updatedResourceId}", produces = "application/json")
   public ResponseEntity<T> updateResource(@RequestBody T updatedResource, @PathVariable long updatedResourceId) {
     T resource = resourceService.updateResource(updatedResource, updatedResourceId);
     return ResponseEntity.ok(resource);
   }
 
+  @GetMapping(value = "/{id}/picture", produces = "application/json")
+  @Operation(summary = "Get resource picture", description = "This endpoint returns the id of a resource from the resource id.")
+  public ResponseEntity<Object> getResourcePicture(@PathVariable long id) {
+    Optional<byte[]> imageBytesOptional = resourceService.getresourcePicturesByResourceId(id);
+    if (imageBytesOptional.isPresent()) {
+      return ResponseEntity.ok()
+          .contentType(MediaType.IMAGE_JPEG)
+          .body(imageBytesOptional.get());
+    }
+    return new ErrorResponse("Resource picture not found", HttpStatus.NOT_FOUND).send();
+  }
 }

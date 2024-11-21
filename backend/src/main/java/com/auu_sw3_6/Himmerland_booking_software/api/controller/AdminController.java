@@ -65,7 +65,7 @@ public class AdminController extends UserController<Admin> {
   }
 
   @GetMapping(value = "/getTenant/{id}/profilePicture", produces = "application/json")
-  @Operation(summary = "Get tenant profilepicture", description = "This endpoint returns a tenant.")
+  @Operation(summary = "Get tenant profilepicture", description = "This endpoint returns a tenants profilepicture from an user id.")
   public ResponseEntity<Object> getProfilePictureByID(@PathVariable long id) {
     Optional<byte[]> imageBytesOptional = tenantService.getProfilePictureByUserId(id);
     if (imageBytesOptional.isPresent()) {
