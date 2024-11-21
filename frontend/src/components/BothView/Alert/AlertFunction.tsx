@@ -41,7 +41,7 @@ function showAlert({
         </Button>
         {onConfirm && (
           <Button
-            variant="primary"
+            variant="success"
             onClick={() => {
               onConfirm();
               closeAlert();

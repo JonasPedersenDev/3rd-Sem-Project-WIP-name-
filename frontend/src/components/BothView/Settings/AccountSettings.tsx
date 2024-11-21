@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Modal, Row, Col, Container, Image } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Modal,
+  Row,
+  Col,
+  Container,
+  Image,
+} from "react-bootstrap";
 import LogoutButton from "../Logout/Logout";
 import ApiService from "../../../utils/ApiService";
+import showAlert from "../Alert/AlertFunction";
+import { useNavigate } from "react-router-dom";
+import DeleteUserButton from "../DeleteUser/DeleteUser";
 
 interface UserInfo {
   id: number;
@@ -21,8 +32,9 @@ const SettingsForm: React.FC = () => {
     houseAddress: "",
     mobileNumber: "",
     email: "",
-    password: ""
+    password: "",
   });
+  const navigate = useNavigate();
 
   //const [profilePicture, setProfilePicture] = useState<string | null>("https://placehold.co/150");
   const [isEditing, setIsEditing] = useState(false);
@@ -40,14 +52,14 @@ const SettingsForm: React.FC = () => {
         setUserInfo(response.data);
         console.log("User info:", userInfo);
         // Assuming the profile picture URL is part of the user data
-      //   const profilePictureResponse = await ApiService.fetchData<ArrayBuffer>("user/profilePicture");
-      //   const base64Image = btoa(
-      //    new Uint8Array(profilePictureResponse.data).reduce(
-      //      (data, byte) => data + String.fromCharCode(byte),
-      //      ''
-      //    )
-      //  );
-      //  setProfilePicture(`data:image/jpeg;base64,${base64Image}`);
+        //   const profilePictureResponse = await ApiService.fetchData<ArrayBuffer>("user/profilePicture");
+        //   const base64Image = btoa(
+        //    new Uint8Array(profilePictureResponse.data).reduce(
+        //      (data, byte) => data + String.fromCharCode(byte),
+        //      ''
+        //    )
+        //  );
+        //  setProfilePicture(`data:image/jpeg;base64,${base64Image}`);
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -58,14 +70,19 @@ const SettingsForm: React.FC = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setUserInfo(prevInfo => ({ ...prevInfo, [name]: value }));
+    setUserInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
   };
 
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-    if (!userInfo.username || !userInfo.password || !userInfo.email || !userInfo.name) {
+    if (
+      !userInfo.username ||
+      !userInfo.password ||
+      !userInfo.email ||
+      !userInfo.name
+    ) {
       return "Udfyld venligst alle felter.";
     }
     if (!emailRegex.test(userInfo.email)) {
@@ -194,30 +211,48 @@ const SettingsForm: React.FC = () => {
                 </Form.Group>
                 <Form.Group controlId="formPassword">
                   <Form.Label>Adgangskode</Form.Label>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ display: "flex", alignItems: "center" }}>
                     <Form.Control
                       type={passwordVisible ? "text" : "password"}
                       name="password"
                       value={userInfo.password}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      style={{ marginRight: '10px' }}
+                      style={{ marginRight: "10px" }}
                       placeholder="Enter new password"
                     />
-                    <Button variant="secondary" onClick={togglePasswordVisibility}>
+                    <Button
+                      variant="secondary"
+                      onClick={togglePasswordVisibility}
+                    >
                       {passwordVisible ? "Hide" : "Show"}
                     </Button>
                   </div>
                 </Form.Group>
-                {validationError && <p style={{ color: 'red' }}>{validationError}</p>}
-                <Button variant="primary" onClick={handleEditToggle}>
-                  {isEditing ? "Save Changes" : "Edit"}
+                {validationError && (
+                  <p style={{ color: "red" }}>{validationError}</p>
+                )}
+                <Button variant="success" onClick={handleEditToggle}>
+                  {isEditing ? "Save Changes" : "Ændre"}
                 </Button>
               </Form>
             </Col>
-            <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Col
+              md={4}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
               {/* //<Image src={profilePicture || "https://placehold.co/150"} roundedCircle style={{ width: '150px', height: '150px' }} /> */}
-              <Form.Group controlId="formProfilePicture" style={{ marginTop: '20px', display: isEditing ? 'block' : 'none' }}>
+              <Form.Group
+                controlId="formProfilePicture"
+                style={{
+                  marginTop: "20px",
+                  display: isEditing ? "block" : "none",
+                }}
+              >
                 <Form.Label>Upload Profil billede</Form.Label>
                 <Form.Control
                   type="file"
@@ -246,15 +281,60 @@ const SettingsForm: React.FC = () => {
   const handleCloseModal = () => setShowSuccessModal(false);
 
   return (
-    <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <Row style={{ width: '100%' }}>
-        <Col md={3} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginRight: '20px' }}>
-          <Button onClick={() => setCurrentView("settings")} style={{ marginBottom: '10px' }}>Din bruger</Button>
-          <Button onClick={() => setCurrentView("text")} style={{ marginBottom: '10px' }}>Samtykke</Button>
-          <Button onClick={() => setCurrentView("notifications")} style={{ marginBottom: '10px' }}>Notifikationer</Button>
-          <LogoutButton />
+    <Container
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <Row style={{ width: "100%" }}>
+        <Col
+          md={3}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            marginRight: "20px",
+          }}
+        >
+            <Button
+            onClick={() => setCurrentView("settings")}
+            style={{ marginBottom: "10px" }}
+            variant="success"
+            >
+            Din bruger
+            </Button>
+          <Button
+            onClick={() => setCurrentView("text")}
+            style={{ marginBottom: "10px" }}
+            variant="success"
+          >
+            Samtykke
+          </Button>
+          <Button
+            onClick={() => setCurrentView("notifications")}
+            style={{ marginBottom: "10px" }}
+            variant="success"
+          >
+            Notifikationer
+          </Button>
+          <LogoutButton/>
+          <DeleteUserButton userId={userInfo.id} />
         </Col>
-        <Col md={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #ccc', padding: '20px', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
+        <Col
+          md={8}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            border: "1px solid #ccc",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#f9f9f9",
+          }}
+        >
           {renderContent()}
         </Col>
       </Row>
