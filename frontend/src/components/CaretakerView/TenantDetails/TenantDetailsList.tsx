@@ -8,6 +8,7 @@ import FilterSearch from "./FilterSearch";
 import DeleteUser from "./DeleteUser";
 import EditTenantDetails from "./EditTenantDetails";
 import CreateBookingModal from "../../TenantView/CreateBookingModal/CreateBookingModal";
+import ProfilePicture from "../../BothView/Settings/ProfilePicture";
 
 const TenantDetailsList: React.FC = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -115,6 +116,7 @@ const TenantDetailsList: React.FC = () => {
         {filteredTenants.map((tenant) => (
           <div key={tenant.id} className="tenant-card">
             <div className="tenant-info">
+              <ProfilePicture imageSource={`admin/getTenant/${tenant.id}/profilePicture`} />
               <h2>{tenant.name}</h2>
               <p>Addresse: {tenant.houseAddress}</p>
               <p>Telefonnummer: {tenant.mobileNumber}</p>

@@ -1,40 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import BaseImage from "../../BaseImage";
 import ApiService from "../../../utils/ApiService";
-import { getUserRole } from "../../../utils/authConfig";
-const ProfilePicture: React.FC = () => {
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+import defaultImage from "../../../assets/defaultProfilePic.jpg";
 
-  useEffect(() => {
-    const fetchProfilePicture = async () => {
-      try {
-        const rawrole = getUserRole();
-        const role = rawrole === "ROLE_TENANT" ? "tenant" : "admin"; 
-        const response = await ApiService.fetchImage(`${role}/profilePicture`);
-        const imageUrl = URL.createObjectURL(response.data);
-        setProfilePicture(imageUrl);
-      } catch (err) {
-        console.error("Failed to fetch profile picture:", err);
-        setError("Could not load profile picture.");
-      }
-    };
+interface ProfilePictureProps {
+  imageSource: string;
+}
 
-    fetchProfilePicture();
-  }, []);
+const ProfilePicture: React.FC<ProfilePictureProps> = ({ imageSource }) => {
+  const fetchImage = async () => {
+    try {
+      const response = await ApiService.fetchImage(imageSource);
+      return response.data;
+    } catch {
+      return null;
+    }
+  };
 
   return (
-    <div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {profilePicture ? (
-        <img
-          src={profilePicture}
-          alt="Profile"
-          style={{ borderRadius: "50%", width: "150px", height: "150px" }}
-        />
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
+    <BaseImage
+      fetchImage={fetchImage}
+      defaultImage={defaultImage}
+      altText="Profile picture"
+      imageStyle={{ borderRadius: "50%", width: "150px", height: "150px" }}
+    />
   );
 };
 

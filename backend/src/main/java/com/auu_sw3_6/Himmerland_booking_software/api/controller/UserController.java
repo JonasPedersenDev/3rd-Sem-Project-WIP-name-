@@ -68,18 +68,6 @@ public abstract class UserController<T extends User> {
     return new ErrorResponse("User not found", HttpStatus.NOT_FOUND).send();
   }
 
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
-  @GetMapping("{id}/profilePicture")
-  public ResponseEntity<Object> getProfilePictureByID(@PathVariable long id) {
-    Optional<byte[]> imageBytesOptional = userService.getProfilePictureByUserId(id);
-    if (imageBytesOptional.isPresent()) {
-      return ResponseEntity.ok()
-          .contentType(MediaType.IMAGE_JPEG)
-          .body(imageBytesOptional.get());
-    }
-    return new ErrorResponse("Profile picture not found", HttpStatus.NOT_FOUND).send();
-  }
-
   @SecurityRequirement(name = "bearerAuth")
   @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_TENANT')")
   @GetMapping("profilePicture")

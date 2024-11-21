@@ -31,7 +31,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
           </>
         ) : (
           <>
-            <CardImage img={resource.img} name={resource.name} />
+            <CardImage id={resource.id} type={resource.type} name={resource.name} />
             <CardBody
               name={resource.name}
               description={resource.description}

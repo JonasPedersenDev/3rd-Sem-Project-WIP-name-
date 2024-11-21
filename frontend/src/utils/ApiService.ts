@@ -25,7 +25,7 @@ class ApiService {
         url: this.baseUrl + endpoint,
         data,
         withCredentials: true,
-        ...options, // Merge additional options
+        ...options,
       });
     } catch (error) {
       throw error;
@@ -195,7 +195,8 @@ class ApiService {
 
   private async fetchByResourceType(
     resourceType: ResourceType,
-    endPoint: string
+    endPoint: string,
+    options: AxiosRequestConfig = {}
   ): Promise<AxiosResponse<any>> {
     try {
       let resourceTypePath = "";
@@ -213,12 +214,30 @@ class ApiService {
           console.error("Unknown resource type:", resourceType);
           throw new Error("Unknown resource type");
       }
-      //console.log(resourceTypePath + endPoint);
-      return await this.fetchData(resourceTypePath + endPoint);
+      return await this.fetchData(resourceTypePath + endPoint, options);
     } catch (error) {
       throw error;
     }
   }
+
+  public async fetchResourcePic(
+    resourceType: ResourceType,
+    id: number,
+    options: AxiosRequestConfig = {}
+  ): Promise<AxiosResponse<Blob>> {
+    try {
+      const endpoint = `/${id}/picture`;
+      
+      const mergedOptions: AxiosRequestConfig = {
+        responseType: "blob",
+        ...options,
+      };
+      return await this.fetchByResourceType(resourceType, endpoint, mergedOptions);
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 
   public async fetchBookings(
     resourceType: ResourceType,

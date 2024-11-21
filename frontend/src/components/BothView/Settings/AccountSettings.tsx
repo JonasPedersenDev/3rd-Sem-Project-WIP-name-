@@ -175,7 +175,7 @@ const SettingsForm: React.FC = () => {
               </Form>
             </Col>
             <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <ProfilePicture />
+              <ProfilePicture imageSource={"tenant/profilePicture"} />
             </Col>
           </Row>
         );
