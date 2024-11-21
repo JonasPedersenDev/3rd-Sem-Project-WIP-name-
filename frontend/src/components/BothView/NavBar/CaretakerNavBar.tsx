@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getBookingCount } from "../../../utils/sessionStorageSupport";
 import { useDarkMode } from "../../DarkModeContext";
-import { FaHome, FaEnvelope, FaList, FaUser } from "react-icons/fa";
+import { FaHome, FaEnvelope, FaList, FaUser, FaSun, FaMoon } from "react-icons/fa";
 
 function CaretakerNavbar() {
   const { toggleDarkMode } = useDarkMode();
@@ -75,10 +75,21 @@ function CaretakerNavbar() {
               </button>
             </li>
 
+            <li className={`nav-item ${isActive('/konto')}`}>
+              <button
+                className="nav-link btn btn-link text-white"
+                onClick={() => navigate("/konto")}
+              >
+                <FaUser /> Konto
+              </button>
+            </li>
+
+
+
             {/* Dark Mode Toggle */}
             <li className="nav-item">
               <button className="nav-link btn btn-link text-white" onClick={toggleDarkMode}>
-                Dark Mode
+                {location.pathname === "/konto" ? <FaSun /> : <FaMoon />} Toggle Dark Mode
               </button>
             </li>
           </ul>
