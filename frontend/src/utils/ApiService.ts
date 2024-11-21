@@ -268,6 +268,37 @@ class ApiService {
     }
   }
 
+  public async bookForTenant(booking: object): Promise<AxiosResponse<any>> {
+    try {
+      return await axios.post(`${this.baseUrl}admin/book-for-tenant`, booking, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async deleteTenant(id: number): Promise<AxiosResponse<any>> {
+    try {
+      const endpoint = `${this.baseUrl}tenant/deleteTenant/${id}`;
+      console.log("Deleting tenant:", endpoint);
+      return await axios.delete(endpoint, {
+        withCredentials: true,
+        
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Error deleting tenant:",
+          error.response?.data || error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      throw error;
+    }
+  }
+
   public async createResource(
     resource: object,
     img: File,

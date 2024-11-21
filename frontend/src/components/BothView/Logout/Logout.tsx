@@ -47,7 +47,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   };
 
   return (
-    <button onClick={handleLogout} className={className}>
+    <button onClick={handleLogout} className={className} style={{ marginBottom: "10px" }}>
       {buttonText}
     </button>
   );
