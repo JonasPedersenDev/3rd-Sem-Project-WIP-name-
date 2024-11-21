@@ -91,11 +91,11 @@ public class AppConfig {
     };
   }
 
-  @Bean
-  public CommandLineRunner sendSimpleMessage() {
-    return args -> {
-      EmailTest.sendSimpleMessage("testemail@gmail.com");
-    };
-  }
+  // @Bean
+  // public CommandLineRunner sendSimpleMessage() {
+  //   return args -> {
+  //     EmailTest.sendSimpleMessage("testemail@gmail.com");
+  //   };
+  // }
 
 }
