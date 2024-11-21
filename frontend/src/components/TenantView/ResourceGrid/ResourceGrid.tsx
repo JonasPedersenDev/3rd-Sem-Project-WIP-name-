@@ -128,24 +128,6 @@ const ResourceGrid: React.FC = () => {
           </div>
         </Tab>
       </Tabs>
-
-      {/* Conditionally render the "Se Reservationer" button at the top right */}
-      {bookingCount > 0 && (
-        <div className="mt-4">
-          <button 
-            className="btn btn-success d-flex align-items-center" 
-            style={{
-              position: 'absolute',
-              top: '90px',
-              right: '20px',
-            }}
-            onClick={() => navigate("/reservation-overblik")}
-          >
-            Se Reservationer
-            <span className="badge bg-danger ms-2">{bookingCount}</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 };

@@ -9,7 +9,6 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import AccountPage from "./pages/AccountPage";
-import CheckoutPage from "./pages/CheckoutPage";
 import CToverviewPage from "./pages/CTOverviewPage";
 import CTresourcePage from "./pages/CTresourcePage";
 import CTtenantOverview from "./pages/CTtenantOverview";
@@ -29,11 +28,6 @@ const routesConfig: {
     path: "/konto",
     component: <AccountPage />,
     allowedRoles: ["ROLE_TENANT", "ROLE_ADMIN"],
-  },
-  {
-    path: "/reservation-overblik",
-    component: <CheckoutPage />,
-    allowedRoles: ["ROLE_TENANT"],
   },
   {
     path: "/mine-reservationer",

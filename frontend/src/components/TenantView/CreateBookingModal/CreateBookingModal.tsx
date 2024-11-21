@@ -6,7 +6,12 @@ import Resource from "../../modelInterfaces/Resource";
 import Booking from "../../modelInterfaces/Booking";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import { isValidDateRange } from "../../../utils/BookingSupport";
-import { addBookingToSessionStorage, getHighestBookingID } from "../../../utils/sessionStorageSupport";
+import {
+  addBookingToSessionStorage,
+  getHighestBookingID,
+  loadBookingsFromSessionStorage,
+  removeBookingFromSessionStorage,
+} from "../../../utils/sessionStorageSupport";
 import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface CreateBookingModalProps {
@@ -23,6 +28,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   onClose,
 }) => {
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   const generateBookingId = (): number => {
     const bookingAmount = getHighestBookingID();
@@ -57,7 +63,12 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       }
     };
 
+    const loadExistingBookings = () => {
+      setBookings(loadBookingsFromSessionStorage());
+    };
+
     fetchBookedDates();
+    loadExistingBookings();
   }, [resource.type, resource.id]);
 
   const handleDateChange = (start: Date | null, end: Date | null) => {
@@ -68,9 +79,44 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     addBookingToSessionStorage(bookingFormData);
+    setBookings(loadBookingsFromSessionStorage());
     onBookingAdded();
+
+    for (const booking of bookings) {
+      const transformedBooking = transformBooking(booking);
+
+      try {
+        const response = await ApiService.createBooking(transformedBooking);
+        if (response.status === 200) {
+          removeBookingFromSessionStorage(booking.id);
+        } else {
+          console.error("Failed to create booking", booking);
+        }
+      } catch (error) {
+        console.error("Error during booking creation:", error);
+      }
+    }
+
+    setBookings(loadBookingsFromSessionStorage());
+    onClose();
+  };
+
+  const transformBooking = (booking: any) => {
+    const formatDate = (date: string) => {
+      const newDate = new Date(date);
+      return newDate.toLocaleDateString("en-CA");
+    };
+
+    return {
+      resourceID: booking.resourceID,
+      resourceType: booking.resourceType.toUpperCase(),
+      startDate: formatDate(booking.startDate!),
+      endDate: formatDate(booking.endDate!),
+      pickupTime: booking.pickupTime,
+      dropoffTime: booking.dropoffTime,
+    };
   };
 
   return (
@@ -79,7 +125,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
         <Modal.Title>Reserver {resource.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={(e) => e.preventDefault()}>
           <div className="d-flex justify-content-center mt-3">
             <BookingModalCalendar
               bookedDates={bookedDates}
@@ -158,7 +204,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
 
           <Button
             variant="primary"
-            type="submit"
+            onClick={handleSubmit}
             disabled={
               !isValidDateRange(
                 bookingFormData.startDate,
@@ -168,10 +214,10 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               )
             }
           >
-            Tilføj Booking
+            Tilføj og Bekræft
           </Button>
           <Button variant="secondary" onClick={onClose} className="ms-2">
-            Anuller
+            Annuller
           </Button>
         </Form>
       </Modal.Body>
