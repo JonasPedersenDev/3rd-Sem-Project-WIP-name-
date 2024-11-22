@@ -15,16 +15,19 @@ import org.springframework.boot.CommandLineRunner;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
+import com.auu_sw3_6.Himmerland_booking_software.service.JobService;
 
 public class AppConfigTest {
 
     private AdminService adminService;
+    private JobService jobService;
     private AppConfig appConfig;
 
     @BeforeEach
     public void setUp() {
         adminService = mock(AdminService.class);
-        appConfig = new AppConfig();
+        jobService = mock(JobService.class);
+        appConfig = new AppConfig(jobService);
     }
 
     @Test
