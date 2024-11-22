@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,13 +10,19 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.Hospitality;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tool;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Utility;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
+import com.auu_sw3_6.Himmerland_booking_software.service.EmailService;
 import com.auu_sw3_6.Himmerland_booking_software.service.HospitalityService;
+import com.auu_sw3_6.Himmerland_booking_software.service.JobService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ToolService;
 import com.auu_sw3_6.Himmerland_booking_software.service.UtilityService;
 
 @Configuration
 public class AppConfig {
+
+  @Autowired
+  private JobService jobService;
 
   @Bean
   public CommandLineRunner setupAdmin(AdminService adminService) {
@@ -91,10 +98,17 @@ public class AppConfig {
     };
   }
 
+  @Bean
+  public CommandLineRunner runMissedJobsAtStartup() {
+    return args -> {
+      jobService.checkMissedJobsForToday();
+    };
+  }
+
   // @Bean
-  // public CommandLineRunner sendSimpleMessage() {
+  // public CommandLineRunner sendTestEmail() {
   //   return args -> {
-  //     EmailTest.sendSimpleMessage("testemail@gmail.com");
+  //     EmailService.sendPickupNotification("jonasuselessemail@gmail.com", "Jonas P", "Festlokale", TimeRange.EARLY.getTimeSlot());
   //   };
   // }
 

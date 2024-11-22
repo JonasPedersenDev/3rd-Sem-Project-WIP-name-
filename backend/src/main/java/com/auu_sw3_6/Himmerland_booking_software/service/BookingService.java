@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
+import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
@@ -72,19 +74,19 @@ public class BookingService {
     LocalDate endDate = details.getEndDate();
 
     if (isBookingPeriodInvalid(startDate, endDate)) {
-        throw new IllegalArgumentException("Invalid booking period.");
+      throw new IllegalArgumentException("Invalid booking period.");
     }
 
     if (isResourceAvailable(resource, startDate, endDate)) {
-        Booking booking = new Booking(resource, user, startDate, endDate,
-            details.getPickupTime(), details.getDropoffTime(),
-            BookingStatus.PENDING, details.getReceiverName(), details.getHandoverName());
+      Booking booking = new Booking(resource, user, startDate, endDate,
+          details.getPickupTime(), details.getDropoffTime(),
+          BookingStatus.PENDING, details.getReceiverName(), details.getHandoverName());
 
-        return bookingRepository.save(booking);
+      return bookingRepository.save(booking);
     } else {
-        throw new IllegalArgumentException("Resource is not available for the selected dates.");
+      throw new IllegalArgumentException("Resource is not available for the selected dates.");
     }
-}
+  }
 
   private boolean isBookingPeriodInvalid(LocalDate startDate, LocalDate endDate) {
     if (!startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate)) {
@@ -124,6 +126,57 @@ public class BookingService {
     return true;
   }
 
+  private List<Booking> getAllActiveBookings() {
+    List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.CONFIRMED);
+    List<Booking> pendingBookings = bookingRepository.findByStatus(BookingStatus.PENDING);
+    confirmedBookings.addAll(pendingBookings);
+    return confirmedBookings;
+  }
+
+  private List<Booking> getAllPendingPendingBookings() {
+    return bookingRepository.findByStatus(BookingStatus.PENDING);
+  }
+
+  private List<Booking> getAllConfirmedBookings() {
+    return bookingRepository.findByStatus(BookingStatus.CONFIRMED);
+  }
+
+  private List<Booking> getAllCancelledBookings() {
+    return bookingRepository.findByStatus(BookingStatus.CANCELED);
+  }
+
+/*   private List<Booking> getAllMissedBookings() {
+    List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.MISSED);
+  } */
+
+  public List<Booking> getAllUpcomingPickupsForToday(TimeRange timeRange) {
+    List<Booking> bookings = getAllPendingPendingBookings();
+    List<Booking> upcomingBookings = new ArrayList<>();
+
+    for (Booking booking : bookings) {
+      if (booking.getStartDate().isEqual(LocalDate.now()) && booking.getPickupTime() == timeRange) {
+        upcomingBookings.add(booking);
+      }
+    }
+
+    return upcomingBookings;
+  }
+
+  public List<Booking> getAllUpcomingDropOffsForToday(TimeRange timeRange) {
+    List<Booking> bookings = getAllConfirmedBookings();
+    List<Booking> upcomingBookings = new ArrayList<>();
+
+    for (Booking booking : bookings) {
+      if (booking.getEndDate().isEqual(LocalDate.now()) && booking.getDropoffTime() == timeRange) {
+        upcomingBookings.add(booking);
+      }
+    }
+
+    return upcomingBookings;
+  }
+
+  
+
   public List<BookingDate> getBookedDatesWithAmount(Resource resource) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
 
@@ -149,30 +202,28 @@ public class BookingService {
 
   public void setReceiverName(long bookingId, String receiverName) {
     Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-  
+        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+
     if (receiverName != null && !receiverName.trim().isEmpty()) {
-        booking.setReceiverName(receiverName.trim());
-        booking.setStatus(BookingStatus.COMPLETED);
-        bookingRepository.save(booking);
+      booking.setReceiverName(receiverName.trim());
+      booking.setStatus(BookingStatus.COMPLETED);
+      bookingRepository.save(booking);
     } else {
-        throw new IllegalArgumentException("Receiver name cannot be null or empty.");
+      throw new IllegalArgumentException("Receiver name cannot be null or empty.");
     }
-}
+  }
 
-public void setHandoverName(long bookingId, String handoverName) {
+  public void setHandoverName(long bookingId, String handoverName) {
     Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-    
+        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+
     if (handoverName != null && !handoverName.trim().isEmpty()) {
-        booking.setHandoverName(handoverName.trim());
-        booking.setStatus(BookingStatus.CONFIRMED);
-        bookingRepository.save(booking);
+      booking.setHandoverName(handoverName.trim());
+      booking.setStatus(BookingStatus.CONFIRMED);
+      bookingRepository.save(booking);
     } else {
-        throw new IllegalArgumentException("Handover name cannot be null or empty.");
+      throw new IllegalArgumentException("Handover name cannot be null or empty.");
     }
-}
-
-
+  }
 
 }
