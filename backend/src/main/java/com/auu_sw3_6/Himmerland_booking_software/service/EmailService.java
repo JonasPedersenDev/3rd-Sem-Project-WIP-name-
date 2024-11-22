@@ -2,7 +2,6 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.time.LocalDate;
 
-import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.mailgun.api.v3.MailgunMessagesApi;
 import com.mailgun.model.message.Message;
 import com.mailgun.model.message.MessageResponse;
@@ -11,7 +10,7 @@ import com.mailgun.client.MailgunClient;
 import java.io.File;
 
 public class EmailService {
-	private final static String API_KEY = "SuperSecretAPIKey";
+	private final static String API_KEY = "Super-secret-Api-key";
 	private static final String EMAIL_FROM = "no-reply@hbs.jonasp.dk";
 	private final static String DOMAIN = "hbs.jonasp.dk";
 
@@ -20,30 +19,11 @@ public class EmailService {
 			.createApi(MailgunMessagesApi.class);
 
 
-
-	public static void sendTestMessage(String reciever) {
-		System.out.println("Sending email to: " + reciever);
-		Message message = Message.builder()
-				.from(EMAIL_FROM)
-				.to(reciever)
-				.subject("This is a test subject for the test email")
-				.text(
-						"Hello, how are you today ? the email is sent from the Himmerland booking software, and this is a test email")
-				.build();
-
-		try {
-			MessageResponse messageResponse = mailgunMessagesApi.sendMessage(DOMAIN, message);
-			System.out.println("Email sent successfully: " + messageResponse.getMessage());
-		} catch (Exception e) {
-			System.err.println("Error sending email: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
 	private static void sendEmail(Message message) {
 		try {
-			MessageResponse messageResponse = mailgunMessagesApi.sendMessage(DOMAIN, message);
-			System.out.println("Email sent successfully: " + messageResponse.getMessage());
+			// MessageResponse messageResponse = mailgunMessagesApi.sendMessage(DOMAIN, message);
+			// System.out.println("Email sent successfully: " + messageResponse.getMessage());
+			System.out.println("Email would have been sent successfully, probably..., but who knows without a valid API key");
 		} catch (Exception e) {
 			System.err.println("Error sending email: " + e.getMessage());
 			e.printStackTrace();
@@ -61,7 +41,7 @@ public class EmailService {
 		sendEmail(message);
 	}
 
-	public static void sendDropoffNotification(String reciever, String user, String resourceName, TimeRange timeRange) {
+	public static void sendDropoffNotification(String reciever, String user, String resourceName, String timeRange) {
 		System.out.println("Sending dropoff notification to: " + reciever);
 
 		String content = "Hej <strong>%s</strong>,<br>Du har en aflevering af: <strong>%s</strong> imellem <strong>%s</strong> i dag. Husk at aflevere det i tide!"
@@ -73,7 +53,7 @@ public class EmailService {
 	}
 
 	public static void sendMissedDropoffNotification(String reciever, String user, String resourceName,
-			TimeRange timeRange,
+			String timeRange,
 			LocalDate dropoffDate) {
 		System.out.println("Sending missed dropoff notification to: " + reciever);
 

@@ -14,10 +14,14 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.JobExecutionLogR
 @Service
 public class JobService {
 
-  private NotificationService notificationService;
+  private final NotificationService notificationService;
+  private final JobExecutionLogRepository jobExecutionLogRepository;
 
   @Autowired
-  private JobExecutionLogRepository jobExecutionLogRepository;
+  public JobService(NotificationService notificationService, JobExecutionLogRepository jobExecutionLogRepository) {
+    this.notificationService = notificationService;
+    this.jobExecutionLogRepository = jobExecutionLogRepository;
+  }
 
   // Job for 05:00:00
   @Scheduled(cron = "0 0 5 * * *")
@@ -25,10 +29,32 @@ public class JobService {
     executeJob("5AM Job");
   }
 
-  // Job for 10:00:00
-  @Scheduled(cron = "0 0 10 * * *")
-  public void run10AMJob() {
-    executeJob("10AM Job");
+  // Job for 09:00:00
+  @Scheduled(cron = "0 0 9 * * *")
+  public void run9AMJob() {
+    executeJob("9AM Job");
+  }
+
+  // Scheduled job for missed notifications (runs every 2 hours starting after
+  // 5:00 AM)
+  @Scheduled(cron = "0 0 6-23/2 * * *") // Runs at 6 AM, 8 AM, 10 AM, ... until 10 PM
+  public void runMissedNotificationsJob() {
+    LocalDate today = LocalDate.now();
+
+    Boolean missedNotificationLog = jobExecutionLogRepository.existsByJobNameAndExecutionTimeAfter("Missed Droppoff Job", today.atStartOfDay());
+
+    if (missedNotificationLog == false && LocalTime.now().isAfter(LocalTime.of(5, 0))) {
+      System.out.println("Running missed notifications job...");
+      notificationService.sendMissedNotifications();
+
+      JobExecutionLog log = new JobExecutionLog();
+      log.setJobName("Missed Droppoff Job");
+      log.setExecutionTime(LocalDateTime.now());
+      log.setStatus("COMPLETED");
+      jobExecutionLogRepository.save(log);
+    } else {
+      System.out.println("Missed notifications job already run today.");
+    }
   }
 
   private void executeJob(String jobName) {
@@ -36,7 +62,7 @@ public class JobService {
 
     if (jobName.equals("5AM Job")) {
       notificationService.earlyMorningNotification();
-    } else if (jobName.equals("10AM Job")) {
+    } else if (jobName.equals("9AM Job")) {
       notificationService.lateMorningNotification();
     }
 
@@ -51,18 +77,25 @@ public class JobService {
     LocalDate today = LocalDate.now();
     LocalTime currentTime = LocalTime.now();
 
-    // Check if it's after 5 AM and if the 5 AM job has been completed today
-    if (currentTime.isAfter(LocalTime.of(5, 0))) {
+    // Check if it's after 5 AM, before 7:30 AM, and if the 5 AM job has not been
+    // completed today
+    if (currentTime.isAfter(LocalTime.of(5, 0)) && currentTime.isBefore(LocalTime.of(7, 30))) {
       if (!jobExecutionLogRepository.existsByJobNameAndExecutionTimeAfter("5AM Job", today.atStartOfDay())) {
         run5AMJob();
       }
     }
 
-    // Check if it's after 10 AM and if the 10 AM job has been completed today
-    if (currentTime.isAfter(LocalTime.of(10, 0))) {
-      if (!jobExecutionLogRepository.existsByJobNameAndExecutionTimeAfter("10AM Job", today.atStartOfDay())) {
-        run10AMJob();
+    // Check if it's after 9 AM, before 12:00 PM, and if the 9 AM job has not been
+    // completed today
+    if (currentTime.isAfter(LocalTime.of(9, 0)) && currentTime.isBefore(LocalTime.of(12, 0))) {
+      if (!jobExecutionLogRepository.existsByJobNameAndExecutionTimeAfter("9AM Job", today.atStartOfDay())) {
+        run9AMJob();
       }
+    }
+
+    // Check if it's after 5 AM and the missed notifications job has not been completed today
+    if (currentTime.isAfter(LocalTime.of(5, 0))) {
+      runMissedNotificationsJob();
     }
   }
 }

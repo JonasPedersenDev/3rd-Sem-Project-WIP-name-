@@ -21,8 +21,12 @@ import com.auu_sw3_6.Himmerland_booking_software.service.UtilityService;
 @Configuration
 public class AppConfig {
 
-  @Autowired
   private JobService jobService;
+
+  @Autowired
+  public AppConfig(JobService jobService) {
+    this.jobService = jobService;
+  }
 
   @Bean
   public CommandLineRunner setupAdmin(AdminService adminService) {
@@ -108,7 +112,7 @@ public class AppConfig {
   // @Bean
   // public CommandLineRunner sendTestEmail() {
   //   return args -> {
-  //     EmailService.sendPickupNotification("jonasuselessemail@gmail.com", "Jonas P", "Festlokale", TimeRange.EARLY.getTimeSlot());
+  //     EmailService.sendPickupNotification("test@gmail.com", "Jonas P", "Festlokale", TimeRange.EARLY.getTimeSlot());
   //   };
   // }
 

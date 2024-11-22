@@ -145,9 +145,9 @@ public class BookingService {
     return bookingRepository.findByStatus(BookingStatus.CANCELED);
   }
 
-/*   private List<Booking> getAllMissedBookings() {
-    List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.MISSED);
-  } */
+  // public List<Booking> getAllMissedBookings() {
+  //   List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.MISSED);
+  // }
 
   public List<Booking> getAllUpcomingPickupsForToday(TimeRange timeRange) {
     List<Booking> bookings = getAllPendingPendingBookings();
@@ -162,7 +162,7 @@ public class BookingService {
     return upcomingBookings;
   }
 
-  public List<Booking> getAllUpcomingDropOffsForToday(TimeRange timeRange) {
+  public List<Booking> getAllUpcomingDropoffsForToday(TimeRange timeRange) {
     List<Booking> bookings = getAllConfirmedBookings();
     List<Booking> upcomingBookings = new ArrayList<>();
 
