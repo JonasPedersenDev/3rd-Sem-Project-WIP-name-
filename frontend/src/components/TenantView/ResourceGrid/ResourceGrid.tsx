@@ -95,7 +95,7 @@ const ResourceGrid: React.FC = () => {
                 <ResourceCard key={resource.id} resource={resource} />
               ))
             ) : (
-              <p>No tools available.</p>
+              <p>Ingen værktøj tilgængelig</p>
             )}
           </div>
         </Tab>
@@ -109,7 +109,7 @@ const ResourceGrid: React.FC = () => {
                 <ResourceCard key={resource.id} resource={resource} />
               ))
             ) : (
-              <p>No guest houses available.</p>
+              <p>Ingen Gæstehuse eller Lokater tilgængelig</p>
             )}
           </div>
         </Tab>
@@ -123,7 +123,7 @@ const ResourceGrid: React.FC = () => {
                 <ResourceCard key={resource.id} resource={resource} />
               ))
             ) : (
-              <p>No other resources available.</p>
+              <p>Intet tilgængeligt</p>
             )}
           </div>
         </Tab>

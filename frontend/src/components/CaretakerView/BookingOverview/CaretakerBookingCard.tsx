@@ -111,6 +111,11 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               Modtag
             </Button>
           )}
+          {booking.status === "LATE" && (
+            <div className="text-danger">
+             <strong>!</strong> For sent afleveret
+            </div>
+          )}
         </div>
       </div>
 

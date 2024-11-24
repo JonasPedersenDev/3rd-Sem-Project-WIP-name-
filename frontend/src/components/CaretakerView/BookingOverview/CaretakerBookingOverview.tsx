@@ -90,7 +90,7 @@ const CaretakerBookingOverview: React.FC = () => {
         if (booking.id === id) {
             return {
                 ...booking,
-                status: booking.status === "CONFIRMED" ? "COMPLETED" : "CONFIRMED",
+                status: booking.status === "CONFIRMED" || "PENDING" ? "COMPLETED" : "CONFIRMED",
                 isFutureBooking: false,
                 isPastBooking: booking.status === "CONFIRMED",
             };
@@ -118,12 +118,38 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
   
   const currentDate = new Date();
 
+  useEffect(() => {
+    const markLateBookings = async () => {
+        const lateBookings = bookings.filter(
+            (booking) => booking.endDate < currentDate && booking.status === "CONFIRMED"
+        );
+
+        for (const lateBooking of lateBookings) {
+            try {
+                await ApiService.markBookingAsLate(lateBooking.id);
+                setBookings((prevBookings) =>
+                    prevBookings.map((booking) =>
+                        booking.id === lateBooking.id
+                            ? { ...booking, status: "LATE" }
+                            : booking
+                    )
+                );
+            } catch (error) {
+                console.error("Error marking booking as late:", error);
+            }
+        }
+    };
+
+    markLateBookings();
+}, [bookings, currentDate]);
+
   const activeBookings = bookings.filter(
     (booking) =>
         booking.startDate <= currentDate &&
         booking.endDate >= currentDate &&
         booking.status === "CONFIRMED" ||
-        booking.status === "CONFIRMED"
+        booking.status === "CONFIRMED" ||
+        booking.status === "LATE"
 );
 
 
@@ -139,6 +165,13 @@ const pastBookings = bookings.filter(
         booking.endDate < currentDate &&
         booking.status === "COMPLETED" ||
         booking.status === "COMPLETED"
+);
+
+const lateBookings = bookings.filter(
+    (booking) =>
+        booking.endDate < currentDate &&
+        booking.status === "LATE" ||
+        booking.status === "LATE"
 );
 
   return (

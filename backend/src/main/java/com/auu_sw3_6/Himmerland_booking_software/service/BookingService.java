@@ -226,4 +226,12 @@ public class BookingService {
     }
   }
 
+  public void lateBookingStatus(long bookingId) {
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+
+    booking.setStatus(BookingStatus.LATE);
+    bookingRepository.save(booking);
+  }
+
 }

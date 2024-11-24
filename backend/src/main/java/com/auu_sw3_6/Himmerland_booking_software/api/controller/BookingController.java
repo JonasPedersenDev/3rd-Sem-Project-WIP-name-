@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,6 +67,13 @@ public class BookingController {
     public ResponseEntity<Void> updateHandoverName(@PathVariable long bookingId, @RequestParam String handoverName) {
         bookingService.setHandoverName(bookingId, handoverName);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{bookingId}/late-status")
+    @Operation(summary = "Mark booking as late", description = "Update the status of a booking to 'LATE' by its ID")
+    public ResponseEntity<Void> markBookingAsLate(@PathVariable long bookingId) {
+    bookingService.lateBookingStatus(bookingId);
+    return ResponseEntity.ok().build();
     }
   
 }
