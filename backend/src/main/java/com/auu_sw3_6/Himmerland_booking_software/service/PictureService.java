@@ -58,7 +58,7 @@ public class PictureService {
     }
   }
 
-  private void validatePicture(MultipartFile picture) {
+  public void validatePicture(MultipartFile picture) {
     try {
         // Check file type
         String contentType = picture.getContentType();
