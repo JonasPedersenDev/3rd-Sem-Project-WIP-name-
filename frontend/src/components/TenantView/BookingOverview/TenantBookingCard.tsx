@@ -1,73 +1,74 @@
-import React, { useState } from 'react';
-import { Modal, Button, Card, Image } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Modal, Card, Button, Row, Col } from "react-bootstrap";
+import CardImage from "../ResourceGrid/CardImage";
+import { ResourceType } from "../../../utils/EnumSupport";
 
 interface TenantBooking {
   id: number;
   tenantName: string;
   resourceName: string;
+  resourceType: ResourceType;
   startDate: Date;
   endDate: Date;
-  contactNumber: string;
-  apartmentAddress: string;
-  isCurrentTenant: boolean;
-  imageUrl: string;
+  imageUrl?: string; 
 }
-// tenant booking card
+
 interface TenantBookingCardProps {
   booking: TenantBooking;
-  onTerminate: (id: number) => void; // booking cancellation
-  onExtend: (id: number, newEndDate: Date) => void; // booking extension
 }
 
-const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking, onTerminate, onExtend }) => {
+const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking }) => {
   const [showModal, setShowModal] = useState(false);
-
-  const handleExtension = () => {
-    const newEndDate = new Date(booking.endDate.getTime() + 86400000 * 1); // extend the booking by a day
-    onExtend(booking.id, newEndDate);
-  };
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
 
   return (
-    <Card className="mb-3">
-      <Card.Header>
-        <strong>{booking.tenantName}</strong> - {booking.resourceName}
-      </Card.Header>
-      <Card.Body className="d-flex justify-content-between align-items-center">
-        <div>
-          <Image src={booking.imageUrl} thumbnail onError={(e) => e.currentTarget.src = 'default-image-url.jpg'} />
-          <div>Start: {booking.startDate.toLocaleDateString()}</div>
-          <div>End: {booking.endDate.toLocaleDateString()}</div>
-        </div>
-        <div>
-          <Button variant="outline-secondary" onClick={handleShow} aria-label="Show details">
-            Details
-          </Button>
-          {booking.isCurrentTenant && (
-            <>
-              <Button variant="primary" onClick={handleExtension} aria-label="Extend booking">
-                Extend
-              </Button>
-              <Button variant="danger" onClick={() => onTerminate(booking.id)} aria-label="Terminate booking">
-                Terminate
-              </Button>
-            </>
-          )}
-        </div>
+    <Card className="mb-3 shadow-sm border-0">
+      <Card.Body>
+        <Row className="align-items-center">
+          <Col xs={3} className="d-flex justify-content-center align-items-center">
+            <div style={{ width: "80px", height: "80px", overflow: "hidden", borderRadius: "8px" }}>
+              <CardImage
+                id={booking.id}
+                type={booking.resourceType} 
+                name={booking.resourceName} 
+              />
+            </div>
+          </Col>
+
+          <Col xs={6}>
+            <h5 className="mb-1">
+              <strong>{booking.tenantName}</strong>
+            </h5>
+            <p className="mb-0 text-muted">
+              <strong>Ressource:</strong> {booking.resourceName}
+            </p>
+            <p className="mb-0">
+              <strong>Start:</strong> {booking.startDate.toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Slut:</strong> {booking.endDate.toLocaleDateString()}
+            </p>
+          </Col>
+
+          <Col xs={3} className="d-flex justify-content-end">
+            <Button variant="outline-primary" onClick={handleShow}>
+              Detaljer
+            </Button>
+          </Col>
+        </Row>
       </Card.Body>
-      <Modal show={showModal} onHide={handleClose} aria-labelledby="tenant-details-modal">
+
+      <Modal show={showModal} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Tenant Details</Modal.Title>
+          <Modal.Title>Bookingdetaljer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p><strong>Name:</strong> {booking.tenantName}</p>
-          <p><strong>Resource:</strong> {booking.resourceName}</p>
-          <p><strong>Contact Number:</strong> {booking.contactNumber}</p>
-          <p><strong>Address:</strong> {booking.apartmentAddress}</p>
-          <p><strong>Start Date:</strong> {booking.startDate.toLocaleDateString()}</p>
-          <p><strong>End Date:</strong> {booking.endDate.toLocaleDateString()}</p>
+          <p><strong>Navn:</strong> {booking.tenantName}</p>
+          <p><strong>Ressource:</strong> {booking.resourceName}</p>
+          <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()}</p>
+          <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()}</p>
         </Modal.Body>
       </Modal>
     </Card>
