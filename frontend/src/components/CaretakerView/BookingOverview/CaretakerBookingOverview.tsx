@@ -143,6 +143,8 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
     markLateBookings();
 }, [bookings, currentDate]);
 
+
+
   const activeBookings = bookings.filter(
     (booking) =>
         booking.startDate <= currentDate &&

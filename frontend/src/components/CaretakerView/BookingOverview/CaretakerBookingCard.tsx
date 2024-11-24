@@ -100,6 +100,10 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
                 Annuller
               </Button>
+            </>
+          )}
+          {(booking.isFutureBooking || (booking.startDate.toDateString() === new Date().toDateString() && booking.status === "PENDING")) && (
+            <>
               <Button variant="success" className="ms-2" onClick={handleShowNames}>
                 Udlever
               </Button>
@@ -111,14 +115,14 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               Modtag
             </Button>
           )}
-          {booking.status === "" && (
+          {booking.status === "LATE" && (
             <Button variant="success" className="ms-2" onClick={handleShowNames}>
               Modtag
             </Button>
           )}
           {booking.status === "LATE" && (
             <div className="text-danger">
-             <strong>!</strong> For sent afleveret
+            <strong>Afleveringstid overskredet!</strong>
             </div>
           )}
         </div>
