@@ -82,18 +82,28 @@ class ApiService {
     }
   }
 
-  public async editUser(id: number, data: object): Promise<AxiosResponse<any>> {
+  public async editUser(id: number, data: object, profilePicture?: File): Promise<AxiosResponse<any>> {
     try {
-      const response = await axios.put(`${this.baseUrl}tenant/${id}`, data, {
-        withCredentials: true,
-      });
+      let response;
+      if (profilePicture) {
+        const formData = new FormData();
+        formData.append("user", JSON.stringify(data));
+        formData.append("profilePicture", profilePicture);
+        response = await axios.put(`${this.baseUrl}tenant/updateUser/${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        });
+      } else {
+        response = await axios.put(`${this.baseUrl}tenant/updateUser/${id}`, data, {
+          withCredentials: true,
+        });
+      }
       return response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error(
-          "Error updating user:",
-          error.response?.data || error.message
-        );
+        console.error("Error updating user:", error.response?.data || error.message);
       } else {
         console.error("Unexpected error:", error);
       }
