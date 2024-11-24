@@ -134,7 +134,7 @@ const CaretakerResourceOverview: React.FC = () => {
 
       <div className="text-center mb-4">
         <Button variant="primary" onClick={() => setShowAddResourceModal(true)}>
-          Add Resource
+          Tilføj Ressource
         </Button>
       </div>
 

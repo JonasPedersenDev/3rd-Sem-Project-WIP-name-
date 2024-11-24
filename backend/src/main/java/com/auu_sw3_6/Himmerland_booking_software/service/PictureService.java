@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +30,8 @@ public class PictureService {
 
   public String savePicture(MultipartFile picture, boolean isProfilePicture) {
     String directoryPath = isProfilePicture ? PROFILE_PICTURE_DIRECTORY : RESOURCE_PICTURE_DIRECTORY;
+
+    validatePicture(picture);
 
     try {
       File directory = new File(directoryPath);
@@ -52,6 +57,31 @@ public class PictureService {
       throw new RuntimeException("Failed to save picture", e);
     }
   }
+
+  private void validatePicture(MultipartFile picture) {
+    try {
+        // Check file type
+        String contentType = picture.getContentType();
+        if (contentType == null || 
+           (!contentType.equals("image/png") && !contentType.equals("image/jpeg"))) {
+            throw new IllegalArgumentException("Invalid file type. Only PNG and JPG are allowed.");
+        }
+
+        // Check dimensions
+        BufferedImage bufferedImage = ImageIO.read(picture.getInputStream());
+        if (bufferedImage == null) {
+            throw new IllegalArgumentException("Invalid image file.");
+        }
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+
+        if (width != 300 || height != 300) {
+            throw new IllegalArgumentException("Image dimensions must be 300x300.");
+        }
+    } catch (IOException e) {
+        throw new RuntimeException("Failed to validate picture", e);
+    }
+}
 
   public Optional<byte[]> readPicture(String fileName, boolean isProfilePicture) {
     String directoryPath = isProfilePicture ? PROFILE_PICTURE_DIRECTORY : RESOURCE_PICTURE_DIRECTORY;
