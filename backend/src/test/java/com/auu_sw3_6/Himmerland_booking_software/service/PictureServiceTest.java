@@ -15,9 +15,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,9 +45,12 @@ public class PictureServiceTest {
     String originalFileName = "testProfile.jpg";
     MockMultipartFile profilePicture = new MockMultipartFile("file", originalFileName, "image/jpeg",
         new byte[] { 1, 2, 3, 4 });
-  
+    
+    PictureService spyPictureService = org.mockito.Mockito.spy(pictureService);
+    doNothing().when(spyPictureService).validatePicture(profilePicture);
+
     // Act
-    String savedFileName = pictureService.savePicture(profilePicture, true); // Pass 'profilePicture' instead of 'profilePictureTest'
+    String savedFileName = spyPictureService.savePicture(profilePicture, true); // Pass 'profilePicture' instead of 'profilePictureTest'
   
     // Assert
     assertNotNull(savedFileName);
@@ -92,28 +99,27 @@ public class PictureServiceTest {
     // Arrange
     lenient().when(profilePictureTest.getOriginalFilename()).thenReturn("testProfile.jpg");
     lenient().when(profilePictureTest.isEmpty()).thenReturn(false);
+    PictureService spyPictureService = org.mockito.Mockito.spy(pictureService);
+    doNothing().when(spyPictureService).validatePicture(profilePictureTest);
     doThrow(new IOException("Disk error")).when(profilePictureTest).transferTo(any(File.class));
   
     // Act & Assert
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-      pictureService.savePicture(profilePictureTest, true);
+      spyPictureService.savePicture(profilePictureTest, true);
     });
     assertEquals("Failed to save picture", exception.getMessage());
   }
   
-/*   @Test <- Not ipmlemented in the original code
+  @Test
   public void testSaveProfilePicture_shouldThrowExceptionForUnsupportedFileType() {
       // Arrange
       MockMultipartFile unsupportedFile = new MockMultipartFile("file", "unsupportedFile.txt", "text/plain", new byte[] {1, 2, 3, 4});
       
       // Act & Assert
       IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-          pictureService.saveProfilePicture(unsupportedFile);
+          pictureService.savePicture(unsupportedFile, true);
       });
-      assertEquals("Unsupported file type", exception.getMessage());
+      assertEquals("Invalid file type. Only PNG and JPG are allowed.", exception.getMessage());
   }
- */
-
-
-
+ 
 }
