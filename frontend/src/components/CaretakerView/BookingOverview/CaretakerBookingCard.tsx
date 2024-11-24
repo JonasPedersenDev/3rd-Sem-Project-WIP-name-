@@ -66,7 +66,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
       try {
         const formattedName = selectedName.replace(/['"]+/g, '');
 
-        if (booking.status === "CONFIRMED") {
+        if (booking.status === "CONFIRMED" || booking.status === "LATE") {
           await ApiService.setReceiverName(booking.id, formattedName);
         } else {
           await ApiService.setHandoverName(booking.id, formattedName);
@@ -107,6 +107,11 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           )}
 
           {!booking.isFutureBooking && !booking.isPastBooking && booking.status === "CONFIRMED" && (
+            <Button variant="success" className="ms-2" onClick={handleShowNames}>
+              Modtag
+            </Button>
+          )}
+          {booking.status === "" && (
             <Button variant="success" className="ms-2" onClick={handleShowNames}>
               Modtag
             </Button>
