@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNotNull;
 
 import org.mockito.Mock;
 
@@ -111,19 +110,16 @@ public class PictureServiceTest {
     assertEquals("Failed to save picture", exception.getMessage());
   }
   
-/*   @Test <- Not ipmlemented in the original code
+  @Test
   public void testSaveProfilePicture_shouldThrowExceptionForUnsupportedFileType() {
       // Arrange
       MockMultipartFile unsupportedFile = new MockMultipartFile("file", "unsupportedFile.txt", "text/plain", new byte[] {1, 2, 3, 4});
       
       // Act & Assert
       IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-          pictureService.saveProfilePicture(unsupportedFile);
+          pictureService.savePicture(unsupportedFile, true);
       });
-      assertEquals("Unsupported file type", exception.getMessage());
+      assertEquals("Invalid file type. Only PNG and JPG are allowed.", exception.getMessage());
   }
- */
-
-
-
+ 
 }
