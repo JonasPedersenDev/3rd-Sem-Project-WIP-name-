@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Form, Button, Modal, Row, Col, Container } from "react-bootstrap";
 import LogoutButton from "../Logout/Logout";
 import ApiService from "../../../utils/ApiService";
+import DeleteUser from '../DeleteUser/DeleteUser'; // Adjust the import path as necessary
 
 interface UserInfo {
   id: number;
@@ -13,7 +14,7 @@ interface UserInfo {
   mobileNumber: string;
 }
 
-const SettingsForm: React.FC = () => {
+const AccountSettings: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     id: 0,
     username: "",
@@ -101,7 +102,7 @@ const SettingsForm: React.FC = () => {
         return (
           <Form>
             <Form.Group controlId="username">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Brugernavn</Form.Label>
               <Form.Control
                 type="text"
                 name="username"
@@ -111,7 +112,7 @@ const SettingsForm: React.FC = () => {
               />
             </Form.Group>
             <Form.Group controlId="name">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Navn</Form.Label>
               <Form.Control
                 type="text"
                 name="name"
@@ -131,7 +132,7 @@ const SettingsForm: React.FC = () => {
               />
             </Form.Group>
             <Form.Group controlId="mobileNumber">
-              <Form.Label>Mobile Number</Form.Label>
+              <Form.Label>Telefonnummer</Form.Label>
               <Form.Control
                 type="text"
                 name="mobileNumber"
@@ -141,7 +142,7 @@ const SettingsForm: React.FC = () => {
               />
             </Form.Group>
             <Form.Group controlId="houseAddress">
-              <Form.Label>House Address</Form.Label>
+              <Form.Label>Adresse</Form.Label>
               <Form.Control
                 type="text"
                 name="houseAddress"
@@ -151,11 +152,10 @@ const SettingsForm: React.FC = () => {
               />
             </Form.Group>
             <Form.Group controlId="password">
-              <Form.Label>Password</Form.Label>
+              <Form.Label>Adgangskode</Form.Label>
               <Form.Control
                 type={passwordVisible ? "text" : "password"}
                 name="password"
-                value={userInfo.password}
                 onChange={handleInputChange}
                 disabled={!isEditing}
               />
@@ -186,14 +186,20 @@ const SettingsForm: React.FC = () => {
 
   const handleCloseModal = () => setShowSuccessModal(false);
 
+  const handleDelete = (tenantId: string) => {
+    // Handle the deletion logic, e.g., update state or show a success message
+    console.log(`Tenant with ID ${tenantId} deleted`);
+  };
+
   return (
     <Container style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <Row style={{ width: '100%' }}>
         <Col md={3} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginRight: '20px' }}>
           <Button onClick={() => setCurrentView("settings")} style={{ marginBottom: '10px' }}>Din bruger</Button>
           <Button onClick={() => setCurrentView("text")} style={{ marginBottom: '10px' }}>Samtykke</Button>
-          <Button onClick={() => setCurrentView("notifications")} style={{ marginBottom: '10px' }}>Notifikationer</Button>
+          <Button onClick={() => setCurrentView("notification")} style={{ marginBottom: '10px' }}>Notifikationer</Button>
           <LogoutButton />
+          <DeleteUser tenantId={userInfo.id.toString()} onDelete={handleDelete} />
         </Col>
         <Col md={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #ccc', padding: '20px', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
           {renderContent()}
@@ -220,4 +226,4 @@ const SettingsForm: React.FC = () => {
   );
 };
 
-export default SettingsForm;
+export default AccountSettings;

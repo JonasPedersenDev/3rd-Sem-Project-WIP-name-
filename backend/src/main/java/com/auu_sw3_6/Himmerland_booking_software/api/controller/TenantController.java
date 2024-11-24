@@ -3,6 +3,7 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,13 @@ public class TenantController extends UserController<Tenant> {
   public ResponseEntity<Tenant> getTenant(@PathVariable Long id) {
     Tenant tenant = tenantService.get(id);
     return ResponseEntity.ok(tenant);
+  }
+
+  @DeleteMapping(value = "/deleteUser/{id}")
+  @Operation(summary = "Delete user", description = "This endpoint deletes a user.")
+  public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    tenantService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 
 }
