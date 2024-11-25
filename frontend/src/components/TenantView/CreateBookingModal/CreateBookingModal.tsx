@@ -81,12 +81,11 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
 
   const handleSubmit = async () => {
     addBookingToSessionStorage(bookingFormData);
-    setBookings(loadBookingsFromSessionStorage());
-    onBookingAdded();
-
-    for (const booking of bookings) {
+    const allBookings = loadBookingsFromSessionStorage();
+  
+    for (const booking of allBookings) {
       const transformedBooking = transformBooking(booking);
-
+  
       try {
         const response = await ApiService.createBooking(transformedBooking);
         if (response.status === 200) {
@@ -98,10 +97,13 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
         console.error("Error during booking creation:", error);
       }
     }
-
+  
     setBookings(loadBookingsFromSessionStorage());
+  
+    onBookingAdded();
     onClose();
   };
+  
 
   const transformBooking = (booking: any) => {
     const formatDate = (date: string) => {
