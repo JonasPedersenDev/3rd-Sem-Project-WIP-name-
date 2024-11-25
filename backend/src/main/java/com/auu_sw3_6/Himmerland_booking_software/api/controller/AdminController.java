@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
@@ -93,4 +96,18 @@ public class AdminController extends UserController<Admin> {
     ((AdminService) userService).removeCaretakerName(caretakerName);
     return ResponseEntity.ok().build();
   }
+
+  @PostMapping(value = "/createBookingForTenant/{tenantId}", consumes = "application/json", produces = "application/json")
+  @Operation(summary = "Create booking for tenant", description = "This endpoint creates a booking for a tenant.")
+   public ResponseEntity<Object> createBookingForTenant(@RequestBody BookingDetails bookingDetails, @PathVariable Long tenantId) {
+     try {
+      bookingDetails.setReceiverName(null);
+      bookingDetails.setHandoverName(null);
+      Tenant tenant = tenantService.get(tenantId);
+      Booking booking = ((AdminService)userService).bookResourceForTenant(tenant, bookingDetails);
+      return ResponseEntity.status(HttpStatus.CREATED).body(booking);
+    } catch (Exception e) {
+      return new ErrorResponse("Failed to create booking: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR).send();
+    } 
+  } 
 }

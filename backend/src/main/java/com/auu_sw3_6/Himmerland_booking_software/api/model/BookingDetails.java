@@ -130,4 +130,8 @@ public class BookingDetails {
   public void getHandoverName(String handoverName){
     this.handoverName = handoverName;
   }
+
+  public void setHandoverName(String handoverName){
+    this.handoverName = handoverName;
+  }
 }

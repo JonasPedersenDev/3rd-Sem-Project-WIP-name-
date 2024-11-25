@@ -1,6 +1,7 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,22 +9,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.AdminNotFouldException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.CaretakerNameConflictException;
+import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 
 @Service
 public class AdminService extends UserService<Admin> {
 
   private static final Long ADMIN_ID = 1L;
   private final AdminRepository adminRepository;
+  private final BookingService bookingService;
 
   @Autowired
   public AdminService(AdminRepository adminRepository, PictureService profilePictureService,
       PasswordEncoder passwordEncoder, BookingService bookingService) {
     super(adminRepository, profilePictureService, passwordEncoder, bookingService);
-    this.adminRepository = adminRepository; // Explicitly store the repository
+    this.adminRepository = adminRepository; 
+    this.bookingService = bookingService;
   }
+
+  
 
   public Admin createAdmin(Admin admin, MultipartFile profilePicture) {
       return createUser(admin, profilePicture);
@@ -65,4 +74,7 @@ public class AdminService extends UserService<Admin> {
     adminRepository.save(admin);
   }
 
+  public Booking bookResourceForTenant(Tenant tenant, BookingDetails details) {
+    return bookingService.bookResource(tenant, details);
+  }
 }

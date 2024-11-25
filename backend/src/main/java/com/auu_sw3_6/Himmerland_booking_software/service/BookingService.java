@@ -28,11 +28,6 @@ public class BookingService {
   @Autowired
   private final BookingRepository bookingRepository;
   private final ResourceServiceFactory resourceServiceFactory;
-
-  @Lazy
-  @Autowired
-  private AdminService adminService;
-
   private static final int MAX_BOOKING_DAYS = 5;
 
   public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory) {
@@ -146,7 +141,8 @@ public class BookingService {
   }
 
   // public List<Booking> getAllMissedBookings() {
-  //   List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.MISSED);
+  // List<Booking> confirmedBookings =
+  // bookingRepository.findByStatus(BookingStatus.MISSED);
   // }
 
   public List<Booking> getAllUpcomingPickupsForToday(TimeRange timeRange) {
@@ -174,8 +170,6 @@ public class BookingService {
 
     return upcomingBookings;
   }
-
-  
 
   public List<BookingDate> getBookedDatesWithAmount(Resource resource) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);

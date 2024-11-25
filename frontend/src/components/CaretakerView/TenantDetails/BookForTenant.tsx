@@ -10,10 +10,11 @@ import { TimeRange } from "../../modelInterfaces/TimeRange";
 import { ResourceType } from "../../../utils/EnumSupport";
 
 interface BookForTenantProps {
-    bookedDates: BookingDate[];
+    bookedDates: any;
     onDateChange: (start: Date | null, end: Date | null) => void;
     resourceCapacity: number;
-    onBookingComplete: () => void; 
+    onBookingComplete: () => void;
+    selectedTenant: Tenant;
 }
 
 const BookForTenant: React.FC<BookForTenantProps> = ({
@@ -21,14 +22,12 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
     onDateChange,
     resourceCapacity,
     onBookingComplete,
+    selectedTenant,
 }) => {
     const [selectedStart, setSelectedStart] = useState<Date | null>(null);
     const [selectedEnd, setSelectedEnd] = useState<Date | null>(null);
     const [resources, setResources] = useState<Resource[]>([]);
-    const [users, setUsers] = useState<Tenant[]>([]);
     const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-    const [selectedUser, setSelectedUser] = useState<Tenant | null>(null);
-    const [resourceName, setResourceName] = useState<string>("");
     const [pickupTime, setPickupTime] = useState<TimeRange>(TimeRange.EARLY);
     const [dropoffTime, setDropoffTime] = useState<TimeRange>(TimeRange.EARLY);
 
@@ -40,28 +39,18 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                 const hospitalityResponse = await ApiService.fetchData("hospitality/get-all");
 
                 const allResources = [
-                    (toolResponse.data as Resource[]),
-                    (utilityResponse.data as Resource[]),
-                    (hospitalityResponse.data as Resource[]),
+                    ...(toolResponse.data as Resource[]),
+                    ...(utilityResponse.data as Resource[]),
+                    ...(hospitalityResponse.data as Resource[]),
                 ];
 
-                setResources(allResources.flat() as Resource[]);
+                setResources(allResources);
             } catch (error) {
                 console.error("Failed to fetch resources:", error);
             }
         };
 
-        const fetchUsers = async () => {
-            try {
-                const response = await ApiService.fetchData("admin/getAllTenants");
-                setUsers(response.data as Tenant[]);
-            } catch (error) {
-                console.error("Failed to fetch users:", error);
-            }
-        };
-
         fetchResources();
-        fetchUsers();
     }, []);
 
     const today = new Date();
@@ -69,7 +58,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
 
     const isBooked = (date: Date) => {
         const booked = bookedDates.find(
-            (booked) => new Date(booked.date).toDateString() === date.toDateString()
+            (booked: BookingDate) => new Date(booked.date).toDateString() === date.toDateString()
         );
         return booked ? booked.amount >= resourceCapacity : false;
     };
@@ -101,25 +90,60 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
     };
 
     const handleBooking = async () => {
-        if (selectedResource && selectedUser && selectedStart && selectedEnd) {
+        if (selectedResource && selectedTenant && selectedStart && selectedEnd) {
+            console.log("Selected resource:", selectedResource);
+            if (!selectedResource.type) {
+                console.error("Resource type is null or undefined");
+                return;
+            }
+    
+            const bookingData = {
+                id: generateBookingId(),
+                resourceID: selectedResource.id,
+                resourceName: selectedResource.name,
+                resourceType: selectedResource.type.toUpperCase(), 
+                startDate: selectedStart,
+                endDate: selectedEnd,
+                pickupTime: pickupTime,
+                dropoffTime: dropoffTime,
+            };
+    
+            console.log("Booking data:", bookingData);
+            const bookingDetails = transformBooking(bookingData);
+    
+            console.log("Transformed booking details:", bookingDetails); 
+    
             try {
-                const bookingData = {
-                    id: Math.floor(Math.random() * 1000), // Assuming id is generated here
-                    resourceID: selectedResource.id,
-                    resourceType: selectedResource.type as ResourceType,
-                    resourceName: selectedResource.name,
-                    startDate: selectedStart,
-                    endDate: selectedEnd,
-                    pickupTime: pickupTime,
-                    dropoffTime: dropoffTime,
-                };
-                await ApiService.createBooking(bookingData);
+                const response = await ApiService.createBookingForTenant(bookingDetails, selectedTenant.id);
+                console.log("Booking response:", response);
                 onBookingComplete();
             } catch (error) {
                 console.error("Failed to book:", error);
             }
+        } else {
+            console.log("Missing required fields for booking");
         }
     };
+
+    const generateBookingId = (): number => {
+        return Math.floor(Math.random() * 1000000);
+    };
+
+    const transformBooking = (booking: any) => {
+        const formatDate = (date: Date) => {
+            return date.toLocaleDateString("en-CA");
+        };
+
+        return {
+            resourceID: booking.resourceID,
+            resourceType: booking.resourceType,
+            startDate: formatDate(booking.startDate),
+            endDate: formatDate(booking.endDate),
+            pickupTime: booking.pickupTime,
+            dropoffTime: booking.dropoffTime,
+        };
+    };
+
 
     return (
         <div className="calendar-wrapper">
@@ -134,20 +158,6 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                     {resources.map((resource) => (
                         <option key={resource.id} value={resource.id}>
                             {resource.name}
-                        </option>
-                    ))}
-                </select>
-                
-                <select
-                    value={selectedUser?.id || ""}
-                    onChange={(e) =>
-                        setSelectedUser(users.find((user) => user.id === Number(e.target.value)) || null)
-                    }
-                >
-                    <option value="">Vælg bruger</option>
-                    {users.map((user) => (
-                        <option key={user.id} value={user.id}>
-                            {user.name}
                         </option>
                     ))}
                 </select>
@@ -209,7 +219,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                     <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
                 </select>
             </div>
-            <button type="button" className="btn btn-success" onClick={handleBooking} disabled={!selectedResource || !selectedUser || !selectedStart || !selectedEnd}>
+            <button type="button" className="btn btn-success" onClick={handleBooking} disabled={!selectedResource || !selectedStart || !selectedEnd}>
                 Book
             </button>
         </div>

@@ -7,7 +7,6 @@ import BookingDate from "../../modelInterfaces/BookingDate";
 import FilterSearch from "./FilterSearch";
 import DeleteUser from "./DeleteUser";
 import EditTenantDetails from "./EditTenantDetails";
-import CreateBookingModal from "../../TenantView/CreateBookingModal/CreateBookingModal";
 import ProfilePicture from "../../BothView/Settings/ProfilePicture";
 
 const TenantDetailsList: React.FC = () => {
@@ -145,6 +144,7 @@ const TenantDetailsList: React.FC = () => {
               onDateChange={(start, end) => console.log("Date range selected:", start, end)}
               resourceCapacity={10} 
               onBookingComplete={() => console.log("Booking complete")}
+              selectedTenant={selectedTenant}
             />
           )}
         </Modal.Body>
