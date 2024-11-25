@@ -75,6 +75,12 @@ public class AdminService extends UserService<Admin> {
   }
 
   public Booking bookResourceForTenant(Tenant tenant, BookingDetails details) {
+    if (tenant == null) {
+      throw new IllegalArgumentException("Tenant cannot be null");
+    }
+    if (details == null) {
+      throw new IllegalArgumentException("Booking details cannot be null");
+    }
     return bookingService.bookResource(tenant, details);
   }
 }

@@ -278,9 +278,14 @@ class ApiService {
     }
   }
 
- public async createBookingForTenant(booking: object, tenantId: number): Promise<AxiosResponse<any>> {
-    console.log("Sending booking to API:", booking); 
+public async createBookingForTenant(booking: object, tenantId: number): Promise<AxiosResponse<any>> {
+  try {
+    console.log("Sending booking to API:", booking);
     return this.sendData<any>(`admin/createBookingForTenant/${tenantId}`, booking);
+  } catch (error) {
+    console.error("Error creating booking for tenant:", error);
+    throw error;
+  }
 }
 
   public async deleteTenant(id: number): Promise<AxiosResponse<any>> {
