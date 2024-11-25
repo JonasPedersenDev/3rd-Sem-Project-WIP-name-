@@ -1,6 +1,7 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -199,5 +200,62 @@ public class BookingServiceTest {
         assertEquals("Booking not found with ID: 1", exception.getMessage());
         verify(bookingRepository, never()).save(any());
     }
+
+
+    @Test
+    public void testCancelPendingBookings_shouldCancelPendingBookingsWhenCapacityExceeded() {
+    // Arrange
+    resource.setCapacity(1);
+
+    Booking lateBooking = new Booking();
+    lateBooking.setId(2L);
+    lateBooking.setResource(resource);
+    lateBooking.setStatus(BookingStatus.LATE);
+
+    Booking pendingBooking = new Booking();
+    pendingBooking.setId(3L);
+    pendingBooking.setResource(resource);
+    pendingBooking.setStartDate(LocalDate.now());
+    pendingBooking.setStatus(BookingStatus.PENDING);
+
+    Booking confirmedBooking = new Booking();
+    confirmedBooking.setId(4L);
+    confirmedBooking.setResource(resource);
+    confirmedBooking.setStatus(BookingStatus.CONFIRMED);
+
+    when(bookingRepository.findByStatus(BookingStatus.LATE)).thenReturn(List.of(lateBooking));
+    when(bookingRepository.findByStatus(BookingStatus.PENDING)).thenReturn(new ArrayList<>(List.of(pendingBooking)));
+    when(bookingRepository.findByStatus(BookingStatus.CONFIRMED)).thenReturn(List.of(confirmedBooking));
+
+    // Act
+    bookingService.cancelPendingBookings();
+
+    assertEquals(BookingStatus.CANCELED, pendingBooking.getStatus(), "Pending booking was not canceled as expected.");
+    verify(bookingRepository).save(pendingBooking);
+}
+
+
+
+@Test
+public void testCancelPendingBookings_shouldNotCancelPendingBookingsWhenCapacityNotExceeded() {
+    // Arrange
+    Booking pendingBooking = new Booking();
+    pendingBooking.setId(3L);
+    pendingBooking.setResource(resource);
+    pendingBooking.setStartDate(LocalDate.now());
+    pendingBooking.setStatus(BookingStatus.PENDING);
+
+    when(bookingRepository.findByStatus(BookingStatus.LATE)).thenReturn(new ArrayList<>());
+    when(bookingRepository.findByStatus(BookingStatus.PENDING)).thenReturn(new ArrayList<>(List.of(pendingBooking)));
+    when(bookingRepository.findByStatus(BookingStatus.CONFIRMED)).thenReturn(new ArrayList<>());
+    
+    // Act
+    bookingService.cancelPendingBookings();
+
+    assertEquals(BookingStatus.PENDING, pendingBooking.getStatus());
+    verify(bookingRepository, never()).save(pendingBooking);
+}
+
+    
 }
 

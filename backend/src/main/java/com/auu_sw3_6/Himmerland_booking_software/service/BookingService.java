@@ -234,26 +234,26 @@ public class BookingService {
   public void cancelPendingBookings() {
     List<Booking> lateBookings = getAllLateBookings();
     List<Booking> pendingBookings = bookingRepository.findByStatus(BookingStatus.PENDING);
-    
+
     Map<Resource, Integer> usedCapacityMap = new HashMap<>();
-    
-    List<Booking> activeBookings = bookingRepository.findByStatus(BookingStatus.CONFIRMED);
+
+    List<Booking> activeBookings = new ArrayList<>(bookingRepository.findByStatus(BookingStatus.CONFIRMED));
     activeBookings.addAll(lateBookings);
-    
+
     for (Booking activeBooking : activeBookings) {
         Resource resource = activeBooking.getResource();
         usedCapacityMap.put(resource, usedCapacityMap.getOrDefault(resource, 0) + 1);
     }
-    
+
     LocalDate currentDate = LocalDate.now();
     for (Booking pendingBooking : pendingBookings) {
         if (!pendingBooking.getStartDate().isEqual(currentDate)) {
             continue;
         }
-        
+
         Resource resource = pendingBooking.getResource();
         int currentUsage = usedCapacityMap.getOrDefault(resource, 0);
-        
+
         if (currentUsage >= resource.getCapacity()) {
             pendingBooking.setStatus(BookingStatus.CANCELED);
             bookingRepository.save(pendingBooking);
@@ -262,6 +262,7 @@ public class BookingService {
         }
     }
 }
+
 
 
 
