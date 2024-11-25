@@ -43,6 +43,7 @@ const SettingsForm: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  //used to fetch user data from the backend when site is loaded
   useEffect(() => {
     // Fetch authenticated user information from the backend
     const fetchUserInfo = async () => {
@@ -59,6 +60,21 @@ const SettingsForm: React.FC = () => {
     };
     fetchUserInfo();
   }, []);
+
+  //used to fetch user data from the backend when cancel is clicked
+  const fetchUserData = async () => {
+    try {
+      const data = await ApiService.fetchData<UserInfo>("tenant");
+      setUserInfo(data.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+const handleCancel = async () => {
+    await fetchUserData();
+    setIsEditing(false);
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -184,7 +200,7 @@ const SettingsForm: React.FC = () => {
                       variant="secondary"
                       onClick={togglePasswordVisibility}
                     >
-                      {passwordVisible ? "Hide" : "Show"}
+                      {passwordVisible ? "Skjul" : "Vis"}
                     </Button>
                   </div>
                 </Form.Group>
@@ -192,8 +208,11 @@ const SettingsForm: React.FC = () => {
                   <p style={{ color: "red" }}>{validationError}</p>
                 )}
                 <Button variant="success" onClick={handleEditToggle}>
-                  {isEditing ? "Save Changes" : "Ændre"}
+                  {isEditing ? "Gem ændringer" : "Ændre"}
                 </Button>
+                {isEditing && (
+                  <Button variant="secondary" onClick={handleCancel}>Annuller</Button>
+                )}
               </Form>
             </Col>
             <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
