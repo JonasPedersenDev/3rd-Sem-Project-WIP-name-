@@ -1,7 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,9 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,6 +63,13 @@ public class BookingController {
     public ResponseEntity<Void> updateHandoverName(@PathVariable long bookingId, @RequestParam String handoverName) {
         bookingService.setHandoverName(bookingId, handoverName);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{bookingId}/late-status")
+    @Operation(summary = "Mark booking as late", description = "Update the status of a booking to 'LATE' by its ID")
+    public ResponseEntity<Void> markBookingAsLate(@PathVariable long bookingId) {
+    bookingService.lateBookingStatus(bookingId);
+    return ResponseEntity.ok().build();
     }
   
 }

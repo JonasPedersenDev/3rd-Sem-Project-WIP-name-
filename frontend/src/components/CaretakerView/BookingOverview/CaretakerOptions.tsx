@@ -98,7 +98,7 @@ const CaretakerOptions = () => {
                 ))
               ) : (
                 <li className="list-group-item text-muted">
-                  Indlæser medarbejdere...
+                  Ingen medarbejdere tilføjet
                 </li>
               )}
             </ul>
