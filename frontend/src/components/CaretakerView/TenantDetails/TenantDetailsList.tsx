@@ -143,7 +143,10 @@ const TenantDetailsList: React.FC = () => {
               bookedDates={bookedDates}
               onDateChange={(start, end) => console.log("Date range selected:", start, end)}
               resourceCapacity={10} 
-              onBookingComplete={() => console.log("Booking complete")}
+              onBookingComplete={() => {
+                console.log("Booking complete");
+                handleCloseModal(); 
+              }}
               selectedTenant={selectedTenant}
             />
           )}

@@ -147,7 +147,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
 
     return (
         <div className="calendar-wrapper">
-            <div className="dropdowns">
+            <div className="dropdowns" style={{ marginBottom: "5px" }}>
                 <select
                     value={selectedResource?.id || ""}
                     onChange={(e) =>
@@ -199,7 +199,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                     <span>Weekend (Kan ikke reserveres)</span>
                 </div>
             </div>
-            <div>
+            <div style={{ marginBottom: "5px" }}>
                 <label>Afhenting:</label>
                 <select
                     value={pickupTime.toString()}
@@ -209,7 +209,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                     <option value={TimeRange.LATE}>{TimeRange.LATE}</option>
                 </select>
             </div>
-            <div>
+            <div style={{ marginBottom: "5px" }}>
                 <label>Aflevering:</label>
                 <select
                     value={dropoffTime.toString()}
