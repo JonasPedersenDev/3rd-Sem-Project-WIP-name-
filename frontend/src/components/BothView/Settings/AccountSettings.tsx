@@ -47,7 +47,10 @@ const SettingsForm: React.FC = () => {
     // Fetch authenticated user information from the backend
     const fetchUserInfo = async () => {
       try {
-        const response = await ApiService.fetchData<UserInfo>("tenant");
+        let response = await ApiService.fetchData<UserInfo>("tenant");
+        if (!response.data) {
+          response = await ApiService.fetchData<UserInfo>("caretaker");
+        }
         console.log("User Information:", response.data);
         setUserInfo(response.data);
        } catch (error) {
@@ -91,8 +94,7 @@ const SettingsForm: React.FC = () => {
         return;
       }
       try {
-        const response = await ApiService.editUser(userInfo.id, userInfo);
-        console.log("Updated User Information:", response.data);
+        await ApiService.editUser(userInfo.id, userInfo); // Hvis PB bliver tilføjet her, vil det være krav at man skal have profilbillede når man opdatere
         setShowSuccessModal(true);
       } catch (error) {
         console.error("Error updating user:", error);
@@ -174,11 +176,9 @@ const SettingsForm: React.FC = () => {
                     <Form.Control
                       type={passwordVisible ? "text" : "password"}
                       name="password"
-                      value={userInfo.password}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       style={{ marginRight: "10px" }}
-                      placeholder="Enter new password"
                     />
                     <Button
                       variant="secondary"

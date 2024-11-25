@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
 import Resource from '../../modelInterfaces/Resource';
 import { ResourceType } from '../../../utils/EnumSupport';
+import ApiService from '../../../utils/ApiService';
+import BaseImage from '../../BaseImage';
+import defaultImage from "../../../assets/deafultResourcePic.jpg";
 
 interface CaretakerResourceCardProps {
   resource: Resource;
@@ -18,6 +21,15 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedResource, setEditedResource] = useState(resource);
+
+  const fetchImage = async () => {
+    try {
+      const response = await ApiService.fetchResourcePic(resource.type, resource.id);
+      return response.data;
+    } catch {
+      return null;
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,11 +79,16 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
         ) : (
           <>
             <div className="resource-info">
-              <h5>{resource.name}</h5>
-              <p><strong>Status:</strong> {resource.status}</p>
+              <h3 className="mb-3">{resource.name}</h3>
+              <p><strong>Status:</strong> {resource.status === "available" ? "Aktiv" : "Service"}</p>
               <p><strong>Beskrivelse:</strong> {resource.description}</p>
             </div>
-            <img src={resource.img} alt={resource.name} className="resource-image" />
+            <BaseImage
+              fetchImage={fetchImage}
+              defaultImage={defaultImage}
+              altText={`${resource.name} image`}
+              imageStyle={{ width: "100%", height: "auto" }}
+            />
             <div className="resource-actions">
               <Button variant="outline-secondary" onClick={() => setIsEditing(true)}>
                 Rediger
