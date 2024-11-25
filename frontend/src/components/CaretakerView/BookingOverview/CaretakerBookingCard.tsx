@@ -66,7 +66,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
       try {
         const formattedName = selectedName.replace(/['"]+/g, '');
 
-        if (booking.status === "CONFIRMED") {
+        if (booking.status === "CONFIRMED" || booking.status === "LATE") {
           await ApiService.setReceiverName(booking.id, formattedName);
         } else {
           await ApiService.setHandoverName(booking.id, formattedName);
@@ -100,6 +100,10 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
               <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
                 Annuller
               </Button>
+            </>
+          )}
+          {(booking.isFutureBooking || (booking.startDate.toDateString() === new Date().toDateString() && booking.status === "PENDING")) && (
+            <>
               <Button variant="success" className="ms-2" onClick={handleShowNames}>
                 Udlever
               </Button>
@@ -110,6 +114,16 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
             <Button variant="success" className="ms-2" onClick={handleShowNames}>
               Modtag
             </Button>
+          )}
+          {booking.status === "LATE" && (
+            <Button variant="success" className="ms-2" onClick={handleShowNames}>
+              Modtag
+            </Button>
+          )}
+          {booking.status === "LATE" && (
+            <div className="text-danger">
+            <strong>Afleveringstid overskredet!</strong>
+            </div>
           )}
         </div>
       </div>

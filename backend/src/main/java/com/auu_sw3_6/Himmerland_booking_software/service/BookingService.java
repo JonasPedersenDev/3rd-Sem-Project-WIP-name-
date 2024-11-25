@@ -1,6 +1,5 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
-import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -128,22 +126,13 @@ public class BookingService {
     return confirmedBookings;
   }
 
-  private List<Booking> getAllPendingPendingBookings() {
+  private List<Booking> getAllPendingPendingBookings() { // Duplicate??
     return bookingRepository.findByStatus(BookingStatus.PENDING);
   }
 
   private List<Booking> getAllConfirmedBookings() {
     return bookingRepository.findByStatus(BookingStatus.CONFIRMED);
   }
-
-  private List<Booking> getAllCancelledBookings() {
-    return bookingRepository.findByStatus(BookingStatus.CANCELED);
-  }
-
-  // public List<Booking> getAllMissedBookings() {
-  // List<Booking> confirmedBookings =
-  // bookingRepository.findByStatus(BookingStatus.MISSED);
-  // }
 
   public List<Booking> getAllUpcomingPickupsForToday(TimeRange timeRange) {
     List<Booking> bookings = getAllPendingPendingBookings();
@@ -170,6 +159,8 @@ public class BookingService {
 
     return upcomingBookings;
   }
+
+  
 
   public List<BookingDate> getBookedDatesWithAmount(Resource resource) {
     List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
@@ -219,5 +210,59 @@ public class BookingService {
       throw new IllegalArgumentException("Handover name cannot be null or empty.");
     }
   }
+
+  public void lateBookingStatus(long bookingId) {
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+
+    booking.setStatus(BookingStatus.LATE);
+    bookingRepository.save(booking);
+
+    cancelPendingBookings();
+}
+
+
+  public List<Booking> getAllLateBookings() {
+    return bookingRepository.findByStatus(BookingStatus.LATE);
+  }
+
+  public List<Booking> getAllPendingBookings() {
+    List<Booking> pendingBookings = bookingRepository.findByStatus(BookingStatus.PENDING);
+    return pendingBookings;
+  }
+
+  public void cancelPendingBookings() {
+    List<Booking> lateBookings = getAllLateBookings();
+    List<Booking> pendingBookings = bookingRepository.findByStatus(BookingStatus.PENDING);
+    
+    Map<Resource, Integer> usedCapacityMap = new HashMap<>();
+    
+    List<Booking> activeBookings = bookingRepository.findByStatus(BookingStatus.CONFIRMED);
+    activeBookings.addAll(lateBookings);
+    
+    for (Booking activeBooking : activeBookings) {
+        Resource resource = activeBooking.getResource();
+        usedCapacityMap.put(resource, usedCapacityMap.getOrDefault(resource, 0) + 1);
+    }
+    
+    LocalDate currentDate = LocalDate.now();
+    for (Booking pendingBooking : pendingBookings) {
+        if (!pendingBooking.getStartDate().isEqual(currentDate)) {
+            continue;
+        }
+        
+        Resource resource = pendingBooking.getResource();
+        int currentUsage = usedCapacityMap.getOrDefault(resource, 0);
+        
+        if (currentUsage >= resource.getCapacity()) {
+            pendingBooking.setStatus(BookingStatus.CANCELED);
+            bookingRepository.save(pendingBooking);
+        } else {
+            usedCapacityMap.put(resource, currentUsage + 1);
+        }
+    }
+}
+
+
 
 }

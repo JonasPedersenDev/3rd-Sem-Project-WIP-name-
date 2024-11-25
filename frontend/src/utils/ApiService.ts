@@ -461,6 +461,20 @@ class ApiService {
       throw error;
     }
   }
+
+  public async markBookingAsLate(bookingId: number): Promise<AxiosResponse<void>> {
+    try {
+      const endpoint = `${this.baseUrl}booking/${bookingId}/late-status`;
+      return await axios.put(endpoint, null, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Error marking booking as late:", error);
+      throw error;
+    }
+  }
+
+  
 }
 
 export default new ApiService();
