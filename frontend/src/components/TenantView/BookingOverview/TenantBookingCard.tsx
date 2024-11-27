@@ -10,14 +10,18 @@ interface TenantBooking {
   resourceType: ResourceType;
   startDate: Date;
   endDate: Date;
-  imageUrl?: string; 
+  imageUrl?: string;
+  pickupTime: string;
+  dropoffTime: string;
 }
 
 interface TenantBookingCardProps {
   booking: TenantBooking;
+  onCancel: (id: number) => void
+  isFuture: boolean 
 }
 
-const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking }) => {
+const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking, onCancel, isFuture }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleClose = () => setShowModal(false);
@@ -45,10 +49,10 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking }) => {
               <strong>Ressource:</strong> {booking.resourceName}
             </p>
             <p className="mb-0">
-              <strong>Start:</strong> {booking.startDate.toLocaleDateString()}
+              <strong>Start:</strong> {booking.startDate.toLocaleDateString()} - {booking.pickupTime}
             </p>
             <p>
-              <strong>Slut:</strong> {booking.endDate.toLocaleDateString()}
+              <strong>Slut:</strong> {booking.endDate.toLocaleDateString()} - {booking.dropoffTime}
             </p>
           </Col>
 
@@ -56,6 +60,13 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking }) => {
             <Button variant="outline-primary" onClick={handleShow}>
               Detaljer
             </Button>
+            {isFuture && (
+              <>
+                <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
+                  Annuller
+                </Button>
+              </>
+            )}
           </Col>
         </Row>
       </Card.Body>
@@ -69,6 +80,8 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking }) => {
           <p><strong>Ressource:</strong> {booking.resourceName}</p>
           <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()}</p>
           <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()}</p>
+          <p><strong>Afhentning:</strong> {booking.pickupTime}</p>
+          <p><strong>Aflevering:</strong> {booking.dropoffTime}</p>
         </Modal.Body>
       </Modal>
     </Card>

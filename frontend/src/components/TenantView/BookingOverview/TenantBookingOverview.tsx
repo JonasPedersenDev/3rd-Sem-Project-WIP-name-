@@ -14,6 +14,8 @@ interface TenantBooking {
   status: string;
   contactNumber: string;
   apartmentAddress: string;
+  pickupTime: string;
+  dropoffTime: string;
 }
 
 const TenantBookingOverview: React.FC = () => {
@@ -26,6 +28,7 @@ const TenantBookingOverview: React.FC = () => {
     const fetchBookings = async () => {
       try {
         const response = await ApiService.fetchData<any>('booking/get-all');
+        console.log("hello", response.data)
         const transformedBookings: TenantBooking[] = response.data.map((booking: any) => ({
           id: booking.id,
           tenantName: booking.user.name,
@@ -36,6 +39,8 @@ const TenantBookingOverview: React.FC = () => {
           contactNumber: booking.user.mobileNumber,
           apartmentAddress: booking.user.houseAddress,
           resourceType: booking.resource.type,
+          pickupTime: booking.pickupTime,
+          dropoffTime: booking.dropoffTime
         }));
 
         setBookings(transformedBookings);
@@ -71,6 +76,16 @@ const pastBookings = bookings.filter(
         booking.status === "COMPLETED"
 );
 
+const handleCancel = async (id: number) => {
+  try {
+    await ApiService.cancelBooking(id);
+    setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== id));
+  } catch (error) {
+    console.error('Error canceling resource:', error);
+  }
+}
+
+
   return (
     <div className="container mt-4 border border-dark rounded mb-3">
       <h2 className="text-center mb-5">
@@ -95,7 +110,7 @@ const pastBookings = bookings.filter(
             <p>Ingen nuværende reservationer</p>
           ) : (
             activeBookings.map((booking) => (
-              <TenantBookingCard key={booking.id} booking={booking} />
+              <TenantBookingCard key={booking.id} booking={booking} onCancel={handleCancel} isFuture={false} />
             ))
           )}
         </div>
@@ -119,7 +134,7 @@ const pastBookings = bookings.filter(
             <p>Ingen fremtidige reservationer</p>
           ) : (
             futureBookings.map((booking) => (
-              <TenantBookingCard key={booking.id} booking={booking} />
+              <TenantBookingCard key={booking.id} booking={booking} onCancel={handleCancel} isFuture={true} />
             ))
           )}
         </div>
@@ -143,7 +158,7 @@ const pastBookings = bookings.filter(
             <p>Ingen tidligere reservationer</p>
           ) : (
             pastBookings.map((booking) => (
-              <TenantBookingCard key={booking.id} booking={booking} />
+              <TenantBookingCard key={booking.id} booking={booking} onCancel={handleCancel} isFuture={false}/>
             ))
           )}
         </div>

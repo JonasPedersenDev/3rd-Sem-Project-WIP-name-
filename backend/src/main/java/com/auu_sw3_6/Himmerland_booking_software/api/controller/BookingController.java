@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,8 +69,15 @@ public class BookingController {
     @PutMapping("/{bookingId}/late-status")
     @Operation(summary = "Mark booking as late", description = "Update the status of a booking to 'LATE' by its ID")
     public ResponseEntity<Void> markBookingAsLate(@PathVariable long bookingId) {
-    bookingService.lateBookingStatus(bookingId);
-    return ResponseEntity.ok().build();
+      bookingService.lateBookingStatus(bookingId);
+      return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{bookingId}/canceled-status")
+    @Operation(summary = "Set booking status to canceled", description = "Update the status of a booking to 'CANCELED' by its ID")
+    public ResponseEntity<Void> setBookingStatusAsCanceled(@PathVariable long bookingId) {
+      bookingService.setBookingStatus(bookingId, BookingStatus.CANCELED);
+      return ResponseEntity.ok().build();
     }
   
 }
