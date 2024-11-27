@@ -68,14 +68,14 @@ class ApiService {
     });
   }
 
-  public async deleteBooking(bookingID: number): Promise<AxiosResponse<any>> {
+  public async cancelBooking(bookingID: number): Promise<AxiosResponse<any>> {
     try {
       //construct endpoint
-      const endpoint = `${this.baseUrl}booking/delete/${bookingID}`;
+      const endpoint = `${this.baseUrl}booking/${bookingID}/canceled-status`;
       console.log("delete booking:", endpoint);
 
       //call
-      return await axios.delete(endpoint, { withCredentials: true });
+      return await axios.put(endpoint, { withCredentials: true });
     } catch (error) {
       console.error("Error deleting booking:", error);
       throw error;

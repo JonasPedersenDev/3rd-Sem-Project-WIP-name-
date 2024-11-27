@@ -327,6 +327,15 @@ public class BookingService {
     cancelPendingBookings();
   }
 
+  public void setBookingStatus(long bookingId, BookingStatus status) {
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+
+    booking.setStatus(status);
+    bookingRepository.save(booking);
+  }
+
+
   public List<Booking> getAllLateBookings() {
     return bookingRepository.findByStatus(BookingStatus.LATE);
   }

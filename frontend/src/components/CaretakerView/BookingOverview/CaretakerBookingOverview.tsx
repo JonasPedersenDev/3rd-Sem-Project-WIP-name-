@@ -78,10 +78,10 @@ const CaretakerBookingOverview: React.FC = () => {
 
   const handleCancel = async (id: number) => {
     try {
-      await ApiService.deleteBooking(id);
+      await ApiService.cancelBooking(id);
       setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== id));
     } catch (error) {
-      console.error('Error deleting resource:', error);
+      console.error('Error canceling resource:', error);
     }
   };
 
