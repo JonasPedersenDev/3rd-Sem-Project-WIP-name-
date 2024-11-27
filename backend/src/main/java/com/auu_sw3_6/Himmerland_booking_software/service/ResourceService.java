@@ -49,22 +49,20 @@ public abstract class ResourceService<T extends Resource> {
     return resourceOptional.flatMap(user -> pictureService.readPicture(user.getResourcePictureFileName(), false));
   }
 
-  public T updateResource(T updatedResource, long id) { //NOT WORKING
-    Optional<T> existingResourceOptional = repository.findById(id);
+  public T updateResource(T updatedResource, MultipartFile pictureFile) {
+    Optional<T> existingResourceOptional = repository.findById(updatedResource.getId());
 
     if (existingResourceOptional.isPresent()) {
-        T existingResource = existingResourceOptional.get();
 
-        existingResource.setName(updatedResource.getName());
-        existingResource.setDescription(updatedResource.getDescription());
-        existingResource.setStatus(updatedResource.getStatus());
-        existingResource.setCapacity(updatedResource.getCapacity());
-        existingResource.setType(updatedResource.getType());
-        existingResource.setResourcePictureFileName(updatedResource.getResourcePictureFileName());
+      if (pictureFile != null && !pictureFile.isEmpty()) {
+        String uniqueFileName = pictureService.savePicture(pictureFile, false);
+        updatedResource.setResourcePictureFileName(uniqueFileName);
+      }
 
-        return repository.save(existingResource);
+      return repository.save(updatedResource);
+      
     } else {
-        throw new ResourceNotFoundException("Resource with ID " + id + " not found");
+        throw new ResourceNotFoundException("Resource with ID " + updatedResource.getId() + " not found");
     }
   }
 

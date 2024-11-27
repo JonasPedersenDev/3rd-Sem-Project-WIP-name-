@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -79,5 +82,11 @@ public class BookingController {
       bookingService.setBookingStatus(bookingId, BookingStatus.CANCELED, 1, true);
       return ResponseEntity.ok().build();
     }
-  
+
+    @PutMapping("/{resourceType}/{resourceId}/cancel-bookings-for-resource")
+    @Operation(summary = "Cancel bookings", description = "Set all booking status to 'CANCELED'")
+    public ResponseEntity<Void> cancelBookings(@PathVariable long resourceId, @PathVariable ResourceType resourceType) {
+      bookingService.cancelAllBookingsForResource(resourceId, resourceType);
+      return ResponseEntity.ok().build();
+    }
 }

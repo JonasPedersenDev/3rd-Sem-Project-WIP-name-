@@ -20,6 +20,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.BookingNotFoundException;
@@ -57,6 +58,9 @@ public class BookingService {
   }
 
   public boolean deleteBooking(long id) {
+
+    List<Booking> bookings = getAllBookings();
+    bookingRepository.deleteAll(bookings);
     if (bookingRepository.existsById(id)) {
       bookingRepository.deleteById(id);
       return true;
@@ -348,6 +352,32 @@ public class BookingService {
     bookingRepository.save(booking);
   }
 
+  public void cancelAllBookingsForResource (long resourceId, ResourceType resourceType) {
+    //Checks the given resource actually exists
+    ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(resourceType);
+    Resource resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID " + resourceId));
+
+
+    List<Booking> confirmedBookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
+    List<Booking> pendingBookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.PENDING);
+    
+    List<Booking> combinedBookingsList = new ArrayList<>();
+    combinedBookingsList.addAll(confirmedBookings);
+    combinedBookingsList.addAll(pendingBookings);
+
+    if (combinedBookingsList.isEmpty()) { return; }
+
+    combinedBookingsList.forEach(booking -> booking.setStatus(BookingStatus.CANCELED));
+    bookingRepository.saveAll(combinedBookingsList);
+  }
+
+  public void deleteAllBookingsForResource (long resourceId) {
+    List<Booking> bookings = bookingRepository.findByResource_Id(resourceId);
+    if (!bookings.isEmpty()) {
+      bookingRepository.deleteAll(bookings);
+    }
+  }
 
   public List<Booking> getAllLateBookings() {
     return bookingRepository.findByStatus(BookingStatus.LATE);

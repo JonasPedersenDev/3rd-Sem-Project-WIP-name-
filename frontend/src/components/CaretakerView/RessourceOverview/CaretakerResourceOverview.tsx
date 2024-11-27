@@ -69,12 +69,12 @@ const CaretakerResourceOverview: React.FC = () => {
     (resource) => resource.type && resource.type.toLowerCase() === ResourceType.UTILITY.toLowerCase()
   );
 
-  const handleEdit = async (updatedResource: Resource) => {
+  const handleEdit = async (updatedResource: Resource, imageFile: File | null) => {
     try {
       const response = await ApiService.updateResource(
         updatedResource,
         ResourceType[updatedResource.type.toUpperCase() as keyof typeof ResourceType],
-        updatedResource.id
+        imageFile
       );
       setResources((prevResources) =>
         prevResources.map((resource) =>
@@ -101,18 +101,24 @@ const CaretakerResourceOverview: React.FC = () => {
         status: resourceToUpdate.status === 'available' ? 'maintenance' : 'available',
       };
   
-      const response = await ApiService.updateResource(
+      const updateResponse = await ApiService.updateResource(
         updatedResource,
         ResourceType[updatedResource.type.toUpperCase() as keyof typeof ResourceType],
-        updatedResource.id
+        null
       );
+
+      if(updatedResource.status == "maintenance") {
+        const cancelResponse = await ApiService.cancelBookingsForResource(updatedResource.id, updatedResource.type)
+        console.log("cancel response:", cancelResponse)
+      }
+        
   
       setResources((prevResources) =>
         prevResources.map((resource) =>
-          resource.id === response.data.id ? response.data : resource
+          resource.id === updateResponse.data.id ? updateResponse.data : resource
         )
       );
-      console.log("response:", response);
+      console.log("updateResponse:", updateResponse)
       setTrigger((prev) => !prev); //used to reload the resources
     } catch (error) {
       console.error("Error updating resource status:", error);
