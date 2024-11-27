@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +28,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("api/tenant")
@@ -94,6 +94,12 @@ public class TenantController extends UserController<Tenant> {
     List<Booking> bookings = tenantService.getOwnBookings();
     return ResponseEntity.ok(bookings);
   }
-  
+
+  @PutMapping("/cancelBooking/{bookingId}")
+  @Operation(summary = "Set booking status to canceled", description = "Update the status of a booking to 'CANCELED' by its ID")
+  public ResponseEntity<Void> setBookingStatusAsCanceled(@PathVariable long bookingId) {
+    tenantService.setBookingStatus(bookingId, BookingStatus.CANCELED);
+    return ResponseEntity.ok().build();
+  }
+
 }
-  

@@ -68,20 +68,6 @@ class ApiService {
     });
   }
 
-  public async cancelBooking(bookingID: number): Promise<AxiosResponse<any>> {
-    try {
-      //construct endpoint
-      const endpoint = `${this.baseUrl}booking/${bookingID}/canceled-status`;
-      console.log("delete booking:", endpoint);
-
-      //call
-      return await axios.put(endpoint, { withCredentials: true });
-    } catch (error) {
-      console.error("Error deleting booking:", error);
-      throw error;
-    }
-  }
-
   public async editUser(id: number, data: object, profilePicture?: File): Promise<AxiosResponse<any>> {
     try {
       let response;

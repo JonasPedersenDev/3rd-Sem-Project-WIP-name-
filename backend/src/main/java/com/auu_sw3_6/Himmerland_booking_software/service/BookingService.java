@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -24,6 +25,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepositor
 import com.auu_sw3_6.Himmerland_booking_software.exception.BookingNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.IllegalBookingException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
+import com.auu_sw3_6.Himmerland_booking_software.service.event.CancelNotificationEvent;
 
 @Service
 public class BookingService {
@@ -31,13 +33,15 @@ public class BookingService {
   @Autowired
   private final BookingRepository bookingRepository;
   private final ResourceServiceFactory resourceServiceFactory;
+  private final ApplicationEventPublisher eventPublisher;
   private static final int MAX_BOOKING_DAYS = 5;
   private static final int COOLDOWN_DAYS = 15;
   private static final int MAX_ACTIVE_PER_RESOURCE = 5;
 
-  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory) {
+  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory, ApplicationEventPublisher eventPublisher) {
     this.bookingRepository = bookingRepository;
     this.resourceServiceFactory = resourceServiceFactory;
+    this.eventPublisher = eventPublisher;
   }
 
   public Booking createBooking(Booking booking) {
@@ -120,7 +124,7 @@ public class BookingService {
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
 
-    if (getBookingsByUserID(user.getId()).size() >= resource.getCapacity() * MAX_ACTIVE_PER_RESOURCE) {
+    if (getBookingsByUserID(user.getId()).stream().filter((booking) -> booking.getStatus() != BookingStatus.CANCELED).count() >= resource.getCapacity() * MAX_ACTIVE_PER_RESOURCE) {
       throw new IllegalBookingException("Too many active bookings.");
     }
 
@@ -327,11 +331,20 @@ public class BookingService {
     cancelPendingBookings();
   }
 
-  public void setBookingStatus(long bookingId, BookingStatus status) {
+  public void setBookingStatus(long bookingId, BookingStatus status, long userId, Boolean isAdmin) {
+    
     Booking booking = bookingRepository.findById(bookingId)
-        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+    .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+
+    if (booking.getUser().getId() != userId && isAdmin == false) {
+      throw new IllegalBookingException("User is not allowed to edit this booking.");
+    }
 
     booking.setStatus(status);
+
+    if(booking.getStatus() == BookingStatus.CANCELED && isAdmin) {
+      eventPublisher.publishEvent(new CancelNotificationEvent(this, booking));
+    }
     bookingRepository.save(booking);
   }
 
@@ -371,10 +384,12 @@ public class BookingService {
       if (currentUsage >= resource.getCapacity()) {
         pendingBooking.setStatus(BookingStatus.CANCELED);
         bookingRepository.save(pendingBooking);
+        eventPublisher.publishEvent(new CancelNotificationEvent(this, pendingBooking));
       } else {
         usedCapacityMap.put(resource, currentUsage + 1);
       }
     }
   }
+
 
 }

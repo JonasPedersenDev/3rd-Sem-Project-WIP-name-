@@ -73,10 +73,10 @@ public class BookingController {
       return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{bookingId}/canceled-status")
+    @PutMapping("/{bookingId}/cancel")
     @Operation(summary = "Set booking status to canceled", description = "Update the status of a booking to 'CANCELED' by its ID")
     public ResponseEntity<Void> setBookingStatusAsCanceled(@PathVariable long bookingId) {
-      bookingService.setBookingStatus(bookingId, BookingStatus.CANCELED);
+      bookingService.setBookingStatus(bookingId, BookingStatus.CANCELED, 1, true);
       return ResponseEntity.ok().build();
     }
   

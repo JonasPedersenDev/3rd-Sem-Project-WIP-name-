@@ -1,7 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +14,6 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.AdminNotFouldException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.CaretakerNameConflictException;
-import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 
 @Service
 public class AdminService extends UserService<Admin> {

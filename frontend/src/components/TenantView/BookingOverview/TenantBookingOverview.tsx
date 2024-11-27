@@ -79,7 +79,7 @@ const pastBookings = bookings.filter(
 
 const handleCancel = async (id: number) => {
   try {
-    await ApiService.cancelBooking(id);
+    await ApiService.updateData(`tenant/cancel/${id}`);
     setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== id));
   } catch (error) {
     console.error('Error canceling resource:', error);

@@ -3,12 +3,14 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
+import com.auu_sw3_6.Himmerland_booking_software.service.event.CancelNotificationEvent;
 
 @Service
 public class NotificationService {
@@ -18,6 +20,12 @@ public class NotificationService {
   @Autowired
   public NotificationService(BookingService bookingService) {
     this.bookingService = bookingService;
+  }
+
+  @EventListener
+  public void handleBookingNotification(CancelNotificationEvent event) {
+    Booking booking = event.getBooking();
+    sendCancellationNotification(booking);
   }
 
   public void earlyMorningNotification() {
@@ -59,18 +67,18 @@ public class NotificationService {
 
   public void sendMissedNotifications() {
     System.out.println("Sending missed notifications...");
-    // List<Booking> missed = bookingService.getAllMissedBookings();
+    List<Booking> missed = bookingService.getAllLateBookings();
 
-    // for (Booking booking : missed) {
-    //   User user = booking.getUser();
-    //   Resource resource = booking.getResource();
-    //   EmailService.sendMissedDropoffNotification(
-    //       user.getEmail(),
-    //       user.getName(),
-    //       resource.getName(),
-    //       booking.getDropoffTime().getTimeSlot(),
-    //       booking.getEndDate());
-    // }
+    for (Booking booking : missed) {
+      User user = booking.getUser();
+      Resource resource = booking.getResource();
+      EmailService.sendMissedDropoffNotification(
+          user.getEmail(),
+          user.getName(),
+          resource.getName(),
+          booking.getDropoffTime().getTimeSlot(),
+          booking.getEndDate());
+    }
   }
 
   public void sendCancellationNotification(Booking booking) {

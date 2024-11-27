@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -101,6 +102,17 @@ public abstract class UserService<T extends User> {
     }
 
     return user;
+  }
+
+  public Boolean currentUserIsAdmin() {
+    return getUserRole().equals("ADMIN");
+  }
+
+  private String getUserRole() {
+    return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+        .findFirst()
+        .map(GrantedAuthority::getAuthority)
+        .orElse(null);
   }
 
   public Booking createBooking(BookingDetails details) {

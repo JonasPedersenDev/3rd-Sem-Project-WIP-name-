@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.RestrictedUsernameException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsException;
@@ -20,7 +21,6 @@ import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsExce
 import jakarta.annotation.PostConstruct;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TenantService extends UserService<Tenant> {
@@ -113,5 +113,10 @@ public class TenantService extends UserService<Tenant> {
   public List<Booking> getOwnBookings() {
     User user = getAuthenticatedUser();
     return bookingService.getBookingsByUserID(user.getId());
+  }
+
+  public void setBookingStatus(long bookingId, BookingStatus status) {
+    User user = getAuthenticatedUser();
+    bookingService.setBookingStatus(bookingId, status, user.getId(), currentUserIsAdmin());
   }
 }
