@@ -86,7 +86,7 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
   const handleSave = () => {
     onEdit(editedResource, imageFile);
     console.log("editedresource:", editedResource)
-    setIsEditing(false);
+    handleClose()
   };
 
   return (
