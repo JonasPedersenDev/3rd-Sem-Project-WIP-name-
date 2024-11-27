@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState, useRef } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
 import Resource from '../../modelInterfaces/Resource';
 import { ResourceType } from '../../../utils/EnumSupport';
 import ApiService from '../../../utils/ApiService';
 import BaseImage from '../../BaseImage';
 import defaultImage from "../../../assets/deafultResourcePic.jpg";
+import { validateImage, getCroppedImage } from "../../../utils/pictureSupport";
+import ReactCrop, { Crop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 
 interface CaretakerResourceCardProps {
   resource: Resource;
-  onEdit: (updatedResource: Resource) => void;
+  onEdit: (updatedResource: Resource, imageFile: File | null) => void;
   onToggleService: (id: number) => void;
   onDelete: (id: number, resourecType: ResourceType) => void;
 }
@@ -21,6 +24,16 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedResource, setEditedResource] = useState(resource);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState<Crop>({
+    unit: "%",
+    width: 50,
+    height: 50,
+    x: 25,
+    y: 25,
+  });
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
   const fetchImage = async () => {
     try {
@@ -31,13 +44,47 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEditedResource({ ...editedResource, [name]: value });
+
+    if (e.target.type === "file") {
+      const fileInput = e.target as HTMLInputElement;
+      const file = fileInput.files?.[0];
+      if (file) {
+        const validImage = await validateImage(file);
+        if (validImage) {
+          setImageFile(file);
+          const imageSrc = URL.createObjectURL(file);
+          setImageSrc(imageSrc);
+        } else {
+          alert("Ugyldig fil type eller for små dimensioner. Billedet skal være PNG/JPG og skal være minimum 300x300 pixels");
+          fileInput.value = "";
+        }
+      }
+    } else {
+      setEditedResource((prevEditedResource) => ({ ...prevEditedResource, [name]: value }));
+    }
   };
 
+  const handleCropComplete = async (crop: Crop) => {
+    if (crop.width && crop.height && imgRef.current) {
+      const croppedBlob = await getCroppedImage(imgRef.current, crop, `${resource.name}-cropped.jpg`);
+      if (croppedBlob) {
+        setImageFile(new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" }));
+      }
+    }
+  };
+
+  const handleClose = () => {
+    setImageSrc(null);
+    setImageFile(null);
+    setIsEditing(false);
+  }
+    
+
+
   const handleSave = () => {
-    onEdit(editedResource);
+    onEdit(editedResource, imageFile);
     console.log("editedresource:", editedResource)
     setIsEditing(false);
   };
@@ -46,14 +93,14 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
     <div className="card mb-3">
       <div className="card-body d-flex justify-content-between align-items-center">
         {isEditing ? (
-          <Modal show={isEditing} onHide={() => setIsEditing(false)}>
+          <Modal show={isEditing} onHide={handleClose}>
             <Modal.Header closeButton>
-              <Modal.Title>Edit Resource</Modal.Title>
+              <Modal.Title>Rediger Ressource</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <Form>
                 <Form.Group controlId="resourceName">
-                  <Form.Label>Resource Name</Form.Label>
+                  <Form.Label>Ressource navn</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
@@ -62,7 +109,7 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
                   />
                 </Form.Group>
                 <Form.Group controlId="resourceDescription">
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>Beskrivelse</Form.Label>
                   <Form.Control
                     type="text"
                     name="description"
@@ -70,8 +117,30 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
                     onChange={handleInputChange}
                   />
                 </Form.Group>
+                <Form.Group controlId="imageFile">
+                  <Form.Label>Billede:</Form.Label>
+                  <Form.Control type="file" name="imageFile" onChange={handleInputChange}  />
+                  {imageSrc && (
+                    <ReactCrop
+                      crop={crop}
+                      onChange={(newCrop) => setCrop(newCrop)}
+                      aspect={1}
+                      onComplete={handleCropComplete}
+                    >
+                      <img
+                        ref={imgRef}
+                        src={imageSrc}
+                        alt="Upload"
+                        onLoad={(e) => (imgRef.current = e.currentTarget)}
+                      />
+                    </ReactCrop>
+                  )}
+                </Form.Group>
+
+
+
                 <Button variant="primary" onClick={handleSave}>
-                  Save Changes
+                  Gem ændringer
                 </Button>
               </Form>
             </Modal.Body>
@@ -82,6 +151,7 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
               <h3 className="mb-3">{resource.name}</h3>
               <p><strong>Status:</strong> {resource.status === "available" ? "Aktiv" : "Service"}</p>
               <p><strong>Beskrivelse:</strong> {resource.description}</p>
+              <p><strong>Antal:</strong> {resource.capacity}</p>
             </div>
             <BaseImage
               fetchImage={fetchImage}

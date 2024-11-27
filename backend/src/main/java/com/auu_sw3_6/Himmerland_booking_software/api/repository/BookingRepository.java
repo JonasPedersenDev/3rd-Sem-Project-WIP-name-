@@ -13,4 +13,5 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStat
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByResourceAndStatus(Resource resource, BookingStatus status);
     List<Booking> findByStatus(BookingStatus status);
+    List<Booking> findByResource_Id(Long resourceId);
 }

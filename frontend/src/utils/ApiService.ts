@@ -363,20 +363,27 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
   public async updateResource(
     resource: Resource,
     resourceType: ResourceType,
-    resourceId: number
+    img: File | null
   ): Promise<AxiosResponse<any>> {
-    //NOT WORKING
     try {
       //construct endpoint
       let endpoint = `${
         this.baseUrl
-      }${resourceType.toLowerCase()}/update/${resourceId}`;
+      }${resourceType.toLowerCase()}/update`;
       console.log("update resource:", endpoint);
       console.log("send resource:", resource);
-      console.log("send id:", resourceId);
+
+      const formData = new FormData();
+      formData.append("updatedResource", JSON.stringify(resource));
+      if (img) { formData.append("pictureFile", img); }
+      
+
       //call
-      return await axios.put(endpoint, resource, {
+      return await axios.put(endpoint, formData, {
         withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
     } catch (error) {
       console.error("Error updating resource:", error);
@@ -475,6 +482,23 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
       });
     } catch (error) {
       console.error("Error marking booking as late:", error);
+      throw error;
+    }
+  }
+
+  public async cancelBookingsForResource(
+    resourceID: number,
+    resourceType: ResourceType
+  ): Promise<AxiosResponse<any>> {
+    try {
+      //construct endpoint
+      const endpoint = `${this.baseUrl}booking/${resourceType}/${resourceID}/cancel-bookings-for-resource`;
+      console.log("cancel bookings for resource:", endpoint);
+
+      //call
+      return await axios.put(endpoint, { withCredentials: true });
+    } catch (error) {
+      console.error("Error deleting resource:", error);
       throw error;
     }
   }

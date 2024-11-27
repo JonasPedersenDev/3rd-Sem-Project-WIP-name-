@@ -2,6 +2,8 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDate;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
@@ -31,6 +35,7 @@ public abstract class ResourceController<T extends Resource> {
 
   protected final ResourceService<T> resourceService;
   protected final BookingService bookingService;
+  private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
   @Autowired
   public ResourceController(ResourceService<T> resourceService, BookingService bookingService) {
@@ -83,6 +88,7 @@ public abstract class ResourceController<T extends Resource> {
   @Operation(summary = "Delete a resource", description = "Remove a resource from the system by its ID")
   @DeleteMapping("/api/resource/{resourceId}")
   public ResponseEntity<Void> deleteResource(@PathVariable long resourceId) {
+    bookingService.deleteAllBookingsForResource(resourceId);
     boolean isDeleted = resourceService.deleteResource(resourceId);
     if (isDeleted) {
       return ResponseEntity.noContent().build();
@@ -91,10 +97,12 @@ public abstract class ResourceController<T extends Resource> {
     }
   }
 
-  @Operation(summary = "Update a resource", description = "Update the details of an existing resource") // NOT WORKING
-  @PutMapping(value = "/update/{updatedResourceId}", produces = "application/json")
-  public ResponseEntity<T> updateResource(@RequestBody T updatedResource, @PathVariable long updatedResourceId) {
-    T resource = resourceService.updateResource(updatedResource, updatedResourceId);
+  @Operation(summary = "Update a resource", description = "Update the details of an existing resource")
+  @PutMapping(value = "/update", consumes = { "multipart/form-data" })
+  public ResponseEntity<T> updateResource(
+    @RequestPart("updatedResource") T updatedResource,
+    @RequestPart(value = "pictureFile", required = false) MultipartFile pictureFile) {
+    T resource = resourceService.updateResource(updatedResource, pictureFile);
     return ResponseEntity.ok(resource);
   }
 
