@@ -24,6 +24,22 @@ public class GlobalExceptionHandler {
 
     // API error exception handling
 
+    @ExceptionHandler(IllegalBookingException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalBookingException(IllegalBookingException ex) {
+        log.error("Illegal booking: " + ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Illegal booking", HttpStatus.BAD_REQUEST);
+        errorResponse.setDetails(Map.of("reason", ex.getMessage()));
+        return ResponseEntity.status(errorResponse.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBookingNotFoundException(BookingNotFoundException ex) {
+        log.error("Booking not found: " + ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Booking not found", HttpStatus.NOT_FOUND);
+        errorResponse.setDetails(Map.of("reason", ex.getMessage()));
+        return ResponseEntity.status(errorResponse.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
+
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException ex) {
         log.error("Endpoint not found: " + ex.getMessage());

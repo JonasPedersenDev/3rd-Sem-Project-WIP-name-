@@ -23,7 +23,7 @@ public abstract class UserService<T extends User> {
   private final JpaRepository<T, Long> repository;
   private final PictureService pictureService;
   private final PasswordEncoder passwordEncoder;
-  private final BookingService bookingService;
+  protected final BookingService bookingService;
 
   @Autowired
   public UserService(JpaRepository<T, Long> repository, PictureService pictureService,
@@ -106,6 +106,11 @@ public abstract class UserService<T extends User> {
   public Booking createBooking(BookingDetails details) {
     User user = getAuthenticatedUser();
     return bookingService.bookResource(user, details);
+  }
+
+  public Booking editBooking(long bookingId, BookingDetails details) {
+    User user = getAuthenticatedUser();
+    return bookingService.editBooking(bookingId, details, user);
   }
 
 }

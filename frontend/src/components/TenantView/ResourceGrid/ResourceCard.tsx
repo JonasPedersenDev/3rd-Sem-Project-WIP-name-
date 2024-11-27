@@ -15,7 +15,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleBookingAdded = () => {
-    console.log("Booking added to cart");
+    console.log("Booking request sent");
     setIsModalOpen(false);
   };
 
@@ -35,7 +35,6 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
             <CardBody
               name={resource.name}
               description={resource.description}
-              status={resource.status}
             />
             <div className="card-footer">
               <CardAction status={resource.status} toggleModal={() => setIsModalOpen(true)} />

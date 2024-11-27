@@ -54,7 +54,6 @@ public abstract class User {
   @Schema(description = "The user's house address")
   private String houseAddress;
 
-  // Default no-argument constructor (required by JPA)
   public User() {
   }
 

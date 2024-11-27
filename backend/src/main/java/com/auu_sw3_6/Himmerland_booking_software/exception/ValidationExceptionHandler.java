@@ -17,21 +17,21 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 @ControllerAdvice
 public class ValidationExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        
-        ErrorResponse errorResponse = new ErrorResponse("Validation errors occurred", HttpStatus.FORBIDDEN);
-        errorResponse.setDetails(errors);
-        
-        return ResponseEntity.badRequest()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(errorResponse);
-    }
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    Map<String, String> errors = new HashMap<>();
+    ex.getBindingResult().getAllErrors().forEach((error) -> {
+      String fieldName = ((FieldError) error).getField();
+      String errorMessage = error.getDefaultMessage();
+      errors.put(fieldName, errorMessage);
+    });
+
+    ErrorResponse errorResponse = new ErrorResponse("Validation errors occurred", HttpStatus.FORBIDDEN);
+    errorResponse.setDetails(errors);
+
+    return ResponseEntity.badRequest()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(errorResponse);
+  }
 }

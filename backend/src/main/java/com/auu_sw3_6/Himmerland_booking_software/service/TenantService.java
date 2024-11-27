@@ -10,7 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.RestrictedUsernameException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsException;
@@ -106,5 +108,10 @@ public class TenantService extends UserService<Tenant> {
 
   public void setRestrictedUsernamesSet(Set<String> restrictedUsernames) {
     this.restrictedUsernamesSet = restrictedUsernames;
+  }
+
+  public List<Booking> getOwnBookings() {
+    User user = getAuthenticatedUser();
+    return bookingService.getBookingsByUserID(user.getId());
   }
 }

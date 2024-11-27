@@ -2,10 +2,13 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
+import com.auu_sw3_6.Himmerland_booking_software.exception.BookingNotFoundException;
+import com.auu_sw3_6.Himmerland_booking_software.exception.IllegalBookingException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
 @Service
@@ -27,6 +32,8 @@ public class BookingService {
   private final BookingRepository bookingRepository;
   private final ResourceServiceFactory resourceServiceFactory;
   private static final int MAX_BOOKING_DAYS = 5;
+  private static final int COOLDOWN_DAYS = 15;
+  private static final int MAX_ACTIVE_PER_RESOURCE = 5;
 
   public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory) {
     this.bookingRepository = bookingRepository;
@@ -54,8 +61,55 @@ public class BookingService {
     }
   }
 
+  public List<Booking> getBookingsByUserID(long userID) {
+    return bookingRepository.findAll().stream().filter(booking -> booking.getUser().getId() == userID)
+        .collect(Collectors.toList());
+  }
+
   public Booking updateBooking(Booking booking) {
     return bookingRepository.save(booking);
+  }
+
+  public Booking editBooking(long id, BookingDetails editBookingRequest, User user) {
+    Booking booking = bookingRepository.findById(id)
+        .orElseThrow(() -> new BookingNotFoundException("Booking not found with ID: " + id));
+
+    if (booking.getUser().getId() != user.getId()) {
+      throw new IllegalBookingException("User is not allowed to edit this booking.");
+    }
+
+    if (booking.getStatus() == BookingStatus.COMPLETED) {
+      throw new IllegalBookingException("Cannot edit completed booking.");
+    }
+    if (booking.getStatus() == BookingStatus.CANCELED) {
+      throw new IllegalBookingException("Cannot edit canceled booking.");
+    }
+    if (booking.getStatus() == BookingStatus.LATE) {
+      throw new IllegalBookingException("Cannot edit missed booking.");
+    }
+
+    if (booking.getStatus() == BookingStatus.CONFIRMED) {
+      if (editBookingRequest.getStartDate() != booking.getStartDate()) {
+        throw new IllegalBookingException("Cannot change booking start date.");
+      }
+    }
+
+    if (isBookingPeriodInvalid(editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
+        editBookingRequest.getPickupTime(), editBookingRequest.getDropoffTime())) {
+      throw new IllegalBookingException("Invalid booking period.");
+    }
+
+    if (isResourceAvailableForEdit(booking.getResource(), editBookingRequest.getStartDate(),
+        editBookingRequest.getEndDate(), booking, user)) {
+      booking.setStartDate(editBookingRequest.getStartDate());
+      booking.setEndDate(editBookingRequest.getEndDate());
+      booking.setPickupTime(editBookingRequest.getPickupTime());
+      booking.setDropoffTime(editBookingRequest.getDropoffTime());
+
+      return bookingRepository.save(booking);
+    } else {
+      throw new IllegalBookingException("Resource is not available for the selected dates.");
+    }
   }
 
   public Booking bookResource(User user, BookingDetails details) {
@@ -66,27 +120,43 @@ public class BookingService {
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
 
-    if (isBookingPeriodInvalid(startDate, endDate)) {
-      throw new IllegalArgumentException("Invalid booking period.");
+    if (getBookingsByUserID(user.getId()).size() >= resource.getCapacity() * MAX_ACTIVE_PER_RESOURCE) {
+      throw new IllegalBookingException("Too many active bookings.");
     }
 
-    if (isResourceAvailable(resource, startDate, endDate)) {
+    if (isBookingPeriodInvalid(startDate, endDate, details.getPickupTime(), details.getDropoffTime())) {
+      throw new IllegalBookingException("Invalid booking period.");
+    }
+
+    if (isResourceAvailable(resource, startDate, endDate, user)) {
       Booking booking = new Booking(resource, user, startDate, endDate,
           details.getPickupTime(), details.getDropoffTime(),
           BookingStatus.PENDING, details.getReceiverName(), details.getHandoverName());
 
       return bookingRepository.save(booking);
     } else {
-      throw new IllegalArgumentException("Resource is not available for the selected dates.");
+      throw new IllegalBookingException("Resource is not available for the selected dates.");
     }
   }
 
-  private boolean isBookingPeriodInvalid(LocalDate startDate, LocalDate endDate) {
+  private boolean isBookingPeriodInvalid(LocalDate startDate, LocalDate endDate, TimeRange pickupTime,
+      TimeRange dropoffTime) {
+    LocalDate today = LocalDate.now();
+    LocalTime now = LocalTime.now();
+
     if (!startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate)) {
       return true;
     }
 
-    if (startDate.isBefore(LocalDate.now())) {
+    if (startDate.isBefore(today)) {
+      return true;
+    }
+
+    if (startDate.equals(today) && pickupTime.getStartTime().isBefore(now)) {
+      return true;
+    }
+
+    if (endDate.equals(today) && dropoffTime.getEndTime().isBefore(now)) {
       return true;
     }
 
@@ -101,9 +171,28 @@ public class BookingService {
     return date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
   }
 
-  private boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate) {
-    List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.PENDING);
+  private boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate, User user) {
+    List<Booking> bookings = getRelevantBookings(resource, null);
+    return checkResourceAvailability(bookings, resource, startDate, endDate)
+        && checkUserCooldown(bookings, user, startDate);
+  }
 
+  private boolean isResourceAvailableForEdit(Resource resource, LocalDate startDate, LocalDate endDate,
+      Booking currentBooking, User user) {
+    List<Booking> bookings = getRelevantBookings(resource, currentBooking);
+    return checkResourceAvailability(bookings, resource, startDate, endDate)
+        && checkUserCooldown(bookings, user, startDate);
+  }
+
+  private List<Booking> getRelevantBookings(Resource resource, Booking excludedBooking) {
+    return bookingRepository.findByResource(resource).stream()
+        .filter(b -> excludedBooking == null || b.getId() != excludedBooking.getId())
+        .filter(b -> b.getStatus() != BookingStatus.CANCELED)
+        .collect(Collectors.toList());
+  }
+
+  private boolean checkResourceAvailability(List<Booking> bookings, Resource resource, LocalDate startDate,
+      LocalDate endDate) {
     for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
       LocalDate finalDate = date;
 
@@ -115,19 +204,29 @@ public class BookingService {
         return false;
       }
     }
-
     return true;
   }
 
-  private List<Booking> getAllActiveBookings() {
-    List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.CONFIRMED);
-    List<Booking> pendingBookings = bookingRepository.findByStatus(BookingStatus.PENDING);
-    confirmedBookings.addAll(pendingBookings);
-    return confirmedBookings;
+  private boolean checkUserCooldown(List<Booking> bookings, User user, LocalDate startDate) {
+    LocalDate cooldownStartDate = startDate.minusDays(COOLDOWN_DAYS);
+    LocalDate cooldownEndDate = startDate.minusDays(1);
+
+    long totalBookedDays = bookings.stream()
+        .filter(b -> b.getUser().getId() == user.getId())
+        .filter(b -> !b.getStatus().equals(BookingStatus.CANCELED))
+        .filter(b -> !b.getEndDate().isBefore(cooldownStartDate) && !b.getStartDate().isAfter(cooldownEndDate))
+        .mapToLong(b -> calculateOverlappingDays(b.getStartDate(), b.getEndDate(), cooldownStartDate, cooldownEndDate))
+        .sum();
+
+    return totalBookedDays < MAX_BOOKING_DAYS;
   }
 
-  private List<Booking> getAllPendingPendingBookings() { // Duplicate??
-    return bookingRepository.findByStatus(BookingStatus.PENDING);
+  private long calculateOverlappingDays(LocalDate bookingStart, LocalDate bookingEnd, LocalDate rangeStart,
+      LocalDate rangeEnd) {
+    LocalDate effectiveStart = bookingStart.isBefore(rangeStart) ? rangeStart : bookingStart;
+    LocalDate effectiveEnd = bookingEnd.isAfter(rangeEnd) ? rangeEnd : bookingEnd;
+
+    return !effectiveStart.isAfter(effectiveEnd) ? ChronoUnit.DAYS.between(effectiveStart, effectiveEnd) + 1 : 0;
   }
 
   private List<Booking> getAllConfirmedBookings() {
@@ -135,7 +234,7 @@ public class BookingService {
   }
 
   public List<Booking> getAllUpcomingPickupsForToday(TimeRange timeRange) {
-    List<Booking> bookings = getAllPendingPendingBookings();
+    List<Booking> bookings = getAllPendingBookings();
     List<Booking> upcomingBookings = new ArrayList<>();
 
     for (Booking booking : bookings) {
@@ -160,10 +259,17 @@ public class BookingService {
     return upcomingBookings;
   }
 
-  
+  private List<Booking> getAllActiveBookingsByResource(Resource resource) {
+    List<Booking> activeBookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
+    activeBookings.addAll(bookingRepository.findByResourceAndStatus(resource, BookingStatus.LATE));
+    activeBookings.addAll(bookingRepository.findByResourceAndStatus(resource, BookingStatus.PENDING));
+    return activeBookings;
+
+  }
 
   public List<BookingDate> getBookedDatesWithAmount(Resource resource) {
-    List<Booking> bookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
+
+    List<Booking> bookings = getAllActiveBookingsByResource(resource);
 
     List<BookingDate> bookedDatesWithCapacity = new ArrayList<>();
 
@@ -219,8 +325,7 @@ public class BookingService {
     bookingRepository.save(booking);
 
     cancelPendingBookings();
-}
-
+  }
 
   public List<Booking> getAllLateBookings() {
     return bookingRepository.findByStatus(BookingStatus.LATE);
@@ -241,29 +346,26 @@ public class BookingService {
     activeBookings.addAll(lateBookings);
 
     for (Booking activeBooking : activeBookings) {
-        Resource resource = activeBooking.getResource();
-        usedCapacityMap.put(resource, usedCapacityMap.getOrDefault(resource, 0) + 1);
+      Resource resource = activeBooking.getResource();
+      usedCapacityMap.put(resource, usedCapacityMap.getOrDefault(resource, 0) + 1);
     }
 
     LocalDate currentDate = LocalDate.now();
     for (Booking pendingBooking : pendingBookings) {
-        if (!pendingBooking.getStartDate().isEqual(currentDate)) {
-            continue;
-        }
+      if (!pendingBooking.getStartDate().isEqual(currentDate)) {
+        continue;
+      }
 
-        Resource resource = pendingBooking.getResource();
-        int currentUsage = usedCapacityMap.getOrDefault(resource, 0);
+      Resource resource = pendingBooking.getResource();
+      int currentUsage = usedCapacityMap.getOrDefault(resource, 0);
 
-        if (currentUsage >= resource.getCapacity()) {
-            pendingBooking.setStatus(BookingStatus.CANCELED);
-            bookingRepository.save(pendingBooking);
-        } else {
-            usedCapacityMap.put(resource, currentUsage + 1);
-        }
+      if (currentUsage >= resource.getCapacity()) {
+        pendingBooking.setStatus(BookingStatus.CANCELED);
+        bookingRepository.save(pendingBooking);
+      } else {
+        usedCapacityMap.put(resource, currentUsage + 1);
+      }
     }
-}
-
-
-
+  }
 
 }

@@ -2,7 +2,6 @@ import { ResourceType } from "../../utils/EnumSupport";
 import { TimeRange } from "./TimeRange";
 
 export default interface Booking {
-    id: number;
     resourceID: number;
     resourceType: ResourceType;
     resourceName: string;

@@ -1,10 +1,13 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
@@ -74,6 +79,20 @@ public class TenantController extends UserController<Tenant> {
   public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant) {
     Tenant updatedTenant = tenantService.update(id, tenant);
     return ResponseEntity.ok(updatedTenant);
+  }
+
+  @PutMapping(value = "/editBooking/{id}", produces = "application/json")
+  @Operation(summary = "Edit booking", description = "This endpoint edits a booking.")
+  public ResponseEntity<Booking> editBooking(@PathVariable Long id, @RequestBody BookingDetails bookingDetails) {
+    Booking updatedBooking = tenantService.editBooking(id, bookingDetails);
+    return ResponseEntity.ok(updatedBooking);
+  }
+
+  @GetMapping(value = "/getOwnBookings", produces = "application/json")
+  @Operation(summary = "Get own bookings", description = "This endpoint retrieves all bookings for the current user.")
+  public ResponseEntity<List<Booking>> getOwnBookings() {
+    List<Booking> bookings = tenantService.getOwnBookings();
+    return ResponseEntity.ok(bookings);
   }
   
 }

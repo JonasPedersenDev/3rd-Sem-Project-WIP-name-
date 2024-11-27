@@ -6,12 +6,6 @@ import Resource from "../../modelInterfaces/Resource";
 import Booking from "../../modelInterfaces/Booking";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import { isValidDateRange } from "../../../utils/BookingSupport";
-import {
-  addBookingToSessionStorage,
-  getHighestBookingID,
-  loadBookingsFromSessionStorage,
-  removeBookingFromSessionStorage,
-} from "../../../utils/sessionStorageSupport";
 import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface CreateBookingModalProps {
@@ -28,15 +22,8 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   onClose,
 }) => {
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-
-  const generateBookingId = (): number => {
-    const bookingAmount = getHighestBookingID();
-    return bookingAmount + 1;
-  };
 
   const [bookingFormData, setBookingData] = useState<Booking>({
-    id: generateBookingId(),
     resourceID: resource.id,
     resourceName: resource.name,
     resourceType: resource.type,
@@ -63,12 +50,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       }
     };
 
-    const loadExistingBookings = () => {
-      setBookings(loadBookingsFromSessionStorage());
-    };
-
     fetchBookedDates();
-    loadExistingBookings();
   }, [resource.type, resource.id]);
 
   const handleDateChange = (start: Date | null, end: Date | null) => {
@@ -80,26 +62,18 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    addBookingToSessionStorage(bookingFormData);
-    const allBookings = loadBookingsFromSessionStorage();
-  
-    for (const booking of allBookings) {
-      const transformedBooking = transformBooking(booking);
-  
-      try {
+    const transformedBooking = transformBooking(bookingFormData);
+    try {
         const response = await ApiService.createBooking(transformedBooking);
         if (response.status === 200) {
-          removeBookingFromSessionStorage(booking.id);
+
         } else {
-          console.error("Failed to create booking", booking);
+          console.error("Failed to create booking", transformedBooking);
         }
       } catch (error) {
         console.error("Error during booking creation:", error);
       }
-    }
-  
-    setBookings(loadBookingsFromSessionStorage());
-  
+    
     onBookingAdded();
     onClose();
   };

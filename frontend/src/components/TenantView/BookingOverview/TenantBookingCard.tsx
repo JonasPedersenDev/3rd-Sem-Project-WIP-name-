@@ -10,7 +10,8 @@ interface TenantBooking {
   resourceType: ResourceType;
   startDate: Date;
   endDate: Date;
-  imageUrl?: string; 
+  imageUrl?: string;
+  resourceID: number;
 }
 
 interface TenantBookingCardProps {
@@ -30,7 +31,7 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking }) => {
           <Col xs={3} className="d-flex justify-content-center align-items-center">
             <div style={{ width: "80px", height: "80px", overflow: "hidden", borderRadius: "8px" }}>
               <CardImage
-                id={booking.id}
+                id={booking.resourceID}
                 type={booking.resourceType} 
                 name={booking.resourceName} 
               />

@@ -14,6 +14,7 @@ interface TenantBooking {
   status: string;
   contactNumber: string;
   apartmentAddress: string;
+  resourceID: number
 }
 
 const TenantBookingOverview: React.FC = () => {
@@ -25,7 +26,7 @@ const TenantBookingOverview: React.FC = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await ApiService.fetchData<any>('booking/get-all');
+        const response = await ApiService.fetchData<any>('tenant/getOwnBookings');
         const transformedBookings: TenantBooking[] = response.data.map((booking: any) => ({
           id: booking.id,
           tenantName: booking.user.name,
@@ -36,6 +37,7 @@ const TenantBookingOverview: React.FC = () => {
           contactNumber: booking.user.mobileNumber,
           apartmentAddress: booking.user.houseAddress,
           resourceType: booking.resource.type,
+          resourceID: booking.resource.id
         }));
 
         setBookings(transformedBookings);
@@ -74,7 +76,7 @@ const pastBookings = bookings.filter(
   return (
     <div className="container mt-4 border border-dark rounded mb-3">
       <h2 className="text-center mb-5">
-        <strong>Lejerens Reservationsoversigt</strong>
+        <strong>Reservationsoversigt</strong>
       </h2>
 
       {/* Current Bookings */}
