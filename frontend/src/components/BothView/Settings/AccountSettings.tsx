@@ -6,7 +6,6 @@ import {
   Row,
   Col,
   Container,
-  Image,
 } from "react-bootstrap";
 import LogoutButton from "../Logout/Logout";
 import ProfilePicture from "./ProfilePicture";
@@ -39,6 +38,7 @@ const SettingsForm: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const [currentView, setCurrentView] = useState("settings");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -106,20 +106,30 @@ const handleCancel = async () => {
         setValidationError(error);
         return;
       }
-      try {
-        await ApiService.editUser(userInfo.id, userInfo); // Hvis PB bliver tilføjet her, vil det være krav at man skal have profilbillede når man opdatere
-        setShowSuccessModal(true);
-        navigate("/login"); // Navigate to login page after saving changes
-      } catch (error) {
-        console.error("Error updating user:", error);
-      }
+      setShowWarningModal(true); // Show warning modal before saving changes
+    } else {
+      setIsEditing(!isEditing);
     }
-    setIsEditing(!isEditing);
     setValidationError(null);
-};
+  };
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
+  };
+
+  const handleWarningConfirm = async () => {
+    setShowWarningModal(false);
+    try {
+      await ApiService.editUser(userInfo.id, userInfo); // Make the API call after confirming the warning
+      setShowSuccessModal(true);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
+
+  const handleWarningCancel = () => {
+    setShowWarningModal(false);
   };
 
   const renderContent = () => {
@@ -304,6 +314,21 @@ const handleCancel = async () => {
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>
                 Luk
+              </Button>
+            </Modal.Footer>
+          </Modal>
+          {/* Warning Modal */}
+          <Modal show={showWarningModal} onHide={handleWarningCancel} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Advarsel</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Du vil blive sendt til login-siden. Er du sikker?</Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleWarningCancel}>
+                Annuller
+              </Button>
+              <Button variant="danger" onClick={handleWarningConfirm}>
+                Bekræft
               </Button>
             </Modal.Footer>
           </Modal>
