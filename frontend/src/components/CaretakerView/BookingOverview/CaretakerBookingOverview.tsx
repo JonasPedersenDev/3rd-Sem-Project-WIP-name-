@@ -87,20 +87,22 @@ const CaretakerBookingOverview: React.FC = () => {
 
   const onBookingComplete = (id: number) => {
     const updatedBookings = bookings.map((booking) => {
-        if (booking.id === id) {
-            return {
-                ...booking,
-                status: booking.status === "CONFIRMED" || "PENDING" ? "COMPLETED" : "CONFIRMED",
-                isFutureBooking: false,
-                isPastBooking: booking.status === "CONFIRMED",
-            };
-        }
-        return booking;
+      if (booking.id === id) {
+        const isCurrentlyConfirmed = booking.status === "CONFIRMED";
+        const isLateBooking = booking.status === "LATE";
+        return {
+          ...booking,
+          status: isCurrentlyConfirmed || isLateBooking ? "COMPLETED" : "CONFIRMED",
+          isFutureBooking: false,
+          isPastBooking: isCurrentlyConfirmed || isLateBooking,
+        };
+      }
+      return booking;
     });
-
+  
     setBookings(updatedBookings);
-    updateFutureBookings(updatedBookings);
-};
+  };
+    
 
 
 
@@ -120,61 +122,59 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
 
   useEffect(() => {
     const markLateBookings = async () => {
-        const lateBookings = bookings.filter(
-            (booking) => booking.endDate < currentDate && booking.status === "CONFIRMED"
-        );
-
-        for (const lateBooking of lateBookings) {
-            try {
-                await ApiService.markBookingAsLate(lateBooking.id);
-                setBookings((prevBookings) =>
-                    prevBookings.map((booking) =>
-                        booking.id === lateBooking.id
-                            ? { ...booking, status: "LATE" }
-                            : booking
-                    )
-                );
-            } catch (error) {
-                console.error("Error marking booking as late:", error);
+      const lateBookings = bookings.filter(
+        (booking) =>
+          booking.endDate < currentDate && booking.status === "CONFIRMED"
+      );
+  
+      if (lateBookings.length > 0) {
+        try {
+          const updatedBookings = bookings.map((booking) => {
+            if (
+              lateBookings.some((lateBooking) => lateBooking.id === booking.id)
+            ) {
+              return { ...booking, status: "LATE" };
             }
+            return booking;
+          });
+  
+          await Promise.all(
+            lateBookings.map((lateBooking) =>
+              ApiService.markBookingAsLate(lateBooking.id)
+            )
+          );
+  
+          setBookings((prevBookings) =>
+            JSON.stringify(prevBookings) !== JSON.stringify(updatedBookings)
+              ? updatedBookings
+              : prevBookings
+          );
+        } catch (error) {
+          console.error("Error marking booking as late:", error);
         }
+      }
     };
-
+  
     markLateBookings();
-}, [bookings, currentDate]);
-
+  }, [bookings, currentDate]);
+  
 
 
   const activeBookings = bookings.filter(
     (booking) =>
-        booking.startDate <= currentDate &&
-        booking.endDate >= currentDate &&
-        booking.status === "CONFIRMED" ||
-        booking.status === "CONFIRMED" ||
-        booking.status === "LATE"
-);
+      (booking.status === "CONFIRMED" || booking.status === "LATE"));
 
 
 const futureBookings = bookings.filter(
-    (booking) =>
-        booking.startDate > currentDate &&
-        booking.status === "PENDING" ||
-        booking.status === "PENDING"
+  (booking) =>
+    booking.status === "PENDING"
 );
 
 const pastBookings = bookings.filter(
-    (booking) =>
-        booking.endDate < currentDate &&
-        booking.status === "COMPLETED" ||
-        booking.status === "COMPLETED"
+  (booking) =>
+    booking.status === "COMPLETED"
 );
 
-const lateBookings = bookings.filter(
-    (booking) =>
-        booking.endDate < currentDate &&
-        booking.status === "LATE" ||
-        booking.status === "LATE"
-);
 
   return (
     <>
