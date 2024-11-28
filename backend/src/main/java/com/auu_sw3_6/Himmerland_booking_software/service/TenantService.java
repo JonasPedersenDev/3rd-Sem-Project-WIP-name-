@@ -92,13 +92,13 @@ public class TenantService extends UserService<Tenant> {
         },
         () -> {
           throw new IllegalArgumentException("Tenant with id " + id + " does not exist.");
-        }
-    );
+        });
     return tenant;
   }
 
   public Tenant get(Long id) {
-    return tenantRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Tenant with id " + id + " does not exist."));
+    return tenantRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Tenant with id " + id + " does not exist."));
   }
 
   @PostConstruct

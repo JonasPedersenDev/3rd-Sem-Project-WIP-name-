@@ -74,22 +74,17 @@ function CaretakerNavbar() {
                 <FaUser /> Beboer-overblik
               </button>
             </li>
-
-            <li className={`nav-item ${isActive('/konto')}`}>
+            <li className={`nav-item ${isActive('/konto-admin')}`}>
               <button
                 className="nav-link btn btn-link text-white"
-                onClick={() => navigate("/konto")}
+                onClick={() => navigate("/konto-admin")}
               >
                 <FaUser /> Konto
               </button>
             </li>
-
-
-
-            {/* Dark Mode Toggle */}
             <li className="nav-item">
               <button className="nav-link btn btn-link text-white" onClick={toggleDarkMode}>
-                {location.pathname === "/konto" ? <FaSun /> : <FaMoon />} Toggle Dark Mode
+                {location.pathname === "/konto-admin" ? <FaSun /> : <FaMoon />} Toggle Dark Mode
               </button>
             </li>
           </ul>

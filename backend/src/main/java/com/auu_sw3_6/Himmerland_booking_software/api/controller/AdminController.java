@@ -99,15 +99,16 @@ public class AdminController extends UserController<Admin> {
 
   @PostMapping(value = "/createBookingForTenant/{tenantId}", consumes = "application/json", produces = "application/json")
   @Operation(summary = "Create booking for tenant", description = "This endpoint creates a booking for a tenant.")
-   public ResponseEntity<Object> createBookingForTenant(@RequestBody BookingDetails bookingDetails, @PathVariable Long tenantId) {
-     try {
+  public ResponseEntity<Object> createBookingForTenant(@RequestBody BookingDetails bookingDetails,
+      @PathVariable Long tenantId) {
+    try {
       bookingDetails.setReceiverName(null);
       bookingDetails.setHandoverName(null);
       Tenant tenant = tenantService.get(tenantId);
-      Booking booking = ((AdminService)userService).bookResourceForTenant(tenant, bookingDetails);
+      Booking booking = ((AdminService) userService).bookResourceForTenant(tenant, bookingDetails);
       return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     } catch (Exception e) {
       return new ErrorResponse("Failed to create booking: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR).send();
-    } 
-  } 
+    }
+  }
 }

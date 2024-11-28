@@ -489,6 +489,17 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
     }
   }
 
+  public async getAdminById(id: number): Promise<AxiosResponse<any>> {
+    try {
+      const response = await axios.get(`${this.baseUrl}admin/${id}`, {
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error fetching admin by ID:", error);
+      throw error;
+    }
+  }
   
 }
 

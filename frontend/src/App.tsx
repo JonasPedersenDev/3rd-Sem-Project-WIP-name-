@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import AccountPage from "./pages/AccountPage";
+import CTAccountPage from "./pages/CTAccountPage";
 import CToverviewPage from "./pages/CTOverviewPage";
 import CTresourcePage from "./pages/CTresourcePage";
 import CTtenantOverview from "./pages/CTtenantOverview";
@@ -53,6 +54,11 @@ const routesConfig: {
   {
     path: "/beboer-overblik",
     component: <CTtenantOverview />,
+    allowedRoles: ["ROLE_ADMIN"],
+  },
+  {
+    path: "/konto-admin",
+    component: <CTAccountPage />,
     allowedRoles: ["ROLE_ADMIN"],
   },
 ];

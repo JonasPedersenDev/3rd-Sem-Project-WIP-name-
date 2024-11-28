@@ -26,14 +26,12 @@ public class AdminService extends UserService<Admin> {
   public AdminService(AdminRepository adminRepository, PictureService profilePictureService,
       PasswordEncoder passwordEncoder, BookingService bookingService) {
     super(adminRepository, profilePictureService, passwordEncoder, bookingService);
-    this.adminRepository = adminRepository; 
+    this.adminRepository = adminRepository;
     this.bookingService = bookingService;
   }
 
-  
-
   public Admin createAdmin(Admin admin, MultipartFile profilePicture) {
-      return createUser(admin, profilePicture);
+    return createUser(admin, profilePicture);
   }
 
   public void addCaretakerName(String caretakerName) {
@@ -42,9 +40,9 @@ public class AdminService extends UserService<Admin> {
     Admin admin = adminRepository.findById(ADMIN_ID)
         .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
 
-        if(admin.getCaretakerNames().contains(cleanedName)) {
-            throw new CaretakerNameConflictException("Caretaker name: \"" + cleanedName + "\" already exists");
-        }
+    if (admin.getCaretakerNames().contains(cleanedName)) {
+      throw new CaretakerNameConflictException("Caretaker name: \"" + cleanedName + "\" already exists");
+    }
 
     admin.addCaretakerName(cleanedName);
     adminRepository.save(admin);
@@ -54,9 +52,9 @@ public class AdminService extends UserService<Admin> {
     Admin admin = adminRepository.findById(ADMIN_ID)
         .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
 
-        if(admin.getCaretakerNames().isEmpty()) {
-            throw new AdminNotFouldException("No caretaker names found");
-        }
+    if (admin.getCaretakerNames().isEmpty()) {
+      throw new AdminNotFouldException("No caretaker names found");
+    }
     return admin.getCaretakerNames();
   }
 
@@ -64,9 +62,9 @@ public class AdminService extends UserService<Admin> {
     Admin admin = adminRepository.findById(ADMIN_ID)
         .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + ADMIN_ID));
 
-        if (!admin.getCaretakerNames().contains(caretakerName)) {
-            throw new AdminNotFouldException("Caretaker name: \"" + caretakerName + "\" not found");
-        }
+    if (!admin.getCaretakerNames().contains(caretakerName)) {
+      throw new AdminNotFouldException("Caretaker name: \"" + caretakerName + "\" not found");
+    }
     String cleanedName = caretakerName.trim().replaceAll("^\"|\"$", "");
     admin.removeCaretakerName(cleanedName);
     adminRepository.save(admin);

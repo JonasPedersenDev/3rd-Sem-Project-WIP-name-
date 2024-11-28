@@ -18,10 +18,6 @@ import DeleteUserButton from "../DeleteUser/DeleteUser";
 interface UserInfo {
   id: number;
   username: string;
-  name: string;
-  houseAddress?: string;
-  email: string;
-  mobileNumber: string;
   password: string;
 }
 
@@ -29,10 +25,6 @@ const SettingsForm: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     id: 0,
     username: "",
-    name: "",
-    houseAddress: "",
-    mobileNumber: "",
-    email: "",
     password: "",
   });
   const navigate = useNavigate();
@@ -45,13 +37,12 @@ const SettingsForm: React.FC = () => {
 
   //used to fetch user data from the backend when site is loaded
   useEffect(() => {
-    // Fetch authenticated user information from the backend
     const fetchUserInfo = async () => {
       try {
-        let response = await ApiService.fetchData<UserInfo>("tenant");
+        let response = await ApiService.getAdminById(1);
         console.log("User Information:", response.data);
         setUserInfo(response.data);
-       } catch (error) {
+      } catch (error) {
         console.error("Error fetching user information:", error);
       }
     };
@@ -61,7 +52,7 @@ const SettingsForm: React.FC = () => {
   //used to fetch user data from the backend when cancel is clicked
   const fetchUserData = async () => {
     try {
-      const data = await ApiService.fetchData<UserInfo>("tenant");
+      const data = await ApiService.getAdminById(1);
       setUserInfo(data.data);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -79,19 +70,13 @@ const handleCancel = async () => {
   };
 
   const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     if (
       !userInfo.username ||
-      !userInfo.password ||
-      !userInfo.email ||
-      !userInfo.name
+      !userInfo.password
     ) {
       return "Udfyld venligst alle felter.";
-    }
-    if (!emailRegex.test(userInfo.email)) {
-      return "Indtast en gyldig email.";
     }
     if (!passwordRegex.test(userInfo.password)) {
       return "Adgangskoden skal være mindst 8 tegn lang og inkludere både store og små bogstaver samt et tal.";
@@ -116,7 +101,7 @@ const handleCancel = async () => {
     }
     setIsEditing(!isEditing);
     setValidationError(null);
-};
+  };
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -138,50 +123,6 @@ const handleCancel = async () => {
                     onChange={handleInputChange}
                     disabled={!isEditing}
                     placeholder={userInfo.username}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formName">
-                  <Form.Label>Navn</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={userInfo.name}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.name}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formHouseAddress">
-                  <Form.Label>Adresse</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="houseAddress"
-                    value={userInfo.houseAddress}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.houseAddress}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formEmail">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={userInfo.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.email}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formmobileNumber">
-                  <Form.Label>Telefon nummer</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="mobileNumber"
-                    value={userInfo.mobileNumber}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder={userInfo.mobileNumber}
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">

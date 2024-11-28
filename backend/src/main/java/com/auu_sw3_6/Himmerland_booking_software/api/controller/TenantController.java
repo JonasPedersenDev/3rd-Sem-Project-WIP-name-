@@ -76,8 +76,21 @@ public class TenantController extends UserController<Tenant> {
 
   @PutMapping(value = "/updateUser/{id}", produces = "application/json")
   @Operation(summary = "Update user", description = "This endpoint updates a user.")
-  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant) {
+  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant,
+      HttpServletResponse response) {
     Tenant updatedTenant = tenantService.update(id, tenant);
+
+    // Clear the JWT cookie
+    ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .maxAge(0) // Expire the cookie immediately
+        .sameSite("none") // only for development, maybe
+        .build();
+
+    response.addHeader("Set-Cookie", jwtCookie.toString());
+
     return ResponseEntity.ok(updatedTenant);
   }
 
