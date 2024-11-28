@@ -39,7 +39,8 @@ public class BookingService {
   private static final int COOLDOWN_DAYS = 15;
   private static final int MAX_ACTIVE_PER_RESOURCE = 5;
 
-  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory, ApplicationEventPublisher eventPublisher) {
+  public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory,
+      ApplicationEventPublisher eventPublisher) {
     this.bookingRepository = bookingRepository;
     this.resourceServiceFactory = resourceServiceFactory;
     this.eventPublisher = eventPublisher;
@@ -97,7 +98,9 @@ public class BookingService {
     }
 
     if (booking.getStatus() == BookingStatus.CONFIRMED) {
-      if (editBookingRequest.getStartDate() != booking.getStartDate()) {
+      if (!editBookingRequest.getStartDate().equals(booking.getStartDate())) {
+        System.out.println("Start date: " + editBookingRequest.getStartDate());
+        System.out.println("Booking start date: " + booking.getStartDate());
         throw new IllegalBookingException("Cannot change booking start date.");
       }
     }
@@ -128,7 +131,8 @@ public class BookingService {
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
 
-    if (getBookingsByUserID(user.getId()).stream().filter((booking) -> booking.getStatus() != BookingStatus.CANCELED).count() >= resource.getCapacity() * MAX_ACTIVE_PER_RESOURCE) {
+    if (getBookingsByUserID(user.getId()).stream().filter((booking) -> booking.getStatus() != BookingStatus.CANCELED)
+        .count() >= resource.getCapacity() * MAX_ACTIVE_PER_RESOURCE) {
       throw new IllegalBookingException("Too many active bookings.");
     }
 
@@ -336,9 +340,9 @@ public class BookingService {
   }
 
   public void setBookingStatus(long bookingId, BookingStatus status, long userId, Boolean isAdmin) {
-    
+
     Booking booking = bookingRepository.findById(bookingId)
-    .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+        .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
 
     if (booking.getUser().getId() != userId && isAdmin == false) {
       throw new IllegalBookingException("User is not allowed to edit this booking.");
@@ -346,33 +350,34 @@ public class BookingService {
 
     booking.setStatus(status);
 
-    if(booking.getStatus() == BookingStatus.CANCELED && isAdmin) {
+    if (booking.getStatus() == BookingStatus.CANCELED && isAdmin) {
       eventPublisher.publishEvent(new CancelNotificationEvent(this, booking));
     }
     bookingRepository.save(booking);
   }
 
-  public void cancelAllBookingsForResource (long resourceId, ResourceType resourceType) {
-    //Checks the given resource actually exists
+  public void cancelAllBookingsForResource(long resourceId, ResourceType resourceType) {
+    // Checks the given resource actually exists
     ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(resourceType);
     Resource resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID " + resourceId));
 
-
     List<Booking> confirmedBookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.CONFIRMED);
     List<Booking> pendingBookings = bookingRepository.findByResourceAndStatus(resource, BookingStatus.PENDING);
-    
+
     List<Booking> combinedBookingsList = new ArrayList<>();
     combinedBookingsList.addAll(confirmedBookings);
     combinedBookingsList.addAll(pendingBookings);
 
-    if (combinedBookingsList.isEmpty()) { return; }
+    if (combinedBookingsList.isEmpty()) {
+      return;
+    }
 
     combinedBookingsList.forEach(booking -> booking.setStatus(BookingStatus.CANCELED));
     bookingRepository.saveAll(combinedBookingsList);
   }
 
-  public void deleteAllBookingsForResource (long resourceId) {
+  public void deleteAllBookingsForResource(long resourceId) {
     List<Booking> bookings = bookingRepository.findByResource_Id(resourceId);
     if (!bookings.isEmpty()) {
       bookingRepository.deleteAll(bookings);
@@ -420,6 +425,5 @@ public class BookingService {
       }
     }
   }
-
 
 }
