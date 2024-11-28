@@ -10,20 +10,24 @@ import { TimeRange } from "../../modelInterfaces/TimeRange";
 
 interface CreateBookingModalProps {
   resource: Resource;
+  booking: Booking | null;
   show: boolean;
   onBookingAdded: () => void;
   onClose: () => void;
+  editBooking?: boolean;
 }
 
 const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   resource,
+  booking,
   show,
   onBookingAdded,
   onClose,
+  editBooking,
 }) => {
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
-
-  const [bookingFormData, setBookingData] = useState<Booking>({
+  const [bookingFormData, setBookingData] = useState<Booking>(booking ? booking : {
+    id: 0,
     resourceID: resource.id,
     resourceName: resource.name,
     resourceType: resource.type,
@@ -31,28 +35,26 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     endDate: null,
     pickupTime: TimeRange.EARLY,
     dropoffTime: TimeRange.EARLY,
-  });
+    status: null
+   });
+
+   const fetchBookedDates = async () => {
+    try {
+      const response = await ApiService.fetchBookings(resource.type, resource.id);
+      console.log("Booked dates response:", response);
+      setBookedDates(response.data);
+    } catch (error) {
+      console.error("Failed to fetch booked dates:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchBookedDates = async () => {
-      try {
-        const response = await ApiService.fetchBookings(
-          resource.type,
-          resource.id
-        );
-
-        console.log("Booked dates response:", response);
-
-        setBookedDates(response.data);
-
-      } catch (error) {
-        console.error("Failed to fetch booked dates:", error);
-      }
+    const fetchDates = async () => {
+      await fetchBookedDates();
     };
-
-    fetchBookedDates();
+    fetchDates();
   }, [resource.type, resource.id]);
-
+  
   const handleDateChange = (start: Date | null, end: Date | null) => {
     setBookingData({
       ...bookingFormData,
@@ -64,21 +66,25 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   const handleSubmit = async () => {
     const transformedBooking = transformBooking(bookingFormData);
     try {
-        const response = await ApiService.createBooking(transformedBooking);
-        if (response.status === 200) {
-
-        } else {
-          console.error("Failed to create booking", transformedBooking);
-        }
-      } catch (error) {
-        console.error("Error during booking creation:", error);
+      let response;
+      if (editBooking && booking) {
+        response = await ApiService.updateData(`tenant/editBooking/${booking.id}`, transformedBooking);
+      } else {
+        response = await ApiService.createBooking(transformedBooking);
       }
-    
-    onBookingAdded();
-    onClose();
+  
+      if (response.status === 200) {
+        await fetchBookedDates();
+        onBookingAdded();
+        onClose();
+      } else {
+        console.error("Failed to process booking", transformedBooking);
+      }
+    } catch (error) {
+      console.error("Error during booking creation/update:", error);
+    }
   };
   
-
   const transformBooking = (booking: any) => {
     const formatDate = (date: string) => {
       const newDate = new Date(date);
@@ -95,6 +101,16 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     };
   };
 
+  const isBookingInProgress = (booking: Booking | null) => {
+    if (!booking) return undefined;
+    return ( booking.status === "CONFIRMED" || booking.status === "LATE");
+  }
+
+  const isBookingCompleted = (booking: Booking | null) => {
+    if (!booking) return undefined;
+    return ( booking.status === "COMPLETED" || booking.status === "CANCELLED");
+  };
+
   return (
     <Modal show={show} onHide={onClose}>
       <Modal.Header closeButton>
@@ -107,6 +123,10 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               bookedDates={bookedDates}
               onDateChange={handleDateChange}
               resourceCapacity={resource.capacity}
+              initialStartDate={booking ? booking.startDate : null}
+              initialEndDate={booking ? booking.endDate : null}
+              inProgress={isBookingInProgress(booking)}
+              isDone={isBookingCompleted(booking)}
             />
           </div>
 
@@ -115,6 +135,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             <Form.Control
               type="text"
               readOnly
+              disabled
               value={
                 bookingFormData.startDate
                   ? bookingFormData.startDate.toDateString()
@@ -129,6 +150,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
             <Form.Control
               type="text"
               readOnly
+              disabled
               value={
                 bookingFormData.endDate
                   ? bookingFormData.endDate.toDateString()
@@ -144,6 +166,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               as="select"
               name="pickup"
               aria-labelledby="pickup-label"
+              disabled={isBookingInProgress(booking)}
               value={bookingFormData.pickupTime.toString()}
               onChange={(e) =>
                 setBookingData({
@@ -164,6 +187,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
               as="select"
               name="dropoff"
               aria-labelledby="dropoff-label"
+              disabled={isBookingCompleted(booking)}
               value={bookingFormData.dropoffTime.toString()}
               onChange={(e) =>
                 setBookingData({

@@ -47,6 +47,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, loading }) => {
         <CreateBookingModal
           resource={resource}
           show={isModalOpen}
+          booking={null}
           onBookingAdded={handleBookingAdded}
           onClose={() => setIsModalOpen(false)}
         />

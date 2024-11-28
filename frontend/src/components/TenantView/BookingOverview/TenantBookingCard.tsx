@@ -1,43 +1,65 @@
 import React, { useState } from "react";
 import { Modal, Card, Button, Row, Col } from "react-bootstrap";
 import CardImage from "../ResourceGrid/CardImage";
-import { ResourceType } from "../../../utils/EnumSupport";
+import CreateBookingModal from "../CreateBookingModal/CreateBookingModal";
+import Resource from "../../modelInterfaces/Resource";
 
 interface TenantBooking {
   id: number;
   tenantName: string;
-  resourceName: string;
-  resourceType: ResourceType;
+  resource: Resource;
   startDate: Date;
   endDate: Date;
   pickupTime: string;
   dropoffTime: string;
   imageUrl?: string;
-  resourceID: number;
+  status: string;
 }
 
 interface TenantBookingCardProps {
   booking: TenantBooking;
-  onCancel: (id: number) => void
-  isFuture: boolean 
+  onCancel: (id: number) => void;
+  isFuture?: boolean;
+  isDone?: boolean;
+  fetchBookings?: () => void;
 }
 
-const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking, onCancel, isFuture }) => {
+const TenantBookingCard: React.FC<TenantBookingCardProps> = ({
+  booking,
+  onCancel,
+  isFuture,
+  isDone,
+  fetchBookings,
+}) => {
   const [showModal, setShowModal] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+
+  const handleCreateBookingModalOpen = () => setIsCreateModalOpen(true);
+  const handleCreateBookingModalClose = () => setIsCreateModalOpen(false);
 
   return (
     <Card className="mb-3 shadow-sm border-0">
       <Card.Body>
         <Row className="align-items-center">
-          <Col xs={3} className="d-flex justify-content-center align-items-center">
-            <div style={{ width: "80px", height: "80px", overflow: "hidden", borderRadius: "8px" }}>
+          <Col
+            xs={3}
+            className="d-flex justify-content-center align-items-center"
+          >
+            <div
+              style={{
+                width: "80px",
+                height: "80px",
+                overflow: "hidden",
+                borderRadius: "8px",
+              }}
+            >
               <CardImage
-                id={booking.resourceID}
-                type={booking.resourceType} 
-                name={booking.resourceName} 
+                id={booking.resource.id}
+                type={booking.resource.type}
+                name={booking.resource.name}
               />
             </div>
           </Col>
@@ -47,13 +69,15 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking, onCancel
               <strong>{booking.tenantName}</strong>
             </h5>
             <p className="mb-0 text-muted">
-              <strong>Ressource:</strong> {booking.resourceName}
+              <strong>Ressource:</strong> {booking.resource.name}
             </p>
             <p className="mb-0">
-              <strong>Start:</strong> {booking.startDate.toLocaleDateString()} - {booking.pickupTime}
+              <strong>Start:</strong> {booking.startDate.toLocaleDateString()} -{" "}
+              {booking.pickupTime}
             </p>
             <p>
-              <strong>Slut:</strong> {booking.endDate.toLocaleDateString()} - {booking.dropoffTime}
+              <strong>Slut:</strong> {booking.endDate.toLocaleDateString()} -{" "}
+              {booking.dropoffTime}
             </p>
           </Col>
 
@@ -61,9 +85,24 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking, onCancel
             <Button variant="outline-primary" onClick={handleShow}>
               Detaljer
             </Button>
+            {!isDone && (
+              <>
+                <Button
+                  variant="warning"
+                  onClick={handleCreateBookingModalOpen}
+                >
+                  Rediger
+                </Button>
+              </>
+            )}
+
             {isFuture && (
               <>
-                <Button variant="danger" className="ms-2" onClick={() => onCancel(booking.id)}>
+                <Button
+                  variant="danger"
+                  className="ms-2"
+                  onClick={() => onCancel(booking.id)}
+                >
                   Annuller
                 </Button>
               </>
@@ -77,14 +116,51 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({ booking, onCancel
           <Modal.Title>Bookingdetaljer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p><strong>Navn:</strong> {booking.tenantName}</p>
-          <p><strong>Ressource:</strong> {booking.resourceName}</p>
-          <p><strong>Startdato:</strong> {booking.startDate.toLocaleDateString()}</p>
-          <p><strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()}</p>
-          <p><strong>Afhentning:</strong> {booking.pickupTime}</p>
-          <p><strong>Aflevering:</strong> {booking.dropoffTime}</p>
+          <p>
+            <strong>Navn:</strong> {booking.tenantName}
+          </p>
+          <p>
+            <strong>Ressource:</strong> {booking.resource.name}
+          </p>
+          <p>
+            <strong>Startdato:</strong> {booking.startDate.toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Afhentning:</strong> {booking.pickupTime}
+          </p>
+          <p>
+            <strong>Aflevering:</strong> {booking.dropoffTime}
+          </p>
         </Modal.Body>
       </Modal>
+
+      {isCreateModalOpen && (
+        <CreateBookingModal
+          resource={booking.resource}
+          show={isCreateModalOpen}
+          booking={{
+            id: booking.id,
+            resourceID: booking.resource.id,
+            resourceType: booking.resource.type,
+            resourceName: booking.resource.name,
+            startDate: booking.startDate,
+            endDate: booking.endDate,
+            pickupTime: booking.pickupTime,
+            dropoffTime: booking.dropoffTime,
+            status: booking.status,
+          }}
+          editBooking={true}
+          onBookingAdded={() => {
+            fetchBookings && fetchBookings();
+            console.log("Booking updated");
+            setIsCreateModalOpen(false);
+          }}
+          onClose={handleCreateBookingModalClose}
+        />
+      )}
     </Card>
   );
 };

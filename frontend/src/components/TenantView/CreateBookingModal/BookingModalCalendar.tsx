@@ -8,16 +8,25 @@ interface BookingModalCalendarProps {
   bookedDates: BookingDate[];
   onDateChange: (start: Date | null, end: Date | null) => void;
   resourceCapacity: number;
+  initialStartDate: Date | null;
+  initialEndDate: Date | null;
+  inProgress: boolean | undefined;
+  isDone: boolean | undefined;
 }
 
 const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
   bookedDates,
   onDateChange,
   resourceCapacity,
+  initialStartDate,
+  initialEndDate,
+  inProgress,
+  isDone,
 }) => {
-  const [selectedStart, setSelectedStart] = useState<Date | null>(null);
-  const [selectedEnd, setSelectedEnd] = useState<Date | null>(null);
-
+  const [selectedStart, setSelectedStart] = useState<Date | null>(initialStartDate);
+  const [selectedEnd, setSelectedEnd] = useState<Date | null>(
+    initialEndDate ? new Date(initialEndDate.getTime() + 24 * 60 * 60 * 1000) : null
+  );
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -38,23 +47,31 @@ const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
   };
 
   const handleDateClick = (date: Date) => {
-    if (!selectedStart || (selectedStart && selectedEnd)) {
-      // Set start date if none selected, or if both start and end are selected
-      setSelectedStart(date);
-      setSelectedEnd(null);
-      onDateChange(date, null);
-    } else {
-      // Set end date if start date is already selected
-      if (date > selectedStart) {
+    if (isDone) {
+      return;
+    }
+    if (inProgress) {
+      if (selectedStart && date > selectedStart) {
         setSelectedEnd(date);
         onDateChange(selectedStart, date);
-      } else {
-        // If selected end date is before start, reset start and end
+      }
+    } else {
+      if (!selectedStart || (selectedStart && selectedEnd)) {
         setSelectedStart(date);
         setSelectedEnd(null);
         onDateChange(date, null);
+      } else if (selectedStart && !selectedEnd) {
+        if (date > selectedStart) {
+          setSelectedEnd(date);
+          onDateChange(selectedStart, date);
+        } else {
+          setSelectedStart(date);
+          setSelectedEnd(null);
+          onDateChange(date, null);
+        }
       }
     }
+
   };
 
   return (
@@ -76,7 +93,7 @@ const BookingModalCalendar: React.FC<BookingModalCalendarProps> = ({
           return "free-tile";
         }}
         onClickDay={handleDateClick}
-        tileDisabled={({ date }) => isBeforeToday(date)}
+        tileDisabled={({ date }) => !!(isBeforeToday(date) || (inProgress && selectedStart && date < selectedStart))}
       />
       <div className="calendar-legend">
         <div className="legend-item">
