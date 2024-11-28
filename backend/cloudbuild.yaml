@@ -6,6 +6,6 @@ steps:
       - build
       - '-t'
       - 'gcr.io/student-project-backend/github.com/jonaspedersendev/himmerland-booking-system:$COMMIT_SHA'
-      - '.'
+      - './backend'
 images:
   - 'gcr.io/student-project-backend/github.com/jonaspedersendev/himmerland-booking-system:$COMMIT_SHA'
