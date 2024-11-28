@@ -31,12 +31,7 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({
   isDone,
   fetchBookings,
 }) => {
-  const [showModal, setShowModal] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  const handleClose = () => setShowModal(false);
-  const handleShow = () => setShowModal(true);
-
   const handleCreateBookingModalOpen = () => setIsCreateModalOpen(true);
   const handleCreateBookingModalClose = () => setIsCreateModalOpen(false);
 
@@ -72,19 +67,16 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({
               <strong>Ressource:</strong> {booking.resource.name}
             </p>
             <p className="mb-0">
-              <strong>Start:</strong> {booking.startDate.toLocaleDateString()} -{" "}
+              <strong>Afhentning:</strong> {booking.startDate.toLocaleDateString()} -{" "}
               {booking.pickupTime}
             </p>
             <p>
-              <strong>Slut:</strong> {booking.endDate.toLocaleDateString()} -{" "}
+              <strong>Aflevering:</strong> {booking.endDate.toLocaleDateString()} -{" "}
               {booking.dropoffTime}
             </p>
           </Col>
 
           <Col xs={3} className="d-flex justify-content-end">
-            <Button variant="outline-primary" onClick={handleShow}>
-              Detaljer
-            </Button>
             {!isDone && (
               <>
                 <Button
@@ -110,32 +102,6 @@ const TenantBookingCard: React.FC<TenantBookingCardProps> = ({
           </Col>
         </Row>
       </Card.Body>
-
-      <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Bookingdetaljer</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            <strong>Navn:</strong> {booking.tenantName}
-          </p>
-          <p>
-            <strong>Ressource:</strong> {booking.resource.name}
-          </p>
-          <p>
-            <strong>Startdato:</strong> {booking.startDate.toLocaleDateString()}
-          </p>
-          <p>
-            <strong>Slutdato:</strong> {booking.endDate.toLocaleDateString()}
-          </p>
-          <p>
-            <strong>Afhentning:</strong> {booking.pickupTime}
-          </p>
-          <p>
-            <strong>Aflevering:</strong> {booking.dropoffTime}
-          </p>
-        </Modal.Body>
-      </Modal>
 
       {isCreateModalOpen && (
         <CreateBookingModal
