@@ -10,7 +10,7 @@ public enum TimeRange {
   EARLY("7:00-7:30"),
   LATE("11:00-12:00");
 
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
   private final String timeSlot;
 
   TimeRange(String timeSlot) {

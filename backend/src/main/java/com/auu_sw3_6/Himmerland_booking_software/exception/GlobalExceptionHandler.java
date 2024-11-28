@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalBookingException(IllegalBookingException ex) {
         log.error("Illegal booking: " + ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("Illegal booking", HttpStatus.BAD_REQUEST);
-        errorResponse.setDetails(Map.of("reason", ex.getMessage()));
+        errorResponse.setDetails(Map.of("reason", ex.getMessage(), "errorcode", String.valueOf(ex.getError().getErrorCode())));
         return ResponseEntity.status(errorResponse.getStatus()).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 

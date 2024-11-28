@@ -2,14 +2,14 @@ package com.auu_sw3_6.Himmerland_booking_software.exception;
 
 public class IllegalBookingException extends RuntimeException {
 
-  private final String message;
+  private final BookingError error;
 
-  public IllegalBookingException(String message) {
-      super(message);
-      this.message = message;
-    }
+  public IllegalBookingException(BookingError error) {
+      super(error.getErrorMessage());
+      this.error = error;
+  }
 
-  public String getMessage() {
-    return message;
+  public BookingError getError() {
+    return error;
   }
 }

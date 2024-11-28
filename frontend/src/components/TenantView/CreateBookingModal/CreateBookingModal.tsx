@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 import BookingModalCalendar from "./BookingModalCalendar";
 import ApiService from "../../../utils/ApiService";
 import Resource from "../../modelInterfaces/Resource";
@@ -26,21 +26,33 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   editBooking,
 }) => {
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
-  const [bookingFormData, setBookingData] = useState<Booking>(booking ? booking : {
-    id: 0,
-    resourceID: resource.id,
-    resourceName: resource.name,
-    resourceType: resource.type,
-    startDate: null,
-    endDate: null,
-    pickupTime: TimeRange.EARLY,
-    dropoffTime: TimeRange.EARLY,
-    status: null
-   });
+  const [bookingFormData, setBookingData] = useState<Booking>(
+    booking
+      ? booking
+      : {
+          id: 0,
+          resourceID: resource.id,
+          resourceName: resource.name,
+          resourceType: resource.type,
+          startDate: null,
+          endDate: null,
+          pickupTime: TimeRange.EARLY,
+          dropoffTime: TimeRange.EARLY,
+          status: null,
+        }
+  );
 
-   const fetchBookedDates = async () => {
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  const fetchBookedDates = async () => {
     try {
-      const response = await ApiService.fetchBookings(resource.type, resource.id);
+      const response = await ApiService.fetchBookings(
+        resource.type,
+        resource.id
+      );
       console.log("Booked dates response:", response);
       setBookedDates(response.data);
     } catch (error) {
@@ -54,7 +66,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     };
     fetchDates();
   }, [resource.type, resource.id]);
-  
+
   const handleDateChange = (start: Date | null, end: Date | null) => {
     setBookingData({
       ...bookingFormData,
@@ -68,7 +80,10 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     try {
       let response;
       if (editBooking && booking) {
-        response = await ApiService.updateData(`tenant/editBooking/${booking.id}`, transformedBooking);
+        response = await ApiService.updateData(
+          `tenant/editBooking/${booking.id}`,
+          transformedBooking
+        );
       } else {
         response = await ApiService.createBooking(transformedBooking);
       }
@@ -76,15 +91,37 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
       if (response.status === 200) {
         await fetchBookedDates();
         onBookingAdded();
+        setNotification({ message: "Reservering gennemført!", type: "success" });
         onClose();
-      } else {
-        console.error("Failed to process booking", transformedBooking);
       }
-    } catch (error) {
-      console.error("Error during booking creation/update:", error);
+    } catch (error: any) {
+      if (error.response) {
+        const { status, data } = error.response;
+        if (status === 400) {
+          const errorMessage = data.details.reason || "Invalid booking request.";
+          setNotification({ message: errorMessage, type: "error" });
+        } else if (status === 500) {
+          const errorMessage = "Intern serverfejl.";
+          setNotification({ message: errorMessage, type: "error" });
+        } else {
+          setNotification({
+            message: `An error occurred. Status code: ${status}`,
+            type: "error",
+          });
+        }
+      } else {
+        console.error("Error during booking creation/update:", error);
+        setNotification({
+          message: "Ukendt fejl sket. Prøve igen!",
+          type: "error",
+        });
+      }
+    } finally {
+      setTimeout(() => setNotification(null), 5000);
     }
   };
   
+
   const transformBooking = (booking: any) => {
     const formatDate = (date: string) => {
       const newDate = new Date(date);
@@ -103,12 +140,12 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
 
   const isBookingInProgress = (booking: Booking | null) => {
     if (!booking) return undefined;
-    return ( booking.status === "CONFIRMED" || booking.status === "LATE");
-  }
+    return booking.status === "CONFIRMED" || booking.status === "LATE";
+  };
 
   const isBookingCompleted = (booking: Booking | null) => {
     if (!booking) return undefined;
-    return ( booking.status === "COMPLETED" || booking.status === "CANCELLED");
+    return booking.status === "COMPLETED" || booking.status === "CANCELLED";
   };
 
   return (
@@ -117,6 +154,11 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
         <Modal.Title>Reserver {resource.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+      {notification && (
+          <Alert variant={notification.type === "success" ? "success" : "danger"} className="mb-3">
+            {notification.message}
+          </Alert>
+        )}
         <Form onSubmit={(e) => e.preventDefault()}>
           <div className="d-flex justify-content-center mt-3">
             <BookingModalCalendar

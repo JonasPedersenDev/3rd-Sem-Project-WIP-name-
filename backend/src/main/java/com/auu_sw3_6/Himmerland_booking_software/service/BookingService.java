@@ -23,6 +23,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStat
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.TimeRange;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
+import com.auu_sw3_6.Himmerland_booking_software.exception.BookingError;
 import com.auu_sw3_6.Himmerland_booking_software.exception.BookingNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.IllegalBookingException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
@@ -84,43 +85,40 @@ public class BookingService {
         .orElseThrow(() -> new BookingNotFoundException("Booking not found with ID: " + id));
 
     if (booking.getUser().getId() != user.getId()) {
-      throw new IllegalBookingException("User is not allowed to edit this booking.");
+      throw new IllegalBookingException(BookingError.USER_NOT_ALLOWED);
     }
 
     if (booking.getStatus() == BookingStatus.COMPLETED) {
-      throw new IllegalBookingException("Cannot edit completed booking.");
+      throw new IllegalBookingException(BookingError.COMPLETED_BOOKING_EDIT);
     }
     if (booking.getStatus() == BookingStatus.CANCELED) {
-      throw new IllegalBookingException("Cannot edit canceled booking.");
+      throw new IllegalBookingException(BookingError.CANCELLED_BOOKING_EDIT);
     }
     if (booking.getStatus() == BookingStatus.LATE) {
-      throw new IllegalBookingException("Cannot edit missed booking.");
+      throw new IllegalBookingException(BookingError.LATE_BOOKING_EDIT);
     }
 
     if (booking.getStatus() == BookingStatus.CONFIRMED) {
       if (!editBookingRequest.getStartDate().equals(booking.getStartDate())) {
         System.out.println("Start date: " + editBookingRequest.getStartDate());
         System.out.println("Booking start date: " + booking.getStartDate());
-        throw new IllegalBookingException("Cannot change booking start date.");
+        throw new IllegalBookingException(BookingError.ACTIVE_BOOKING_START_EDIT);
       }
     }
 
-    if (isBookingPeriodInvalid(editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
-        editBookingRequest.getPickupTime(), editBookingRequest.getDropoffTime())) {
-      throw new IllegalBookingException("Invalid booking period.");
-    }
+    checkBookingPeriodValidity(editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
+        editBookingRequest.getPickupTime(), editBookingRequest.getDropoffTime());
 
-    if (isResourceAvailableForEdit(booking.getResource(), editBookingRequest.getStartDate(),
-        editBookingRequest.getEndDate(), booking, user)) {
-      booking.setStartDate(editBookingRequest.getStartDate());
-      booking.setEndDate(editBookingRequest.getEndDate());
-      booking.setPickupTime(editBookingRequest.getPickupTime());
-      booking.setDropoffTime(editBookingRequest.getDropoffTime());
+    checkResourceAvailability(booking.getResource(), editBookingRequest.getStartDate(),
+        editBookingRequest.getEndDate(), user, booking);
 
-      return bookingRepository.save(booking);
-    } else {
-      throw new IllegalBookingException("Resource is not available for the selected dates.");
-    }
+    booking.setStartDate(editBookingRequest.getStartDate());
+    booking.setEndDate(editBookingRequest.getEndDate());
+    booking.setPickupTime(editBookingRequest.getPickupTime());
+    booking.setDropoffTime(editBookingRequest.getDropoffTime());
+
+    return bookingRepository.save(booking);
+
   }
 
   public Booking bookResource(User user, BookingDetails details) {
@@ -131,69 +129,69 @@ public class BookingService {
     LocalDate startDate = details.getStartDate();
     LocalDate endDate = details.getEndDate();
 
-    if (getBookingsByUserID(user.getId()).stream().filter((booking) -> booking.getStatus() != BookingStatus.CANCELED)
+    if (getBookingsByUserID(user.getId()).stream()
+        .filter(booking -> booking.getResource().getId() == resource.getId())
+        .filter(booking -> booking.getStatus() != BookingStatus.CANCELED)
+        .filter(booking -> booking.getStatus() != BookingStatus.COMPLETED)
         .count() >= resource.getCapacity() * MAX_ACTIVE_PER_RESOURCE) {
-      throw new IllegalBookingException("Too many active bookings.");
+      throw new IllegalBookingException(BookingError.TOO_MANY_BOOKINGS);
     }
 
-    if (isBookingPeriodInvalid(startDate, endDate, details.getPickupTime(), details.getDropoffTime())) {
-      throw new IllegalBookingException("Invalid booking period.");
-    }
+    checkBookingPeriodValidity(startDate, endDate, details.getPickupTime(), details.getDropoffTime());
 
-    if (isResourceAvailable(resource, startDate, endDate, user)) {
-      Booking booking = new Booking(resource, user, startDate, endDate,
-          details.getPickupTime(), details.getDropoffTime(),
-          BookingStatus.PENDING, details.getReceiverName(), details.getHandoverName());
+    checkResourceAvailability(resource, startDate, endDate, user);
 
-      return bookingRepository.save(booking);
-    } else {
-      throw new IllegalBookingException("Resource is not available for the selected dates.");
-    }
+    Booking booking = new Booking(resource, user, startDate, endDate,
+        details.getPickupTime(), details.getDropoffTime(),
+        BookingStatus.PENDING, details.getReceiverName(), details.getHandoverName());
+
+    return bookingRepository.save(booking);
+
   }
 
-  private boolean isBookingPeriodInvalid(LocalDate startDate, LocalDate endDate, TimeRange pickupTime,
+  private void checkBookingPeriodValidity(LocalDate startDate, LocalDate endDate, TimeRange pickupTime,
       TimeRange dropoffTime) {
     LocalDate today = LocalDate.now();
     LocalTime now = LocalTime.now();
 
     if (!startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate)) {
-      return true;
+      throw new IllegalBookingException(BookingError.INVALID_DATE_RANGE);
     }
 
     if (startDate.isBefore(today)) {
-      return true;
+      throw new IllegalBookingException(BookingError.START_DATE_IN_PAST);
     }
 
     if (startDate.equals(today) && pickupTime.getStartTime().isBefore(now)) {
-      return true;
+      throw new IllegalBookingException(BookingError.PICKUP_TIME_IN_PAST);
     }
 
     if (endDate.equals(today) && dropoffTime.getEndTime().isBefore(now)) {
-      return true;
+      throw new IllegalBookingException(BookingError.DROPOFF_TIME_IN_PAST);
     }
 
     if (isWeekend(startDate) || isWeekend(endDate)) {
-      return true;
+      throw new IllegalBookingException(BookingError.WEEKEND_BOOKING_NOT_ALLOWED);
     }
-
-    return false;
   }
 
   private boolean isWeekend(LocalDate date) {
     return date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
   }
 
-  private boolean isResourceAvailable(Resource resource, LocalDate startDate, LocalDate endDate, User user) {
-    List<Booking> bookings = getRelevantBookings(resource, null);
-    return checkResourceAvailability(bookings, resource, startDate, endDate)
-        && checkUserCooldown(bookings, user, startDate);
+  private void checkResourceAvailability(Resource resource, LocalDate startDate, LocalDate endDate, User user) {
+    checkResourceAvailability(resource, startDate, endDate, user, null);
   }
 
-  private boolean isResourceAvailableForEdit(Resource resource, LocalDate startDate, LocalDate endDate,
-      Booking currentBooking, User user) {
+  private void checkResourceAvailability(Resource resource, LocalDate startDate, LocalDate endDate, User user,
+      Booking currentBooking) {
     List<Booking> bookings = getRelevantBookings(resource, currentBooking);
-    return checkResourceAvailability(bookings, resource, startDate, endDate)
-        && checkUserCooldown(bookings, user, startDate);
+    if (!isResourceAvailable(bookings, resource, startDate, endDate)) {
+      throw new IllegalBookingException(BookingError.DEFAULT_ERROR);
+    }
+    if (!checkUserCooldown(bookings, user, startDate)) {
+      throw new IllegalBookingException(BookingError.TOO_OFTEN_BOOKING);
+    }
   }
 
   private List<Booking> getRelevantBookings(Resource resource, Booking excludedBooking) {
@@ -203,7 +201,7 @@ public class BookingService {
         .collect(Collectors.toList());
   }
 
-  private boolean checkResourceAvailability(List<Booking> bookings, Resource resource, LocalDate startDate,
+  private boolean isResourceAvailable(List<Booking> bookings, Resource resource, LocalDate startDate,
       LocalDate endDate) {
     for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
       LocalDate finalDate = date;
@@ -345,7 +343,7 @@ public class BookingService {
         .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
 
     if (booking.getUser().getId() != userId && isAdmin == false) {
-      throw new IllegalBookingException("User is not allowed to edit this booking.");
+      throw new IllegalBookingException(BookingError.USER_NOT_ALLOWED);
     }
 
     booking.setStatus(status);
