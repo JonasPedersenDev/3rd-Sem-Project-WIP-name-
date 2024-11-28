@@ -137,7 +137,7 @@ class ApiService {
 
   public async signUp(details: {
     user: object;
-    profilePicture?: File;
+    profilePicture: File | null;
   }): Promise<AxiosResponse<any>> {
     const formData = new FormData();
 
