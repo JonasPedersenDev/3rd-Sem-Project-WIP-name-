@@ -1,9 +1,9 @@
-import React, {  useState, useRef } from 'react';
-import { Button, Modal, Form } from 'react-bootstrap';
-import Resource from '../../modelInterfaces/Resource';
-import { ResourceType } from '../../../utils/EnumSupport';
-import ApiService from '../../../utils/ApiService';
-import BaseImage from '../../BaseImage';
+import React, { useState, useRef } from "react";
+import { Button, Modal, Form } from "react-bootstrap";
+import Resource from "../../modelInterfaces/Resource";
+import { ResourceType } from "../../../utils/EnumSupport";
+import ApiService from "../../../utils/ApiService";
+import BaseImage from "../../BaseImage";
 import defaultImage from "../../../assets/deafultResourcePic.jpg";
 import { validateImage, getCroppedImage } from "../../../utils/pictureSupport";
 import ReactCrop, { Crop } from "react-image-crop";
@@ -37,14 +37,21 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
 
   const fetchImage = async () => {
     try {
-      const response = await ApiService.fetchResourcePic(resource.type, resource.id);
+      const response = await ApiService.fetchResourcePic(
+        resource.type,
+        resource.id
+      );
       return response.data;
     } catch {
       return null;
     }
-  }
+  };
 
-  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleInputChange = async (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
 
     if (e.target.type === "file") {
@@ -59,20 +66,31 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
         } else {
           setImageFile(null);
           setImageSrc(null);
-          alert("Ugyldig fil type eller for små dimensioner. Billedet skal være PNG/JPG og skal være minimum 300x300 pixels");
+          alert(
+            "Ugyldig fil type eller for små dimensioner. Billedet skal være PNG/JPG og skal være minimum 300x300 pixels"
+          );
           fileInput.value = "";
         }
       }
     } else {
-      setEditedResource((prevEditedResource) => ({ ...prevEditedResource, [name]: value }));
+      setEditedResource((prevEditedResource) => ({
+        ...prevEditedResource,
+        [name]: value,
+      }));
     }
   };
 
   const handleCropComplete = async (crop: Crop) => {
     if (crop.width && crop.height && imgRef.current) {
-      const croppedBlob = await getCroppedImage(imgRef.current, crop, `${resource.name}-cropped.jpg`);
+      const croppedBlob = await getCroppedImage(
+        imgRef.current,
+        crop,
+        `${resource.name}-cropped.jpg`
+      );
       if (croppedBlob) {
-        setImageFile(new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" }));
+        setImageFile(
+          new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" })
+        );
       }
     }
   };
@@ -81,14 +99,12 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
     setImageSrc(null);
     setImageFile(null);
     setIsEditing(false);
-  }
-    
-
+  };
 
   const handleSave = () => {
     onEdit(editedResource, imageFile);
-    console.log("editedresource:", editedResource)
-    handleClose()
+    console.log("editedresource:", editedResource);
+    handleClose();
   };
 
   return (
@@ -121,7 +137,11 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
                 </Form.Group>
                 <Form.Group controlId="imageFile">
                   <Form.Label>Billede:</Form.Label>
-                  <Form.Control type="file" name="imageFile" onChange={handleInputChange}  />
+                  <Form.Control
+                    type="file"
+                    name="imageFile"
+                    onChange={handleInputChange}
+                  />
                   {imageSrc && (
                     <ReactCrop
                       crop={crop}
@@ -139,8 +159,6 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
                   )}
                 </Form.Group>
 
-
-
                 <Button variant="primary" onClick={handleSave}>
                   Gem ændringer
                 </Button>
@@ -151,30 +169,56 @@ const CaretakerResourceCard: React.FC<CaretakerResourceCardProps> = ({
           <>
             <div className="resource-info">
               <h3 className="mb-3">{resource.name}</h3>
-              <p><strong>Status:</strong> {resource.status === "available" ? "Aktiv" : "Service"}</p>
-              <p><strong>Beskrivelse:</strong> {resource.description}</p>
-              <p><strong>Antal:</strong> {resource.capacity}</p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {resource.status === "available" ? "Aktiv" : "Service"}
+              </p>
+              <p>
+                <strong>Beskrivelse:</strong> {resource.description}
+              </p>
+              <p>
+                <strong>Antal:</strong> {resource.capacity}
+              </p>
             </div>
             <BaseImage
               fetchImage={fetchImage}
               defaultImage={defaultImage}
               altText={`${resource.name} image`}
-              imageStyle={{ width: "100%", height: "auto" }}
+              imageStyle={{
+                width: "100%",
+                height: "auto",
+                maxWidth: "100px",
+                maxHeight: "100px",
+                objectFit: "contain"
+              }}
             />
+
             <div className="resource-actions">
-              <Button variant="outline-secondary" onClick={() => setIsEditing(true)}>
+              <Button
+                variant="outline-secondary"
+                onClick={() => setIsEditing(true)}
+              >
                 Rediger
               </Button>
               <Button
-                variant={resource.status === 'maintenance' ? 'success' : 'warning'}
+                variant={
+                  resource.status === "maintenance" ? "success" : "warning"
+                }
                 onClick={() => onToggleService(resource.id)}
                 className="ms-2"
               >
-                {resource.status === 'maintenance' ? 'Aktiver' : 'Servicer'}
+                {resource.status === "maintenance" ? "Aktiver" : "Servicer"}
               </Button>
               <Button
                 variant="danger"
-                onClick={() => onDelete(resource.id, ResourceType[resource.type.toUpperCase() as keyof typeof ResourceType])}
+                onClick={() =>
+                  onDelete(
+                    resource.id,
+                    ResourceType[
+                      resource.type.toUpperCase() as keyof typeof ResourceType
+                    ]
+                  )
+                }
                 className="ms-2"
               >
                 Slet
