@@ -8,9 +8,9 @@ class ApiService {
 
   constructor() {
     // Dev backend url
-    this.baseUrl = "http://localhost:8080/api/";
+    //this.baseUrl = "http://localhost:8080/api/";
     // Production backend url
-    // TBD
+    this.baseUrl = "https://test.jonasp.dk/login/api";
   }
 
   private async makeRequest<T>(
