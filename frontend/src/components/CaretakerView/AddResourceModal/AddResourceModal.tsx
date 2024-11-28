@@ -47,6 +47,8 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
           const imageSrc = URL.createObjectURL(file);
           setImageSrc(imageSrc);
         } else {
+          setImageFile(null);
+          setImageSrc(null);
           alert("Ugyldig fil type eller for små dimensioner. Billedet skal være PNG/JPG og skal være minimum 300x300 pixels");
           fileInput.value = "";
         }

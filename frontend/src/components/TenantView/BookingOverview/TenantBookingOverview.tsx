@@ -74,7 +74,7 @@ const TenantBookingOverview: React.FC = () => {
 
   const handleCancel = async (id: number) => {
     try {
-      await ApiService.updateData(`tenant/cancel/${id}`);
+      await ApiService.updateData(`tenant/cancelBooking/${id}`);
       setBookings((prevBookings) =>
         prevBookings.filter((booking) => booking.id !== id)
       );

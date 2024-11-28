@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../../../utils/ApiService";
+import { validateImage, getCroppedImage } from "../../../utils/pictureSupport";
+import ReactCrop, { Crop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+
 interface SignUpDetails {
   username: string;
   password: string;
@@ -14,6 +18,18 @@ const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const [details, setDetails] = useState<SignUpDetails>({ username: "", password: "", email: "", name: "", houseAddress: "", mobileNumber: "" });
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState<Crop>({
+    unit: "%",
+    width: 50,
+    height: 50,
+    x: 25,
+    y: 25,
+  });
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+
 
   // Valider om det er en mail
   const isValidEmail = (email: string): boolean => {
@@ -54,13 +70,42 @@ const SignUp: React.FC = () => {
     return true;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setDetails((prevDetails) => ({
-      ...prevDetails,
-      [id]: value,
-    }));
+
+    if (e.target.type === "file") {
+      const fileInput = e.target as HTMLInputElement;
+      const file = fileInput.files?.[0];
+      if (file) {
+        const validImage = await validateImage(file);
+        if (validImage) {
+          setImageFile(file);
+          const imageSrc = URL.createObjectURL(file);
+          setImageSrc(imageSrc);
+        } else {
+          setImageFile(null);
+          setImageSrc(null);
+          alert("Ugyldig fil type eller for små dimensioner. Billedet skal være PNG/JPG og skal være minimum 300x300 pixels");
+          fileInput.value = "";
+        }
+      }
+    } else {
+      setDetails((prevDetails) => ({
+        ...prevDetails,
+        [id]: value,
+      }));
+    }
   };
+
+  const handleCropComplete = async (crop: Crop) => {
+    if (crop.width && crop.height && imgRef.current) {
+      const croppedBlob = await getCroppedImage(imgRef.current, crop, `${details.username}-cropped.jpg`);
+      if (croppedBlob) {
+        setImageFile(new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" }));
+      }
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -69,7 +114,7 @@ const SignUp: React.FC = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await ApiService.signUp({ user: details });
+      const response = await ApiService.signUp({ user: details, profilePicture: imageFile });
 
       console.log(response);
       console.log(response.data);
@@ -85,7 +130,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
+    <div className="d-flex justify-content-center align-items-center min-vh-100">
       <form className="w-25 p-4 border rounded shadow" onSubmit={handleSubmit}>
         <h4 className="text-center mb-4">Opret en bruger</h4>
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
@@ -166,6 +211,33 @@ const SignUp: React.FC = () => {
             placeholder="Skriv adgangskode"
             required
           />
+        </div>
+
+        <div>
+          <label htmlFor="imageFile" className="mt-3">Profilbillede (ikke påkrævet):</label> <br></br>
+          <input
+            type="file"
+            id="imageFile"
+            name="imageFile"
+            onChange={handleChange}
+          />
+          {imageSrc && (
+            <div>
+              <ReactCrop
+                crop={crop}
+                onChange={(newCrop) => setCrop(newCrop)}
+                aspect={1}
+                onComplete={handleCropComplete}
+              >
+                <img
+                  ref={imgRef}
+                  src={imageSrc}
+                  alt="Upload"
+                  onLoad={(e) => (imgRef.current = e.currentTarget)}
+                />
+              </ReactCrop>
+            </div>
+          )}
         </div>
 
         <button type="submit" className="btn btn-primary btn-lg btn-block mt-4">
