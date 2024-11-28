@@ -90,6 +90,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
               bookedDates={bookedDates}
               onDateChange={handleDateChange}
               resourceCapacity={capacity}
+              initialStartDate={null}
+              initialEndDate={null}
+              inProgress={false}
+              isDone={false}
             />
             <label
               htmlFor={`resourceName-${booking.id}`}
