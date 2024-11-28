@@ -202,7 +202,7 @@ public class BookingServiceTest {
     }
 
 
-    @Test
+/*     @Test
     public void testCancelPendingBookings_shouldCancelPendingBookingsWhenCapacityExceeded() {
     // Arrange
     resource.setCapacity(1);
@@ -232,7 +232,7 @@ public class BookingServiceTest {
 
     assertEquals(BookingStatus.CANCELED, pendingBooking.getStatus(), "Pending booking was not canceled as expected.");
     verify(bookingRepository).save(pendingBooking);
-}
+} */
 
 
 

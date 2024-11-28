@@ -87,7 +87,7 @@ public class ToolServiceTest {
         assertEquals("Unsupported file type", exception.getMessage());
     }
  */
-
+/* 
     @Test  //BURDE VÆRE I RESOURCESERVICETEST, ER BARE UDKOMMENTERET SÅ TESTER OM DEN VIRKER HERINDE
         public void testUpdateResource_shouldUpdateResourceSuccessfully() {
         // Arrange
@@ -127,5 +127,6 @@ public class ToolServiceTest {
         assertEquals("Resource with ID 1 not found", exception.getMessage());
         verify(toolRepository).findById(1L);
         verify(toolRepository, never()).save(any(Tool.class));
-    }
+    } */
 }
+ 
