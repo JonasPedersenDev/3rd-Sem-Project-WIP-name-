@@ -10,7 +10,7 @@ class ApiService {
     // Dev backend url
     //this.baseUrl = "http://localhost:8080/api/";
     // Production backend url
-    this.baseUrl = "https://test.jonasp.dk/login/api";
+    this.baseUrl = "https://test.jonasp.dk/login/api/";
   }
 
   private async makeRequest<T>(
