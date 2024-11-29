@@ -92,7 +92,7 @@ const handleCancel = async () => {
         return;
       }
       try {
-        await ApiService.editUser(userInfo.id, userInfo); // Hvis PB bliver tilføjet her, vil det være krav at man skal have profilbillede når man opdatere
+        await ApiService.editUser(userInfo, null); //tror ikke du kan bruge edituser til admin, da den er under /tenant --->  .requestMatchers("/api/tenant/**").hasRole("TENANT")
         setShowSuccessModal(true);
         navigate("/login"); // Navigate to login page after saving changes
       } catch (error) {
