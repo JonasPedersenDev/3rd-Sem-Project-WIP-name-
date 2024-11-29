@@ -84,9 +84,9 @@ public class BookingController {
     }
 
     @PutMapping("/{resourceType}/{resourceId}/cancel-bookings-for-resource")
-    @Operation(summary = "Cancel bookings", description = "Set all booking status to 'CANCELED'")
+    @Operation(summary = "Cancel bookings for a resource", description = "Set all booking status to 'CANCELED' by resource id and type")
     public ResponseEntity<Void> cancelBookings(@PathVariable long resourceId, @PathVariable ResourceType resourceType) {
-      bookingService.cancelAllBookingsForResource(resourceId, resourceType);
+      bookingService.cancelConfirmedAndPendingBookingsForResource(resourceId, resourceType);
       return ResponseEntity.ok().build();
     }
 }

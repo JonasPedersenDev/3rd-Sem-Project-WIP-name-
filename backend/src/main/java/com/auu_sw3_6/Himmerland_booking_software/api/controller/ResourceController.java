@@ -26,6 +26,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.service.BookingService;
 import com.auu_sw3_6.Himmerland_booking_software.service.ResourceService;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.ResourceType;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -85,10 +86,10 @@ public abstract class ResourceController<T extends Resource> {
     return ResponseEntity.ok(reservedDates);
   }
 
-  @Operation(summary = "Delete a resource", description = "Remove a resource from the system by its ID")
-  @DeleteMapping("/api/resource/{resourceId}")
-  public ResponseEntity<Void> deleteResource(@PathVariable long resourceId) {
-    bookingService.deleteAllBookingsForResource(resourceId);
+  @Operation(summary = "Delete a resource", description = "Remove a resource from the system by its ID and type")
+  @DeleteMapping("/api/resource/{resourceType}/{resourceId}")
+  public ResponseEntity<Void> deleteResource(@PathVariable long resourceId, @PathVariable ResourceType resourceType) {
+    bookingService.cancelConfirmedAndPendingBookingsForResource(resourceId, resourceType);
     boolean isDeleted = resourceService.deleteResource(resourceId);
     if (isDeleted) {
       return ResponseEntity.noContent().build();

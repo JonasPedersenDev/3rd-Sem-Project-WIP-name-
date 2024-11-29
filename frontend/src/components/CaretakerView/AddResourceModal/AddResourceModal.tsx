@@ -178,8 +178,8 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
               onChange={handleChange}
               required
             >
-              <option value="available">Available</option>
-              <option value="maintenance">Maintenance</option>
+              <option value="available">Aktiv</option>
+              <option value="maintenance">Service</option>
             </Form.Control>
           </Form.Group>
           <Form.Group controlId="capacity">

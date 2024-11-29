@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Form,
   Button,
@@ -13,6 +13,9 @@ import ApiService from "../../../utils/ApiService";
 import showAlert from "../Alert/AlertFunction";
 import { useNavigate } from "react-router-dom";
 import DeleteUserButton from "../DeleteUser/DeleteUser";
+import { validateImage, getCroppedImage } from "../../../utils/pictureSupport";
+import ReactCrop, { Crop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 
 interface UserInfo {
   id: number;
@@ -43,6 +46,17 @@ const SettingsForm: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState<Crop>({
+    unit: "%",
+    width: 50,
+    height: 50,
+    x: 25,
+    y: 25,
+  });
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
   //used to fetch user data from the backend when site is loaded
   useEffect(() => {
     // Fetch authenticated user information from the backend
@@ -51,7 +65,7 @@ const SettingsForm: React.FC = () => {
         let response = await ApiService.fetchData<UserInfo>("tenant");
         console.log("User Information:", response.data);
         setUserInfo(response.data);
-       } catch (error) {
+      } catch (error) {
         console.error("Error fetching user information:", error);
       }
     };
@@ -68,14 +82,43 @@ const SettingsForm: React.FC = () => {
     }
   };
 
-const handleCancel = async () => {
+  const handleCancel = async () => {
     await fetchUserData();
     setIsEditing(false);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setUserInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    if (e.target.type === "file") {
+      const fileInput = e.target as HTMLInputElement;
+      const file = fileInput.files?.[0];
+      if (file) {
+        const validImage = await validateImage(file);
+        if (validImage) {
+          setImageFile(file);
+          const imageSrc = URL.createObjectURL(file);
+          setImageSrc(imageSrc);
+        } else {
+          setImageFile(null);
+          setImageSrc(null);
+          alert("Ugyldig fil type eller for små dimensioner. Billedet skal være PNG/JPG og skal være minimum 300x300 pixels");
+          fileInput.value = "";
+        }
+      }
+    } else {
+      setUserInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+    }
+  };
+
+
+  const handleCropComplete = async (crop: Crop) => {
+    if (crop.width && crop.height && imgRef.current) {
+      const croppedBlob = await getCroppedImage(imgRef.current, crop, `${userInfo.username}-cropped.jpg`);
+      if (croppedBlob) {
+        setImageFile(new File([croppedBlob], "cropped-image.jpg", { type: "image/jpeg" }));
+      }
+    }
   };
 
   const validateForm = () => {
@@ -120,7 +163,7 @@ const handleCancel = async () => {
   const handleWarningConfirm = async () => {
     setShowWarningModal(false);
     try {
-      await ApiService.editUser(userInfo.id, userInfo); // Make the API call after confirming the warning
+      await ApiService.editUser(userInfo, imageFile); // Make the API call after confirming the warning
       setShowSuccessModal(true);
       navigate("/login");
     } catch (error) {
@@ -223,8 +266,35 @@ const handleCancel = async () => {
                 )}
               </Form>
             </Col>
+
             <Col md={4} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <ProfilePicture imageSource={"tenant/profilePicture"} />
+              {!isEditing && (
+                <ProfilePicture imageSource={"tenant/profilePicture"} />
+              )}
+
+              {isEditing && (
+                <Form>
+                  <Form.Group controlId="imageFile">
+                    <Form.Label>Billede:</Form.Label>
+                    <Form.Control type="file" name="imageFile" onChange={handleInputChange} required />
+                    {imageSrc && (
+                      <ReactCrop
+                        crop={crop}
+                        onChange={(newCrop) => setCrop(newCrop)}
+                        aspect={1}
+                        onComplete={handleCropComplete}
+                      >
+                        <img
+                          ref={imgRef}
+                          src={imageSrc}
+                          alt="Upload"
+                          onLoad={(e) => (imgRef.current = e.currentTarget)}
+                        />
+                      </ReactCrop>
+                    )}
+                  </Form.Group>
+                </Form>
+              )}
             </Col>
           </Row>
         );
@@ -264,13 +334,13 @@ const handleCancel = async () => {
             marginRight: "20px",
           }}
         >
-            <Button
+          <Button
             onClick={() => setCurrentView("settings")}
             style={{ marginBottom: "10px" }}
             variant="success"
-            >
+          >
             Din bruger
-            </Button>
+          </Button>
           <Button
             onClick={() => setCurrentView("text")}
             style={{ marginBottom: "10px" }}
@@ -285,7 +355,7 @@ const handleCancel = async () => {
           >
             Notifikationer
           </Button>
-          <LogoutButton/>
+          <LogoutButton />
           <DeleteUserButton userId={userInfo.id} />
         </Col>
         <Col

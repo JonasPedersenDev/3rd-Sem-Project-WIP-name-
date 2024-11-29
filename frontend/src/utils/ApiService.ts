@@ -68,24 +68,21 @@ class ApiService {
     });
   }
 
-  public async editUser(id: number, data: object, profilePicture?: File): Promise<AxiosResponse<any>> {
+  public async editUser(
+    data: object,
+    profilePicture: File | null
+  ): Promise<AxiosResponse<any>> {
     try {
       let response;
-      if (profilePicture) {
-        const formData = new FormData();
-        formData.append("user", JSON.stringify(data));
-        formData.append("profilePicture", profilePicture);
-        response = await axios.put(`${this.baseUrl}tenant/updateUser/${id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        });
-      } else {
-        response = await axios.put(`${this.baseUrl}tenant/updateUser/${id}`, data, {
-          withCredentials: true,
-        });
-      }
+      const formData = new FormData();
+      formData.append("user", JSON.stringify(data));
+      if (profilePicture) { formData.append("profilePicture", profilePicture); }
+      response = await axios.put(`${this.baseUrl}tenant/updateTenant`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
       return response;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -98,15 +95,22 @@ class ApiService {
   }
 
   public async editUserAdmin(
-    id: number,
-    data: object
+    data: object,
+    profilePicture: File | null
   ): Promise<AxiosResponse<any>> {
     try {
+      const formData = new FormData();
+      formData.append("user", JSON.stringify(data));
+      if (profilePicture) { formData.append("profilePicture", profilePicture); }
+
       const response = await axios.put(
-        `${this.baseUrl}admin/updateTenant/${id}`,
-        data,
+        `${this.baseUrl}admin/updateTenant`,
+        formData,
         {
           withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
       return response;
@@ -223,7 +227,7 @@ class ApiService {
   ): Promise<AxiosResponse<Blob>> {
     try {
       const endpoint = `/${id}/picture`;
-      
+
       const mergedOptions: AxiosRequestConfig = {
         responseType: "blob",
         ...options,
@@ -233,7 +237,7 @@ class ApiService {
       throw error;
     }
   }
-  
+
 
   public async fetchBookings(
     resourceType: ResourceType,
@@ -264,15 +268,15 @@ class ApiService {
     }
   }
 
-public async createBookingForTenant(booking: object, tenantId: number): Promise<AxiosResponse<any>> {
-  try {
-    console.log("Sending booking to API:", booking);
-    return this.sendData<any>(`admin/createBookingForTenant/${tenantId}`, booking);
-  } catch (error) {
-    console.error("Error creating booking for tenant:", error);
-    throw error;
+  public async createBookingForTenant(booking: object, tenantId: number): Promise<AxiosResponse<any>> {
+    try {
+      console.log("Sending booking to API:", booking);
+      return this.sendData<any>(`admin/createBookingForTenant/${tenantId}`, booking);
+    } catch (error) {
+      console.error("Error creating booking for tenant:", error);
+      throw error;
+    }
   }
-}
 
   public async deleteTenant(id: number): Promise<AxiosResponse<any>> {
     try {
@@ -280,7 +284,7 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
       console.log("Deleting tenant:", endpoint);
       return await axios.delete(endpoint, {
         withCredentials: true,
-        
+
       });
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -302,9 +306,8 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
   ): Promise<AxiosResponse<any>> {
     try {
       //construct endpoint
-      const endpoint = `${
-        this.baseUrl
-      }${resourceType.toLocaleLowerCase()}/create`;
+      const endpoint = `${this.baseUrl
+        }${resourceType.toLocaleLowerCase()}/create`;
       console.log("create resource endpoint:", endpoint);
       //call
       const formData = new FormData();
@@ -333,9 +336,8 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
   ): Promise<AxiosResponse<any>> {
     try {
       //construct endpoint
-      const endpoint = `${
-        this.baseUrl
-      }${resourceType.toLocaleLowerCase()}/api/resource/${resourceID}`;
+      const endpoint = `${this.baseUrl
+        }${resourceType.toLocaleLowerCase()}/api/resource/${resourceType}/${resourceID}`;
       console.log("delete resource:", endpoint);
 
       //call
@@ -353,16 +355,15 @@ public async createBookingForTenant(booking: object, tenantId: number): Promise<
   ): Promise<AxiosResponse<any>> {
     try {
       //construct endpoint
-      let endpoint = `${
-        this.baseUrl
-      }${resourceType.toLowerCase()}/update`;
+      let endpoint = `${this.baseUrl
+        }${resourceType.toLowerCase()}/update`;
       console.log("update resource:", endpoint);
       console.log("send resource:", resource);
 
       const formData = new FormData();
       formData.append("updatedResource", JSON.stringify(resource));
       if (img) { formData.append("pictureFile", img); }
-      
+
 
       //call
       return await axios.put(endpoint, formData, {

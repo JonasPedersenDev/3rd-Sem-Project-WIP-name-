@@ -10,12 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
@@ -53,10 +55,12 @@ public class AdminController extends UserController<Admin> {
     return ResponseEntity.noContent().build();
   }
 
-  @PutMapping(value = "/updateTenant/{id}", produces = "application/json")
+  @PutMapping(value = "/updateTenant", consumes = { "multipart/form-data" })
   @Operation(summary = "Update tenant", description = "This endpoint updates a tenant.")
-  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant) {
-    Tenant updatedTenant = tenantService.update(id, tenant);
+  public ResponseEntity<Tenant> updateTenant(
+    @RequestPart ("user") Tenant tenant,
+    @RequestPart (value = "profilePicture", required = false) MultipartFile profilePicture) {
+    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
     return ResponseEntity.ok(updatedTenant);
   }
 

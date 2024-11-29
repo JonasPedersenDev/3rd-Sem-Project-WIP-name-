@@ -354,8 +354,8 @@ public class BookingService {
     bookingRepository.save(booking);
   }
 
-  public void cancelAllBookingsForResource(long resourceId, ResourceType resourceType) {
-    // Checks the given resource actually exists
+  public void cancelConfirmedAndPendingBookingsForResource (long resourceId, ResourceType resourceType) {
+    //Checks the given resource actually exists
     ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(resourceType);
     Resource resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID " + resourceId));

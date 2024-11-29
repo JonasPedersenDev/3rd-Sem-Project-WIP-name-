@@ -125,4 +125,10 @@ public abstract class UserService<T extends User> {
     return bookingService.editBooking(bookingId, details, user);
   }
 
+  public Boolean setUserProfilePicture(User user, MultipartFile profilePicture) {
+    String uniqueFileName = pictureService.savePicture(profilePicture, true);
+    user.setProfilePictureFileName(uniqueFileName);
+    return true;
+  }
+
 }

@@ -15,12 +15,14 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.RestrictedUsernameException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsException;
 
 import jakarta.annotation.PostConstruct;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TenantService extends UserService<Tenant> {
@@ -80,20 +82,19 @@ public class TenantService extends UserService<Tenant> {
     tenantRepository.deleteById(id);
   }
 
-  public Tenant update(Long id, Tenant tenant) {
-    tenantRepository.findById(id).ifPresentOrElse(
-        existingTenant -> {
-          existingTenant.setUsername(tenant.getUsername());
-          existingTenant.setName(tenant.getName());
-          existingTenant.setHouseAddress(tenant.getHouseAddress());
-          existingTenant.setEmail(tenant.getEmail());
-          existingTenant.setMobileNumber(tenant.getMobileNumber());
-          tenantRepository.save(existingTenant);
-        },
-        () -> {
-          throw new IllegalArgumentException("Tenant with id " + id + " does not exist.");
-        });
-    return tenant;
+  public Tenant update(Tenant tenant, MultipartFile pictureFile) {
+    Optional<Tenant> existingTenantOptional = tenantRepository.findById(tenant.getId());
+
+    if (existingTenantOptional.isPresent()) {
+
+      if (pictureFile != null && !pictureFile.isEmpty()) {
+        setUserProfilePicture(tenant, pictureFile);
+      }
+      return tenantRepository.save(tenant);
+
+    } else {
+      throw new IllegalArgumentException("Tenant with ID " + tenant.getId() + " not found");
+    }
   }
 
   public Tenant get(Long id) {

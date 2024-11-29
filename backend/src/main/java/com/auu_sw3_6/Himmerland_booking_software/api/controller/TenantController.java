@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
@@ -74,12 +75,14 @@ public class TenantController extends UserController<Tenant> {
     return ResponseEntity.noContent().build();
   }
 
-  @PutMapping(value = "/updateUser/{id}", produces = "application/json")
-  @Operation(summary = "Update user", description = "This endpoint updates a user.")
-  public ResponseEntity<Tenant> updateTenant(@PathVariable Long id, @RequestBody Tenant tenant,
-      HttpServletResponse response) {
-    Tenant updatedTenant = tenantService.update(id, tenant);
-
+  @PutMapping(value = "/updateTenant", consumes = { "multipart/form-data" })
+  @Operation(summary = "Update Tenant", description = "This endpoint updates a tenant.")
+  public ResponseEntity<Tenant> updateTenant(
+    @RequestPart("user") Tenant tenant, 
+    @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture, 
+    HttpServletResponse response) {
+    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
+    
     // Clear the JWT cookie
     ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
         .httpOnly(true)
@@ -90,7 +93,7 @@ public class TenantController extends UserController<Tenant> {
         .build();
 
     response.addHeader("Set-Cookie", jwtCookie.toString());
-
+    
     return ResponseEntity.ok(updatedTenant);
   }
 
