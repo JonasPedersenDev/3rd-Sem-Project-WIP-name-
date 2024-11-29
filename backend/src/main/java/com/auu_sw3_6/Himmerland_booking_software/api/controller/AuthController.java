@@ -52,16 +52,18 @@ public class AuthController {
           .httpOnly(true)
           .secure(true)
           .path("/")
+          .domain("jonasp.dk")
           .maxAge(60 * 60 * 5) // 5 hours
-          .sameSite("none") // only for development, maybe
+          .sameSite("none")
           .build();
 
       ResponseCookie authIndicatorCookie = ResponseCookie.from("authIndicator", role)
           .httpOnly(false)
           .secure(true)
           .path("/")
+          .domain("jonasp.dk")
           .maxAge(60 * 60 * 5) // 5 hours
-          .sameSite("none") // only for development, maybe
+          .sameSite("none")
           .build();
 
       response.addHeader("Set-Cookie", jwtCookie.toString());
