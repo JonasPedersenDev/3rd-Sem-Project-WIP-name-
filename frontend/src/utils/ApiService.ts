@@ -94,6 +94,32 @@ class ApiService {
     }
   }
 
+  public async editAdmin(
+    data: object,
+    profilePicture: File | null
+  ): Promise<AxiosResponse<any>> {
+    try {
+      let response;
+      const formData = new FormData();
+      formData.append("user", JSON.stringify(data));
+      if (profilePicture) { formData.append("profilePicture", profilePicture); }
+      response = await axios.put(`${this.baseUrl}admin/updateAdmin`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+      return response;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Error updating user:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      throw error;
+    }
+  }
+
   public async editUserAdmin(
     data: object,
     profilePicture: File | null

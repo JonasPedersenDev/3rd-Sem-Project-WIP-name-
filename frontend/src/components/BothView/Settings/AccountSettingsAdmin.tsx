@@ -104,7 +104,7 @@ const handleCancel = async () => {
   const handleWarningConfirm = async () => {
     setShowWarningModal(false);
     try {
-      await ApiService.editUser(userInfo, null); // Make the API call after confirming the warning
+      await ApiService.editAdmin(userInfo, null); // Make the API call after confirming the warning
       setShowSuccessModal(true);
       navigate("/login");
     } catch (error) {

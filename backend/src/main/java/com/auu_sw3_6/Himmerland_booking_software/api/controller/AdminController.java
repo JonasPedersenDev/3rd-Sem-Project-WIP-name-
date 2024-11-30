@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +29,19 @@ import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("api/admin")
 public class AdminController extends UserController<Admin> {
 
+  private final AdminService adminService;
   private final TenantService tenantService;
 
   @Autowired
   public AdminController(AdminService adminService, TenantService tenantService) {
     super(adminService);
+    this.adminService = adminService;
     this.tenantService = tenantService;
   }
 
@@ -55,11 +59,33 @@ public class AdminController extends UserController<Admin> {
     return ResponseEntity.noContent().build();
   }
 
+  @PutMapping(value = "/updateAdmin", consumes = { "multipart/form-data" })
+  @Operation(summary = "Update Admin", description = "This endpoint updates admin info.")
+  public ResponseEntity<Admin> updateAdmin(
+      @RequestPart("user") Admin admin,
+      @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
+      HttpServletResponse response) {
+    Admin updatedAdmin = adminService.update(admin, profilePicture);
+
+    // Clear the JWT cookie
+    ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+        .httpOnly(true)
+        .secure(true)
+        .path("/")
+        .maxAge(0) // Expire the cookie immediately
+        .sameSite("none") // only for development, maybe
+        .build();
+
+    response.addHeader("Set-Cookie", jwtCookie.toString());
+
+    return ResponseEntity.ok(updatedAdmin);
+  }
+
   @PutMapping(value = "/updateTenant", consumes = { "multipart/form-data" })
   @Operation(summary = "Update tenant", description = "This endpoint updates a tenant.")
   public ResponseEntity<Tenant> updateTenant(
-    @RequestPart ("user") Tenant tenant,
-    @RequestPart (value = "profilePicture", required = false) MultipartFile profilePicture) {
+      @RequestPart("user") Tenant tenant,
+      @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
     Tenant updatedTenant = tenantService.update(tenant, profilePicture);
     return ResponseEntity.ok(updatedTenant);
   }
