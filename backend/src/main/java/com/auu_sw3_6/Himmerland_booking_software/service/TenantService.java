@@ -29,6 +29,7 @@ public class TenantService extends UserService<Tenant> {
 
   private final AdminService adminService;
   private final TenantRepository tenantRepository;
+  private final PasswordEncoder passwordEncoder;
 
   @Value("${restricted.usernames}")
   private String restrictedUsernames;
@@ -44,6 +45,7 @@ public class TenantService extends UserService<Tenant> {
     super(tenantRepository, profilePictureService, passwordEncoder, bookingService);
     this.adminService = adminService;
     this.tenantRepository = tenantRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   private Set<String> initializeRestrictedUsernames() {
@@ -90,6 +92,8 @@ public class TenantService extends UserService<Tenant> {
       if (pictureFile != null && !pictureFile.isEmpty()) {
         setUserProfilePicture(tenant, pictureFile);
       }
+      // Hash the password before saving
+      tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
       return tenantRepository.save(tenant);
 
     } else {

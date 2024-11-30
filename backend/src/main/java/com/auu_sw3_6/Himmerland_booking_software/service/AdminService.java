@@ -22,6 +22,7 @@ public class AdminService extends UserService<Admin> {
   private static final Long ADMIN_ID = 1L;
   private final AdminRepository adminRepository;
   private final BookingService bookingService;
+  private final PasswordEncoder passwordEncoder;
 
   @Autowired
   public AdminService(AdminRepository adminRepository, PictureService profilePictureService,
@@ -29,6 +30,7 @@ public class AdminService extends UserService<Admin> {
     super(adminRepository, profilePictureService, passwordEncoder, bookingService);
     this.adminRepository = adminRepository;
     this.bookingService = bookingService;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public Admin createAdmin(Admin admin, MultipartFile profilePicture) {
@@ -85,12 +87,12 @@ public class AdminService extends UserService<Admin> {
     Optional<Admin> existingAdminOptional = adminRepository.findById(admin.getId());
 
     if (existingAdminOptional.isPresent()) {
-
       if (pictureFile != null && !pictureFile.isEmpty()) {
         setUserProfilePicture(admin, pictureFile);
       }
+      // Hash the password before saving
+      admin.setPassword(passwordEncoder.encode(admin.getPassword()));
       return adminRepository.save(admin);
-
     } else {
       throw new IllegalArgumentException("Admin with ID " + admin.getId() + " not found");
     }
