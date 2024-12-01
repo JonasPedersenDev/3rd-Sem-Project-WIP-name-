@@ -87,11 +87,17 @@ public class AdminService extends UserService<Admin> {
     Optional<Admin> existingAdminOptional = adminRepository.findById(admin.getId());
 
     if (existingAdminOptional.isPresent()) {
+      Admin existingAdmin = existingAdminOptional.get();
       if (pictureFile != null && !pictureFile.isEmpty()) {
         setUserProfilePicture(admin, pictureFile);
       }
-      // Hash the password before saving
-      admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+      // Only hash the password if it is not null
+      if (admin.getPassword() != null && !admin.getPassword().isEmpty()) {
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+    } else {
+        // If the password is null or empty, retain the existing password
+        admin.setPassword(existingAdmin.getPassword());
+    }
       return adminRepository.save(admin);
     } else {
       throw new IllegalArgumentException("Admin with ID " + admin.getId() + " not found");

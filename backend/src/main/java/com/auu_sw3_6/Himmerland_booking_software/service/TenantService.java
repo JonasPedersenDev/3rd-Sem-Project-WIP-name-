@@ -88,18 +88,25 @@ public class TenantService extends UserService<Tenant> {
     Optional<Tenant> existingTenantOptional = tenantRepository.findById(tenant.getId());
 
     if (existingTenantOptional.isPresent()) {
+        Tenant existingTenant = existingTenantOptional.get();
 
-      if (pictureFile != null && !pictureFile.isEmpty()) {
-        setUserProfilePicture(tenant, pictureFile);
-      }
-      // Hash the password before saving
-      tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
-      return tenantRepository.save(tenant);
+        if (pictureFile != null && !pictureFile.isEmpty()) {
+            setUserProfilePicture(tenant, pictureFile);
+        }
 
+        // Only hash the password if it is not null
+        if (tenant.getPassword() != null && !tenant.getPassword().isEmpty()) {
+            tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
+        } else {
+            // If the password is null or empty, retain the existing password
+            tenant.setPassword(existingTenant.getPassword());
+        }
+
+        return tenantRepository.save(tenant);
     } else {
-      throw new IllegalArgumentException("Tenant with ID " + tenant.getId() + " not found");
+        throw new IllegalArgumentException("Tenant with ID " + tenant.getId() + " not found");
     }
-  }
+}
 
   public Tenant get(Long id) {
     return tenantRepository.findById(id)

@@ -70,32 +70,37 @@ const handleCancel = async () => {
 
   const validateForm = () => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const hashedPasswordRegex = /^\$2[ayb]\$.{56}$/; // Regex for BCrypt hashed passwords
 
-    if (
-      !userInfo.username ||
-      !userInfo.password
-    ) {
+    if (!userInfo.username || !userInfo.password) {
       return "Udfyld venligst alle felter.";
     }
-    if (!passwordRegex.test(userInfo.password)) {
+    if (isEditing && !userInfo.password) {
+      return "Adgangskoden må ikke være tom.";
+    }
+    if (userInfo.password && !passwordRegex.test(userInfo.password)) {
       return "Adgangskoden skal være mindst 8 tegn lang og inkludere både store og små bogstaver samt et tal.";
+    }
+    if (userInfo.password && hashedPasswordRegex.test(userInfo.password)) {
+      return "Adgangskoden må ikke være en hashed adgangskode.";
     }
     return null;
   };
 
-  const handleEditToggle = async () => {
-    if (isEditing) {
-      const error = validateForm();
-      if (error) {
-        setValidationError(error);
-        return;
-      }
-      setShowWarningModal(true); // Show warning modal before saving changes
-    } else {
-      setIsEditing(!isEditing);
-    }
+  const handleEditToggle = () => {
+    setIsEditing(true);
     setValidationError(null);
   };
+
+  const handleSaveChanges = async () => {
+    const error = validateForm();
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+
+    setShowWarningModal(true);
+  }
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -155,7 +160,7 @@ const handleCancel = async () => {
                 {validationError && (
                   <p style={{ color: "red" }}>{validationError}</p>
                 )}
-                <Button variant="success" onClick={handleEditToggle}>
+                <Button variant="success" onClick={isEditing ? handleSaveChanges : handleEditToggle} disabled={isEditing && !!validateForm()}>
                   {isEditing ? "Gem ændringer" : "Ændre"}
                 </Button>
                 {isEditing && (

@@ -65,6 +65,7 @@ const SettingsForm: React.FC = () => {
         let response = await ApiService.fetchData<UserInfo>("tenant");
         console.log("User Information:", response.data);
         setUserInfo(response.data);
+        validateForm();
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -74,13 +75,14 @@ const SettingsForm: React.FC = () => {
 
   //used to fetch user data from the backend when cancel is clicked
   const fetchUserData = async () => {
-    try {
-      const data = await ApiService.fetchData<UserInfo>("tenant");
-      setUserInfo(data.data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
+      try {
+        const data = await ApiService.fetchData<UserInfo>("tenant");
+        const { password, ...userInfoWithoutPassword } = data.data; // Exclude password
+        setUserInfo({ ...userInfoWithoutPassword, password: "" });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
 
   const handleCancel = async () => {
     await fetchUserData();
@@ -122,38 +124,45 @@ const SettingsForm: React.FC = () => {
   };
 
   const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const phoneNumberRegex = /^[0-9]{8}$/;
+    const hashedPasswordRegex = /^\$2[ayb]\$.{56}$/;
 
-    if (
-      !userInfo.username ||
-      !userInfo.password ||
-      !userInfo.email ||
-      !userInfo.name
-    ) {
+    if (!userInfo.username || !userInfo.email || !userInfo.name || !userInfo.mobileNumber || !userInfo.houseAddress) {
       return "Udfyld venligst alle felter.";
     }
     if (!emailRegex.test(userInfo.email)) {
       return "Indtast en gyldig email.";
     }
-    if (!passwordRegex.test(userInfo.password)) {
+    if (!phoneNumberRegex.test(userInfo.mobileNumber)) {
+      return "Indtast et gyldigt telefonnummer.";
+    }
+    if (isEditing && !userInfo.password) {
+      return "Adgangskoden må ikke være tom.";
+    }
+    if (userInfo.password && !passwordRegex.test(userInfo.password)) {
       return "Adgangskoden skal være mindst 8 tegn lang og inkludere både store og små bogstaver samt et tal.";
+    }
+    if (userInfo.password && hashedPasswordRegex.test(userInfo.password)) {
+      return "Adgangskoden må ikke være en hashed adgangskode.";
     }
     return null;
   };
 
-  const handleEditToggle = async () => {
-    if (isEditing) {
-      const error = validateForm();
-      if (error) {
-        setValidationError(error);
-        return;
-      }
-      setShowWarningModal(true); // Show warning modal before saving changes
-    } else {
-      setIsEditing(!isEditing);
-    }
+  const handleEditToggle = () => {
+    setIsEditing(true);
     setValidationError(null);
+  };
+
+  const handleSaveChanges = async () => {
+    const error = validateForm();
+    if (error) {
+      setValidationError(error);
+      return;
+    }
+
+    setShowWarningModal(true); // Show warning modal before saving changes
   };
 
   const togglePasswordVisibility = () => {
@@ -258,7 +267,7 @@ const SettingsForm: React.FC = () => {
                 {validationError && (
                   <p style={{ color: "red" }}>{validationError}</p>
                 )}
-                <Button variant="success" onClick={handleEditToggle}>
+                <Button variant="success" onClick={isEditing ? handleSaveChanges : handleEditToggle} disabled={isEditing && !!validateForm()}>
                   {isEditing ? "Gem ændringer" : "Ændre"}
                 </Button>
                 {isEditing && (
