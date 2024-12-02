@@ -44,7 +44,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
                     ...(hospitalityResponse.data as Resource[]),
                 ];
 
-                setResources(allResources);
+                filterAndSetResources(allResources)
             } catch (error) {
                 console.error("Failed to fetch resources:", error);
             }
@@ -52,6 +52,11 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
 
         fetchResources();
     }, []);
+
+    const filterAndSetResources = (resourceList: Resource[]) => {
+        const filteredResourceList = resourceList.filter((resource) => resource.status !== "deleted");
+        setResources(filteredResourceList)
+    }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

@@ -60,13 +60,13 @@ const CaretakerResourceOverview: React.FC = () => {
 
   //Categorize
   const værktøjResources = resources.filter(
-    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.TOOL.toLowerCase()
+    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.TOOL.toLowerCase() && resource.status !== "deleted"
   );
   const gæstehuseResources = resources.filter(
-    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.HOSPITALITY.toLowerCase()
+    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.HOSPITALITY.toLowerCase() && resource.status !== "deleted"
   );
   const andetResources = resources.filter(
-    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.UTILITY.toLowerCase()
+    (resource) => resource.type && resource.type.toLowerCase() === ResourceType.UTILITY.toLowerCase() && resource.status !== "deleted"
   );
 
   const handleEdit = async (updatedResource: Resource, imageFile: File | null) => {
@@ -76,6 +76,7 @@ const CaretakerResourceOverview: React.FC = () => {
         ResourceType[updatedResource.type.toUpperCase() as keyof typeof ResourceType],
         imageFile
       );
+      
       setResources((prevResources) =>
         prevResources.map((resource) =>
           resource.id === response.data.id ? response.data : resource
@@ -107,7 +108,7 @@ const CaretakerResourceOverview: React.FC = () => {
         null
       );
 
-      if(updatedResource.status == "maintenance") {
+      if(updatedResource.status === "maintenance") {
         const cancelResponse = await ApiService.cancelBookingsForResource(updatedResource.id, updatedResource.type)
         console.log("cancel response:", cancelResponse)
       }

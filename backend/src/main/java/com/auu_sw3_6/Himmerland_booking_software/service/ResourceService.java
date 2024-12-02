@@ -66,12 +66,19 @@ public abstract class ResourceService<T extends Resource> {
     }
   }
 
-  public boolean deleteResource(Long id) {
-    if (repository.existsById(id)) {
-      repository.deleteById(id);
+  public boolean softDeleteResource(Long id) {
+    Optional<T> resourceOptional = repository.findById(id);
+
+    if (resourceOptional.isPresent()) {
+
+      T updatedResource = resourceOptional.get();
+      updatedResource.setStatus("deleted");
+
+      repository.save(updatedResource);
       return true;
+      
     } else {
-      return false;
+        throw new ResourceNotFoundException("Resource with ID " + id + " not found");
     }
   }
 
