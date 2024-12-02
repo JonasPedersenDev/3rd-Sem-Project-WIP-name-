@@ -96,4 +96,55 @@ public void testCreateAdmin_ReturnsAdminWithCorrectDetails() throws Exception {
     });
     assertEquals("Unsupported file type", exception.getMessage());
   }
+
+
+  @Test
+  public void testUpdateAdmin_InteractsWithDependencies() {
+    // Arrange
+    when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
+    when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profileImage.jpg");
+    when(passwordEncoder.encode("Password123")).thenReturn("encryptedPassword123");
+    when(adminRepository.save(any(Admin.class))).thenReturn(admin);
+
+    // Act
+    adminService.update(admin, profileImage);
+
+    // Assert
+    verify(adminRepository).findById(1L);
+    verify(adminRepository).save(admin);
+    verify(pictureService).savePicture(profileImage, isProfilePicture);
+    verify(passwordEncoder).encode("Password123");
+  }
+
+
+  @Test
+  public void testUpdateAdmin_ThrowsExceptionWhenAdminNotFound() {
+    // Arrange
+    when(adminRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+
+     // Act & Assert
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      adminService.update(admin, profileImage);
+    });
+     assertEquals("Admin with ID 1 not found", exception.getMessage());
+  }
+
+  @Test
+  public void testUpdateAdmin_RetainsExistingPasswordWhenNewPasswordIsNull() {
+    // Arrange
+    admin.setPassword(null);
+    Admin existingAdmin = new Admin();
+    existingAdmin.setId(1L);
+    existingAdmin.setPassword("existingPassword");
+    when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(existingAdmin));
+    when(adminRepository.save(any(Admin.class))).thenReturn(admin);
+
+    // Act
+    Admin updatedAdmin = adminService.update(admin, profileImage);
+
+    // Assert
+    assertEquals("existingPassword", updatedAdmin.getPassword());
+    verify(adminRepository).findById(1L);
+    verify(adminRepository).save(admin);
+  }
 }

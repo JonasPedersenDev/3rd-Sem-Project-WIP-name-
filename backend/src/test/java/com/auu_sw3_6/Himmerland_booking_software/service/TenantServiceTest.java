@@ -144,6 +144,81 @@ public void testCreateTenant_ThrowsExceptionWithCorrectMessageForInvalidProfileP
     assertEquals("Unsupported file type", exception.getMessage(),
         "Should throw an exception with the correct message for unsupported file type");
 }
+
+
+@Test
+public void testUpdateTenant_InteractsWithDependencies() {
+    // Arrange:
+    when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+    when(profilePictureService.savePicture(profilePicture, true)).thenReturn("profilePicture.jpg");
+    when(passwordEncoder.encode("password123")).thenReturn("encodedPassword123");
+    when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+
+    // Act:
+    tenantService.update(tenant, profilePicture);
+
+    // Assert:
+    verify(tenantRepository).findById(tenant.getId());
+    verify(tenantRepository).save(tenant);
+    verify(profilePictureService).savePicture(profilePicture, true);
+    verify(passwordEncoder).encode("password123");
+}
+
+@Test
+public void testUpdateTenant_ThrowsExceptionWhenTenantNotFound() {
+    // Arrange:
+    when(tenantRepository.findById(1L)).thenReturn(Optional.empty());
+
+    // Act & Assert:
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        tenantService.update(tenant, profilePicture);
+    });
+
+    // Assert:
+    assertEquals("Tenant with ID 1 not found", exception.getMessage(),
+        "Should throw an exception with the correct message when tenant is not found");
+}
+
+@Test
+public void testUpdateTenant_RetainsExistingPasswordWhenNewPasswordIsNull() {
+    // Arrange:
+    tenant.setPassword(null);
+    Tenant existingTenant = new Tenant();
+    existingTenant.setId(1L);
+    existingTenant.setPassword("existingPassword");
+    when(tenantRepository.findById(1L)).thenReturn(Optional.of(existingTenant));
+    when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+
+    // Act:
+    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
+
+    // Assert:
+    assertEquals("existingPassword", updatedTenant.getPassword(),
+        "Should retain the existing password when the new password is null");
+    verify(tenantRepository).findById(1L);
+    verify(tenantRepository).save(tenant);
+}
+
+@Test
+public void testUpdateTenant_UpdatesProfilePictureWhenNewProfilePictureIsNotNull() {
+    // Arrange:
+    Tenant existingTenant = new Tenant();
+    existingTenant.setId(1L);
+    existingTenant.setProfilePictureFileName("existingProfilePicture.jpg");
+    when(tenantRepository.findById(1L)).thenReturn(Optional.of(existingTenant));
+    when(profilePictureService.savePicture(profilePicture, true)).thenReturn("newProfilePicture.jpg");
+    when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
+
+    // Act:
+    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
+
+    // Assert:
+    assertEquals("newProfilePicture.jpg", updatedTenant.getProfilePictureFileName(),
+        "Should update the profile picture when the new profile picture is not null");
+    verify(tenantRepository).findById(1L);
+    verify(tenantRepository).save(tenant);
+    verify(profilePictureService).savePicture(profilePicture, true);
+}
 }
 
 

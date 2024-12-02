@@ -40,6 +40,18 @@ public class TenantControllerTest {
     userService.createUser(testUser, null);
   }
 
+  
+  /* Den her har brug for en form for test database. 
+  @Test
+  public void createUser_shouldReturnCreated() throws Exception {
+    mockMvc.perform(post("/api/tenant")
+        .contentType("application/json")
+        .content(objectMapper.writeValueAsString(testUser)))
+        .andExpect(status().isCreated());
+  }
+*/
+
+
   // /api/tenat GET tests
 
 /*   @Test <------------------------------------------------------------------------------------------ Fix this test
