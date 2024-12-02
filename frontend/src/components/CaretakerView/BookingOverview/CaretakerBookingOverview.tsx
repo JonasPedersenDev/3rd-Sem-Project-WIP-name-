@@ -28,14 +28,16 @@ const CaretakerBookingOverview: React.FC = () => {
   const [showActive, setShowActive] = useState(true);
   const [showFuture, setShowFuture] = useState(true);
   const [showPast, setShowPast] = useState(true);
-  
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const bookingsResponse = await ApiService.fetchData<any>("booking/get-all");
         console.log("booking response:", bookingsResponse);
 
-        const transformedBookings: CaretakerBooking[] = bookingsResponse.data.map((booking: any) => {
+        const transformedBookings: CaretakerBooking[] = bookingsResponse.data
+        .filter((booking: any) => booking.resource.status !== "deleted")
+        .map((booking: any) => {
           const startDate = new Date(booking.startDate[0], booking.startDate[1] - 1, booking.startDate[2]);
           const endDate = new Date(booking.endDate[0], booking.endDate[1] - 1, booking.endDate[2]);
           return {
@@ -57,21 +59,21 @@ const CaretakerBookingOverview: React.FC = () => {
           };
 
         });
-  
+
         setBookings(transformedBookings);
         updateFutureBookings(transformedBookings);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
     };
-  
+
     fetchBookings();
-  
+
     const intervalId = setInterval(() => {
       console.log("Refreshing bookings...");
       fetchBookings();
     }, 60000); // 1 minute
-  
+
     return () => clearInterval(intervalId);
   }, []);
 
@@ -99,25 +101,25 @@ const CaretakerBookingOverview: React.FC = () => {
       }
       return booking;
     });
-  
+
     setBookings(updatedBookings);
   };
-    
 
 
 
 
-const updateFutureBookings = (bookings: CaretakerBooking[]) => {
-  const updatedBookings = bookings.map((booking) => ({
+
+  const updateFutureBookings = (bookings: CaretakerBooking[]) => {
+    const updatedBookings = bookings.map((booking) => ({
       ...booking,
       isFutureBooking: booking.startDate > currentDate && booking.status === "PENDING",
       isPastBooking: booking.endDate < currentDate || booking.status === "COMPLETED",
-  }));
-  
-  setBookings(updatedBookings);
-};
+    }));
 
-  
+    setBookings(updatedBookings);
+  };
+
+
   const currentDate = new Date();
 
   useEffect(() => {
@@ -126,7 +128,7 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
         (booking) =>
           booking.endDate < currentDate && booking.status === "CONFIRMED"
       );
-  
+
       if (lateBookings.length > 0) {
         try {
           const updatedBookings = bookings.map((booking) => {
@@ -137,13 +139,13 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
             }
             return booking;
           });
-  
+
           await Promise.all(
             lateBookings.map((lateBooking) =>
               ApiService.markBookingAsLate(lateBooking.id)
             )
           );
-  
+
           setBookings((prevBookings) =>
             JSON.stringify(prevBookings) !== JSON.stringify(updatedBookings)
               ? updatedBookings
@@ -154,101 +156,103 @@ const updateFutureBookings = (bookings: CaretakerBooking[]) => {
         }
       }
     };
-  
+
     markLateBookings();
   }, [bookings, currentDate]);
-  
+
 
 
   const activeBookings = bookings.filter(
     (booking) =>
-      (booking.status === "CONFIRMED" || booking.status === "LATE"));
+      (booking.status === "CONFIRMED" || booking.status === "LATE")
+  );
 
 
-const futureBookings = bookings.filter(
-  (booking) =>
-    booking.status === "PENDING"
-);
+  const futureBookings = bookings.filter(
+    (booking) =>
+      booking.status === "PENDING"
+  );
 
-const pastBookings = bookings.filter(
-  (booking) =>
-    booking.status === "COMPLETED"
-);
+  const pastBookings = bookings.filter(
+    (booking) =>
+      booking.status === "COMPLETED"
+  );
+
 
 
   return (
     <>
-    <div>
-      <CaretakerOptions />
-    </div>
-    <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
-      <h2 className="text-center mb-5"><strong>Reservationer</strong></h2>
-      {/* Active Bookings */}
-      <h3>
-        <Button
-          variant="secondary"
-          onClick={() => setShowActive(!showActive)}
-          aria-controls="active-bookings-collapse"
-          aria-expanded={showActive}
-          className="fs-5"
-        >
-          Nuverænde reservationer
-        </Button>
-      </h3> <hr />
-      <Collapse in={showActive}>
-        <div id="active-bookings-collapse">
-          {activeBookings.length === 0 ? (
-            <p>Ingen nuværende reservationer</p>
-          ) : (
-            activeBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
-          )}
-        </div>
-      </Collapse>
+      <div>
+        <CaretakerOptions />
+      </div>
+      <div className="container mt-4 border border-darkgrey border-4 rounded mb-3">
+        <h2 className="text-center mb-5"><strong>Reservationer</strong></h2>
+        {/* Active Bookings */}
+        <h3>
+          <Button
+            variant="secondary"
+            onClick={() => setShowActive(!showActive)}
+            aria-controls="active-bookings-collapse"
+            aria-expanded={showActive}
+            className="fs-5"
+          >
+            Nuverænde reservationer
+          </Button>
+        </h3> <hr />
+        <Collapse in={showActive}>
+          <div id="active-bookings-collapse">
+            {activeBookings.length === 0 ? (
+              <p>Ingen nuværende reservationer</p>
+            ) : (
+              activeBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
+            )}
+          </div>
+        </Collapse>
 
-      {/* Future Bookings */}
-      <h3>
-        <Button
-          variant="secondary"
-          onClick={() => setShowFuture(!showFuture)}
-          aria-controls="future-bookings-collapse"
-          aria-expanded={showFuture}
-          className="fs-5"
-        >
-          Kommende reservationer
-        </Button>
-      </h3> <hr />
-      <Collapse in={showFuture}>
-        <div id="future-bookings-collapse">
-          {futureBookings.length === 0 ? (
-            <p>Ingen kommende reservationer</p>
-          ) : (
-            futureBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
-          )}
-        </div>
-      </Collapse>
+        {/* Future Bookings */}
+        <h3>
+          <Button
+            variant="secondary"
+            onClick={() => setShowFuture(!showFuture)}
+            aria-controls="future-bookings-collapse"
+            aria-expanded={showFuture}
+            className="fs-5"
+          >
+            Kommende reservationer
+          </Button>
+        </h3> <hr />
+        <Collapse in={showFuture}>
+          <div id="future-bookings-collapse">
+            {futureBookings.length === 0 ? (
+              <p>Ingen kommende reservationer</p>
+            ) : (
+              futureBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
+            )}
+          </div>
+        </Collapse>
 
-      {/* Past Bookings */}
-      <h3>
-        <Button
-          variant="secondary"
-          onClick={() => setShowPast(!showPast)}
-          aria-controls="past-bookings-collapse"
-          aria-expanded={showPast}
-          className="fs-5"
-        >
-          Tidligere reservationer
-        </Button>
-      </h3> <hr />
-      <Collapse in={showPast}>
-        <div id="past-bookings-collapse">
-          {pastBookings.length === 0 ? (
-            <p>Ingen tidligere reservationer</p>
-          ) : (
-            pastBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
-          )}
-        </div>
-      </Collapse>
-    </div>
+        {/* Past Bookings */}
+        <h3>
+          <Button
+            variant="secondary"
+            onClick={() => setShowPast(!showPast)}
+            aria-controls="past-bookings-collapse"
+            aria-expanded={showPast}
+            className="fs-5"
+          >
+            Tidligere reservationer
+          </Button>
+        </h3> <hr />
+        <Collapse in={showPast}>
+          <div id="past-bookings-collapse">
+            {pastBookings.length === 0 ? (
+              <p>Ingen tidligere reservationer</p>
+            ) : (
+              pastBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
+            )}
+          </div>
+        </Collapse>
+      </div>
     </>
   );
 };

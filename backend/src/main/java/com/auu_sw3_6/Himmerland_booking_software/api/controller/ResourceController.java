@@ -90,7 +90,7 @@ public abstract class ResourceController<T extends Resource> {
   @DeleteMapping("/api/resource/{resourceType}/{resourceId}")
   public ResponseEntity<Void> deleteResource(@PathVariable long resourceId, @PathVariable ResourceType resourceType) {
     bookingService.cancelConfirmedAndPendingBookingsForResource(resourceId, resourceType);
-    boolean isDeleted = resourceService.deleteResource(resourceId);
+    boolean isDeleted = resourceService.softDeleteResource(resourceId);
     if (isDeleted) {
       return ResponseEntity.noContent().build();
     } else {

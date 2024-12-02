@@ -34,21 +34,27 @@ const ResourceGrid: React.FC = () => {
     const fetchResources = async () => {
       try {
         const toolsResponse = await ApiService.fetchResources(ResourceType.TOOL);
-        const mappedTools = toolsResponse.data.map((resource: Resource) => ({
+        const mappedTools = toolsResponse.data
+        .filter((resource: Resource) => resource.status != "deleted")
+        .map((resource: Resource) => ({
           ...resource,
           type: mapToResourceType(resource.type),
         }));
         setTools(mappedTools);
 
         const utilitiesResponse = await ApiService.fetchResources(ResourceType.UTILITY);
-        const mappedUtilities = utilitiesResponse.data.map((resource: Resource) => ({
+        const mappedUtilities = utilitiesResponse.data
+        .filter((resource: Resource) => resource.status != "deleted")
+        .map((resource: Resource) => ({
           ...resource,
           type: mapToResourceType(resource.type),
         }));
         setOtherResources(mappedUtilities);
 
         const hospitalitiesResponse = await ApiService.fetchResources(ResourceType.HOSPITALITY);
-        const mappedHospitalities = hospitalitiesResponse.data.map((resource: Resource) => ({
+        const mappedHospitalities = hospitalitiesResponse.data
+        .filter((resource: Resource) => resource.status != "deleted")
+        .map((resource: Resource) => ({
           ...resource,
           type: mapToResourceType(resource.type),
         }));

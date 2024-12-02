@@ -509,7 +509,7 @@ class ApiService {
       console.log("cancel bookings for resource:", endpoint);
 
       //call
-      return await axios.put(endpoint, { withCredentials: true });
+      return await axios.put(endpoint, null, { withCredentials: true });
     } catch (error) {
       console.error("Error deleting resource:", error);
       throw error;
