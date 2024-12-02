@@ -39,12 +39,12 @@ public class NotificationService {
     sendTimeBasedNotifications(TimeRange.LATE);
   }
 
-  private void sendTimeBasedNotifications(TimeRange timeRange) {
+  public void sendTimeBasedNotifications(TimeRange timeRange) {
     sendPickupNotifications(timeRange);
     sendDropoffNotifications(timeRange);
   }
 
-  private void sendPickupNotifications(TimeRange timeRange) {
+  public void sendPickupNotifications(TimeRange timeRange) {
     List<Booking> pickups = bookingService.getAllUpcomingPickupsForToday(timeRange);
 
     for (Booking booking : pickups) {
@@ -54,7 +54,7 @@ public class NotificationService {
     }
   }
 
-  private void sendDropoffNotifications(TimeRange timeRange) {
+  public void sendDropoffNotifications(TimeRange timeRange) {
     List<Booking> dropoffs = bookingService.getAllUpcomingDropoffsForToday(timeRange);
 
     for (Booking booking : dropoffs) {
