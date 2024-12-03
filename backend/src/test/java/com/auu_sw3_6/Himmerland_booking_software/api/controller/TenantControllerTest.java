@@ -1,19 +1,34 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
+import java.io.File;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(Lifecycle.PER_CLASS)
 public class TenantControllerTest {
 
   @Autowired
@@ -29,8 +44,17 @@ public class TenantControllerTest {
 
   @BeforeEach
   public void setUp() {
+    // Delete the test database file before each test
+    File dbFile = new File("src/test/resources/database/TestDatabase.db");
+    if (dbFile.exists()) {
+        dbFile.delete();
+    }
+
+    // Recreate the database schema
+    // This will be handled by Spring Boot with the `create-drop` setting
+
     testUser = new Tenant();
-    testUser.setId(1L);
+    testUser.setId(2L);
     testUser.setName("TenatControllerTest");
     testUser.setMobileNumber("+4588888888");
     testUser.setEmail("testEmail@gmail.com");
@@ -40,21 +64,8 @@ public class TenantControllerTest {
     userService.createUser(testUser, null);
   }
 
-  
-  /* Den her har brug for en form for test database. 
-  @Test
-  public void createUser_shouldReturnCreated() throws Exception {
-    mockMvc.perform(post("/api/tenant")
-        .contentType("application/json")
-        .content(objectMapper.writeValueAsString(testUser)))
-        .andExpect(status().isCreated());
-  }
-*/
-
 
   // /api/tenat GET tests
-
-/*   @Test <------------------------------------------------------------------------------------------ Fix this test
   @WithMockUser(username = "testTenat", roles = { "TENANT" })
   public void getUser_shouldReturnCurrentUser() throws Exception {
     MvcResult result = mockMvc.perform(get("/api/tenant"))
@@ -68,8 +79,35 @@ public class TenantControllerTest {
     assertEquals(testUser.getMobileNumber(), responseTenant.getMobileNumber());
     assertEquals(testUser.getEmail(), responseTenant.getEmail());
     assertEquals(testUser.getUsername(), responseTenant.getUsername());
-  } */
+  }
+  
 
+  @Test
+  @WithMockUser(username = "testTenat", roles = { "TENANT" })
+  
+  public void getUser_withInvalidId_shouldReturnNotFound() throws Exception {
+    MvcResult result = mockMvc.perform(get("/api/tenant/999"))
+        .andExpect(status().isNotFound())
+        .andReturn();
+
+    String jsonResponse = result.getResponse().getContentAsString();
+    ErrorResponse errorResponse = objectMapper.readValue(jsonResponse, ErrorResponse.class);
+
+    assertEquals("User not found", errorResponse.getMessage());
+    assertEquals(404, errorResponse.getStatus());
+  }
+
+  @Test
+  @WithMockUser(username = "testTenat", roles = { "TENANT" })
+
+  public void deleteUser_shouldReturnNoContent() throws Exception {
+    mockMvc.perform(delete("/api/tenant/deleteTenant/2"))
+        .andExpect(status().isNoContent());
+
+    assertFalse(userService.getUserById(testUser.getId()).isPresent(), "User should be deleted");
+  }
+
+  
   // This test is not applicable to the current implementation, returning 404
   // instead of 401, fix
   /*
