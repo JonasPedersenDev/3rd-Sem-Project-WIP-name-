@@ -15,6 +15,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,8 +23,6 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.ErrorResponse;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -110,7 +109,7 @@ public class TenantControllerTest {
   
   // This test is not applicable to the current implementation, returning 404
   // instead of 401, fix
-  /*
+/*
    @Test
    public void getUser_withoutAuthorization_shouldReturnUnauthorized() throws
    Exception {
@@ -130,10 +129,11 @@ public class TenantControllerTest {
     // assertEquals("Access denied", errorResponse.getMessage()); WIP
     // assertEquals(403, errorResponse.getStatus()); WIP
 
-  }
+  }*/
 
-/*   @Test <------------------------------------------------------------------------------------------ Fix this test
-  @WithMockUser(username = "no", roles = { "TENANT" })
+  /*
+  @Test
+  @WithMockUser(username = "testTenant", roles = { "TENANT" })
   public void getUser_withInvalidUsername_shouldReturnNotFound() throws Exception {
     MvcResult result = mockMvc.perform(get("/api/tenant"))
         .andExpect(status().isNotFound())
@@ -144,5 +144,5 @@ public class TenantControllerTest {
 
     assertEquals("User not found", errorResponse.getMessage());
     assertEquals(404, errorResponse.getStatus());
-  } */
+  }*/
 }

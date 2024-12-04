@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
@@ -159,4 +160,13 @@ public class AdminControllerTest {
         assertEquals(tempTenant.getPassword(), responseTenant.getPassword());
 
     }*/
+
+    @Test
+    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
+    public void deleteTenant_shouldReturnNoContent() throws Exception {
+        mockMvc.perform(delete("/api/admin/deleteTenant/1"))
+            .andExpect(status().isNoContent());
+
+        assertTrue(userService.getUserById(testUser.getId()).isEmpty(), "User should be deleted");
+    }
 }
