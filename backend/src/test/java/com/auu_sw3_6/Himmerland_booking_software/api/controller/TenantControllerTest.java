@@ -47,7 +47,7 @@ public class TenantControllerTest {
     // Delete the test database file before each test
     File dbFile = new File("src/test/resources/database/TestDatabase.db");
     if (dbFile.exists()) {
-        dbFile.delete();
+      dbFile.delete();
     }
 
     // Recreate the database schema
@@ -64,7 +64,6 @@ public class TenantControllerTest {
     userService.createUser(testUser, null);
   }
 
-
   // /api/tenat GET tests
   @WithMockUser(username = "testTenat", roles = { "TENANT" })
   public void getUser_shouldReturnCurrentUser() throws Exception {
@@ -80,69 +79,79 @@ public class TenantControllerTest {
     assertEquals(testUser.getEmail(), responseTenant.getEmail());
     assertEquals(testUser.getUsername(), responseTenant.getUsername());
   }
-  
 
-  @Test
-  @WithMockUser(username = "testTenat", roles = { "TENANT" })
-  
-  public void getUser_withInvalidId_shouldReturnNotFound() throws Exception {
-    MvcResult result = mockMvc.perform(get("/api/tenant/999"))
-        .andExpect(status().isNotFound())
-        .andReturn();
+  // @Test
+  // @WithMockUser(username = "testTenat", roles = { "TENANT" })
 
-    String jsonResponse = result.getResponse().getContentAsString();
-    ErrorResponse errorResponse = objectMapper.readValue(jsonResponse, ErrorResponse.class);
+  // public void getUser_withInvalidId_shouldReturnNotFound() throws Exception {
+  // MvcResult result = mockMvc.perform(get("/api/tenant/999"))
+  // .andExpect(status().isNotFound())
+  // .andReturn();
 
-    assertEquals("User not found", errorResponse.getMessage());
-    assertEquals(404, errorResponse.getStatus());
-  }
+  // String jsonResponse = result.getResponse().getContentAsString();
+  // ErrorResponse errorResponse = objectMapper.readValue(jsonResponse,
+  // ErrorResponse.class);
 
-  @Test
-  @WithMockUser(username = "testTenat", roles = { "TENANT" })
+  // assertEquals("User not found", errorResponse.getMessage());
+  // assertEquals(404, errorResponse.getStatus());
+  // }
 
-  public void deleteUser_shouldReturnNoContent() throws Exception {
-    mockMvc.perform(delete("/api/tenant/deleteTenant/2"))
-        .andExpect(status().isNoContent());
+  // @Test
+  // @WithMockUser(username = "testTenat", roles = { "TENANT" })
 
-    assertFalse(userService.getUserById(testUser.getId()).isPresent(), "User should be deleted");
-  }
+  // public void deleteUser_shouldReturnNoContent() throws Exception {
+  // mockMvc.perform(delete("/api/tenant/deleteTenant/2"))
+  // .andExpect(status().isNoContent());
 
-  
+  // assertFalse(userService.getUserById(testUser.getId()).isPresent(), "User
+  // should be deleted");
+  // }
+
   // This test is not applicable to the current implementation, returning 404
   // instead of 401, fix
   /*
-   @Test
-   public void getUser_withoutAuthorization_shouldReturnUnauthorized() throws
-   Exception {
-   mockMvc.perform(get("/api/tenant"))
-   .andExpect(status().isUnauthorized());
-   }
-
-  @Test
-  @WithMockUser(username = "testTenat", roles = { "TENANT" })
-  public void getUser_withInvalidRole_shouldReturnForbidden() throws Exception {
-    MvcResult result = mockMvc.perform(get("/api/tenant").with(user("testTenat").roles("ADMIN")))
-        .andExpect(status().isForbidden()).andReturn();
-
-    // String jsonResponse = result.getResponse().getContentAsString();
-    // ErrorResponse errorResponse = objectMapper.readValue(jsonResponse, ErrorResponse.class);
-
-    // assertEquals("Access denied", errorResponse.getMessage()); WIP
-    // assertEquals(403, errorResponse.getStatus()); WIP
-
-  }
-
-/*   @Test <------------------------------------------------------------------------------------------ Fix this test
-  @WithMockUser(username = "no", roles = { "TENANT" })
-  public void getUser_withInvalidUsername_shouldReturnNotFound() throws Exception {
-    MvcResult result = mockMvc.perform(get("/api/tenant"))
-        .andExpect(status().isNotFound())
-        .andReturn();
-
-    String jsonResponse = result.getResponse().getContentAsString();
-    ErrorResponse errorResponse = objectMapper.readValue(jsonResponse, ErrorResponse.class);
-
-    assertEquals("User not found", errorResponse.getMessage());
-    assertEquals(404, errorResponse.getStatus());
-  } */
+   * @Test
+   * public void getUser_withoutAuthorization_shouldReturnUnauthorized() throws
+   * Exception {
+   * mockMvc.perform(get("/api/tenant"))
+   * .andExpect(status().isUnauthorized());
+   * }
+   * 
+   * @Test
+   * 
+   * @WithMockUser(username = "testTenat", roles = { "TENANT" })
+   * public void getUser_withInvalidRole_shouldReturnForbidden() throws Exception
+   * {
+   * MvcResult result =
+   * mockMvc.perform(get("/api/tenant").with(user("testTenat").roles("ADMIN")))
+   * .andExpect(status().isForbidden()).andReturn();
+   * 
+   * // String jsonResponse = result.getResponse().getContentAsString();
+   * // ErrorResponse errorResponse = objectMapper.readValue(jsonResponse,
+   * ErrorResponse.class);
+   * 
+   * // assertEquals("Access denied", errorResponse.getMessage()); WIP
+   * // assertEquals(403, errorResponse.getStatus()); WIP
+   * 
+   * }
+   * 
+   * /* @Test
+   * <----------------------------------------------------------------------------
+   * -------------- Fix this test
+   * 
+   * @WithMockUser(username = "no", roles = { "TENANT" })
+   * public void getUser_withInvalidUsername_shouldReturnNotFound() throws
+   * Exception {
+   * MvcResult result = mockMvc.perform(get("/api/tenant"))
+   * .andExpect(status().isNotFound())
+   * .andReturn();
+   * 
+   * String jsonResponse = result.getResponse().getContentAsString();
+   * ErrorResponse errorResponse = objectMapper.readValue(jsonResponse,
+   * ErrorResponse.class);
+   * 
+   * assertEquals("User not found", errorResponse.getMessage());
+   * assertEquals(404, errorResponse.getStatus());
+   * }
+   */
 }

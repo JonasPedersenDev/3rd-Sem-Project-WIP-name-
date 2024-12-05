@@ -81,6 +81,9 @@ public class TenantService extends UserService<Tenant> {
   }
 
   public void delete(Long id) {
+    if (!tenantRepository.existsById(id)) {
+      throw new IllegalArgumentException("Tenant with ID " + id + " not found");
+    }
     tenantRepository.deleteById(id);
   }
 
@@ -88,25 +91,25 @@ public class TenantService extends UserService<Tenant> {
     Optional<Tenant> existingTenantOptional = tenantRepository.findById(tenant.getId());
 
     if (existingTenantOptional.isPresent()) {
-        Tenant existingTenant = existingTenantOptional.get();
+      Tenant existingTenant = existingTenantOptional.get();
 
-        if (pictureFile != null && !pictureFile.isEmpty()) {
-            setUserProfilePicture(tenant, pictureFile);
-        }
+      if (pictureFile != null && !pictureFile.isEmpty()) {
+        setUserProfilePicture(tenant, pictureFile);
+      }
 
-        // Only hash the password if it is not null
-        if (tenant.getPassword() != null && !tenant.getPassword().isEmpty()) {
-            tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
-        } else {
-            // If the password is null or empty, retain the existing password
-            tenant.setPassword(existingTenant.getPassword());
-        }
+      // Only hash the password if it is not null
+      if (tenant.getPassword() != null && !tenant.getPassword().isEmpty()) {
+        tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
+      } else {
+        // If the password is null or empty, retain the existing password
+        tenant.setPassword(existingTenant.getPassword());
+      }
 
-        return tenantRepository.save(tenant);
+      return tenantRepository.save(tenant);
     } else {
-        throw new IllegalArgumentException("Tenant with ID " + tenant.getId() + " not found");
+      throw new IllegalArgumentException("Tenant with ID " + tenant.getId() + " not found");
     }
-}
+  }
 
   public Tenant get(Long id) {
     return tenantRepository.findById(id)

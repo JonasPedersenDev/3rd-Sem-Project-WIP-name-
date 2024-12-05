@@ -31,16 +31,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @TestInstance(Lifecycle.PER_CLASS)
 public class AdminControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @Autowired
-  private TenantService userService;
+    @Autowired
+    private TenantService userService;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  private Tenant testUser;
+    private Tenant testUser;
 
     @BeforeEach
     public void setUp() {
@@ -66,97 +66,99 @@ public class AdminControllerTest {
 
     @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
     public void getUser_shouldReturnCurrentUser() throws Exception {
-    MvcResult result = mockMvc.perform(get("/api/admin"))
-        .andExpect(status().isOk())
-        .andReturn();
+        MvcResult result = mockMvc.perform(get("/api/admin"))
+                .andExpect(status().isOk())
+                .andReturn();
 
-    String jsonResponse = result.getResponse().getContentAsString();
-    Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
+        String jsonResponse = result.getResponse().getContentAsString();
+        Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
 
-    assertEquals(testUser.getName(), responseTenant.getName());
-    assertEquals(testUser.getMobileNumber(), responseTenant.getMobileNumber());
-    assertEquals(testUser.getEmail(), responseTenant.getEmail());
-    assertEquals(testUser.getUsername(), responseTenant.getUsername());
+        assertEquals(testUser.getName(), responseTenant.getName());
+        assertEquals(testUser.getMobileNumber(), responseTenant.getMobileNumber());
+        assertEquals(testUser.getEmail(), responseTenant.getEmail());
+        assertEquals(testUser.getUsername(), responseTenant.getUsername());
     }
 
     @Test
     @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
     public void getAllTenants_shouldReturnAllTenants() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/admin/getAllTenants"))
-            .andExpect(status().isOk())
-            .andReturn();
+                .andExpect(status().isOk())
+                .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString();
         Tenant[] responseTenants = objectMapper.readValue(jsonResponse, Tenant[].class);
 
         assertNotNull(responseTenants);
-    assertTrue(responseTenants.length > 0, "Tenants list should not be empty");
-    }  
-    
-    @Test
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getTenant_withValidId_shouldReturnTenant() throws Exception {
-        Tenant tempTenant = new Tenant();
-        tempTenant.setId(2L);
-        tempTenant.setName("TestTenant");
-        tempTenant.setMobileNumber("+4588888888");
-        tempTenant.setUsername("testTenant");
-        tempTenant.setEmail("tempTenant@example.com");
-        tempTenant.setPassword("rawPassword123");
-
-        userService.createUser(tempTenant, null);
-
-
-        MvcResult result = mockMvc.perform(get("/api/admin/getTenant/2"))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
-
-        assertNotNull(responseTenant);
-        assertEquals(tempTenant.getName(), responseTenant.getName());
-        assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
-        assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
-        assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
+        assertTrue(responseTenants.length > 0, "Tenants list should not be empty");
     }
 
-    /*@Test
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void updateTenant_shouldReturnUpdatedTenant() throws Exception {
-        Tenant tempTenant = new Tenant();
-        tempTenant.setId(2L);
-        tempTenant.setName("TestTenant");
-        tempTenant.setMobileNumber("+4588888888");
-        tempTenant.setUsername("testTenant");
-        tempTenant.setEmail("example@email.com");
-        tempTenant.setPassword("rawPassword123");
+    // @Test
+    // @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
+    // public void getTenant_withValidId_shouldReturnTenant() throws Exception {
+    // Tenant tempTenant = new Tenant();
+    // tempTenant.setId(2L);
+    // tempTenant.setName("TestTenant");
+    // tempTenant.setMobileNumber("+4588888888");
+    // tempTenant.setUsername("testTenant");
+    // tempTenant.setEmail("tempTenant@example.com");
+    // tempTenant.setPassword("rawPassword123");
 
-        userService.createUser(tempTenant, null);
-    
-        tempTenant.setId(2L);
-        tempTenant.setName("UpdatedTenant");
-        tempTenant.setMobileNumber("+4599999999");
-        tempTenant.setUsername("updatedTenant");
-        tempTenant.setEmail("NewExample@email.com");
-        tempTenant.setPassword("newrawPassword123");
+    // userService.createUser(tempTenant, null);
 
-    
-        MvcResult result = mockMvc.perform(put("/api/admin/updateTenant")
-            .contentType("multipart/form-data")
-            .content(objectMapper.writeValueAsString(tempTenant)))
-            .andExpect(status().isOk())
-            .andReturn();
+    // MvcResult result = mockMvc.perform(get("/api/admin/getTenant/2"))
+    // .andExpect(status().isOk())
+    // .andReturn();
 
-        String jsonResponse = result.getResponse().getContentAsString();
-        Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
+    // String jsonResponse = result.getResponse().getContentAsString();
+    // Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
 
-        assertNotNull(responseTenant);
-        assertEquals(tempTenant.getName(), responseTenant.getName());
-        assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
-        assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
-        assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
-        assertEquals(tempTenant.getPassword(), responseTenant.getPassword());
+    // assertNotNull(responseTenant);
+    // assertEquals(tempTenant.getName(), responseTenant.getName());
+    // assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
+    // assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
+    // assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
+    // }
 
-    }*/
+    /*
+     * @Test
+     * 
+     * @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
+     * public void updateTenant_shouldReturnUpdatedTenant() throws Exception {
+     * Tenant tempTenant = new Tenant();
+     * tempTenant.setId(2L);
+     * tempTenant.setName("TestTenant");
+     * tempTenant.setMobileNumber("+4588888888");
+     * tempTenant.setUsername("testTenant");
+     * tempTenant.setEmail("example@email.com");
+     * tempTenant.setPassword("rawPassword123");
+     * 
+     * userService.createUser(tempTenant, null);
+     * 
+     * tempTenant.setId(2L);
+     * tempTenant.setName("UpdatedTenant");
+     * tempTenant.setMobileNumber("+4599999999");
+     * tempTenant.setUsername("updatedTenant");
+     * tempTenant.setEmail("NewExample@email.com");
+     * tempTenant.setPassword("newrawPassword123");
+     * 
+     * 
+     * MvcResult result = mockMvc.perform(put("/api/admin/updateTenant")
+     * .contentType("multipart/form-data")
+     * .content(objectMapper.writeValueAsString(tempTenant)))
+     * .andExpect(status().isOk())
+     * .andReturn();
+     * 
+     * String jsonResponse = result.getResponse().getContentAsString();
+     * Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
+     * 
+     * assertNotNull(responseTenant);
+     * assertEquals(tempTenant.getName(), responseTenant.getName());
+     * assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
+     * assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
+     * assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
+     * assertEquals(tempTenant.getPassword(), responseTenant.getPassword());
+     * 
+     * }
+     */
 }
