@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
@@ -29,6 +29,7 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.BookingRepository;
 import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
+import com.auu_sw3_6.Himmerland_booking_software.service.event.CancelNotificationEvent;
 
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
@@ -202,9 +203,12 @@ public class BookingServiceTest {
     }
 
 
-/*     @Test
-    public void testCancelPendingBookings_shouldCancelPendingBookingsWhenCapacityExceeded() {
+@Test
+public void testCancelPendingBookings_shouldCancelPendingBookingsWhenCapacityExceeded() {
     // Arrange
+    ApplicationEventPublisher mockEventPublisher = mock(ApplicationEventPublisher.class);
+    bookingService = new BookingService(bookingRepository, resourceServiceFactory, mockEventPublisher);
+
     resource.setCapacity(1);
 
     Booking lateBooking = new Booking();
@@ -230,9 +234,12 @@ public class BookingServiceTest {
     // Act
     bookingService.cancelPendingBookings();
 
+    // Assert
     assertEquals(BookingStatus.CANCELED, pendingBooking.getStatus(), "Pending booking was not canceled as expected.");
     verify(bookingRepository).save(pendingBooking);
-} */
+    verify(mockEventPublisher).publishEvent(any(CancelNotificationEvent.class));
+}
+
 
 
 
@@ -257,5 +264,37 @@ public void testCancelPendingBookings_shouldNotCancelPendingBookingsWhenCapacity
 }
 
     
+
+
+@Test
+public void testCreateBooking_Successful() {
+    // Arrange
+    Booking inputBooking = new Booking();
+    inputBooking.setId(1L);
+    when(bookingRepository.save(inputBooking)).thenReturn(inputBooking);
+
+    // Act
+    Booking result = bookingService.createBooking(inputBooking);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    verify(bookingRepository).save(inputBooking);
 }
 
+@Test
+public void testCreateBooking_RepositoryReturnsNull() {
+    // Arrange
+    Booking inputBooking = new Booking();
+    inputBooking.setId(1L);
+
+    when(bookingRepository.save(inputBooking)).thenReturn(null);
+
+    // Act
+    Booking result = bookingService.createBooking(inputBooking);
+
+    // Assert
+    assertNull(result);
+    verify(bookingRepository).save(inputBooking);
+}
+}

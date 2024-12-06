@@ -29,50 +29,53 @@ public class BookingServiceIntegrationTest {
     private ToolService toolService;
 
     @Test
-    public void testBookResource_ConfirmBookingLink() {
-        // Arrange:
-        Tenant user = new Tenant();
-        user.setId(1L);
-        user.setName("John Doe");
-        user.setEmail("johndoe@example.com");
-        user.setMobileNumber("+123456789");
-        user.setUsername("johndoe");
-        user.setPassword("password123");
-        user.setHouseAddress("123 Main Street");
+public void testBookResource_ConfirmBookingLink() {
+    // Arrange:
+    Tenant user = new Tenant();
+    user.setId(1L);
+    user.setName("John Doe");
+    user.setEmail("johndoe@example.com");
+    user.setMobileNumber("+123456789");
+    user.setUsername("johndoe");
+    user.setPassword("password123");
+    user.setHouseAddress("123 Main Street");
+
+    Tool tool = new Tool();
+    tool.setName("Drill");
+    tool.setDescription("High-quality electric drill");
+    tool.setType(ResourceType.TOOL);
+    tool.setCapacity(5);
+    tool.setStatus("active");
+
+    Tool savedTool = toolService.createTool(tool, null);
+
+    LocalDate startDate = LocalDate.now().with(java.time.DayOfWeek.MONDAY).plusWeeks(1);
+    LocalDate endDate = startDate.plusDays(2);
+    BookingDetails bookingDetails = new BookingDetails();
+    bookingDetails.setResourceID(savedTool.getId());
+    bookingDetails.setResourceType(ResourceType.TOOL);
+    bookingDetails.setStartDate(startDate);
+    bookingDetails.setEndDate(endDate);
+    bookingDetails.setPickupTime(TimeRange.EARLY);
+    bookingDetails.setDropoffTime(TimeRange.LATE);
+    bookingDetails.setReceiverName("Jane Doe");
+    bookingDetails.setHandoverName("Mark Smith");
+
+    // Act:
+    Booking booking = bookingService.bookResource(user, bookingDetails);
+
+    // Assert:
+    assertNotNull(booking);
+    assertEquals(user.getId(), booking.getUser().getId());
+    assertEquals(savedTool.getId(), booking.getResource().getId());
+    assertEquals(BookingStatus.PENDING, booking.getStatus());
+    assertEquals(bookingDetails.getReceiverName(), booking.getReceiverName());
+    assertEquals(bookingDetails.getHandoverName(), booking.getHandoverName());
+    assertTrue(bookingRepository.existsById(booking.getId()));
+}
+
     
-        Tool tool = new Tool();
-        tool.setName("Drill");
-        tool.setDescription("High-quality electric drill");
-        tool.setType(ResourceType.TOOL);
-        tool.setCapacity(5);
-        tool.setStatus("active");
-    
-        Tool savedTool = toolService.createTool(tool, null);
-    
-        BookingDetails bookingDetails = new BookingDetails();
-        bookingDetails.setResourceID(savedTool.getId());
-        bookingDetails.setResourceType(ResourceType.TOOL);
-        bookingDetails.setStartDate(LocalDate.now().plusDays(1));
-        bookingDetails.setEndDate(LocalDate.now().plusDays(2));
-        bookingDetails.setPickupTime(TimeRange.EARLY);
-        bookingDetails.setDropoffTime(TimeRange.LATE);
-        bookingDetails.setReceiverName("Jane Doe");
-        bookingDetails.setHandoverName("Mark Smith");
-    
-        // Act: Book
-        Booking booking = bookingService.bookResource(user, bookingDetails);
-    
-        // Assert:
-        assertNotNull(booking);
-        assertEquals(user.getId(), booking.getUser().getId());
-        assertEquals(savedTool.getId(), booking.getResource().getId());
-        assertEquals(BookingStatus.PENDING, booking.getStatus());
-        assertEquals(bookingDetails.getReceiverName(), booking.getReceiverName());
-        assertEquals(bookingDetails.getHandoverName(), booking.getHandoverName());
-        assertTrue(bookingRepository.existsById(booking.getId()));
-    }
-    
-    @Test
+@Test
 public void testBookResource_unavailableResource() {
     // Arrange:
     Tenant user = new Tenant();
@@ -93,11 +96,14 @@ public void testBookResource_unavailableResource() {
 
     Tool savedTool = toolService.createTool(tool, null);
 
+    LocalDate startDate = LocalDate.now().with(java.time.DayOfWeek.TUESDAY).plusWeeks(1);
+    LocalDate endDate = startDate.plusDays(1);
+
     BookingDetails bookingDetails = new BookingDetails();
     bookingDetails.setResourceID(savedTool.getId());
     bookingDetails.setResourceType(ResourceType.TOOL);
-    bookingDetails.setStartDate(LocalDate.now().plusDays(1));
-    bookingDetails.setEndDate(LocalDate.now().plusDays(2));
+    bookingDetails.setStartDate(startDate);
+    bookingDetails.setEndDate(endDate);
     bookingDetails.setPickupTime(TimeRange.EARLY);
     bookingDetails.setDropoffTime(TimeRange.LATE);
 
@@ -108,6 +114,5 @@ public void testBookResource_unavailableResource() {
 
     // Assert: 
     assertEquals(BookingError.TOO_MANY_BOOKINGS.getErrorMessage(), exception.getMessage());
-
 }
 }

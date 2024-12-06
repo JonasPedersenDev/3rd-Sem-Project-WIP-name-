@@ -77,13 +77,4 @@ public class HospitalityServiceTest {
         });
         assertEquals("Name cannot be null or empty.", exception.getMessage(), "Should throw exception for empty name");
     }
-
-    /* @Test <-- no worky
-    public void testDeleteHospitality_ShouldCallDeleteResource() {
-        // Act
-        hospitalityService.deleteResource(1L);
-
-        // Assert
-        verify(hospitalityRepository).deleteById(1L);
-    } */
 }
