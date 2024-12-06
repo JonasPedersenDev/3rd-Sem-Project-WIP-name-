@@ -2,6 +2,8 @@ package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +17,10 @@ import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.TenantRepository;
-import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.RestrictedUsernameException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.UserAlreadyExistsException;
 
 import jakarta.annotation.PostConstruct;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TenantService extends UserService<Tenant> {
@@ -57,7 +55,8 @@ public class TenantService extends UserService<Tenant> {
   }
 
   public List<Tenant> getAllTenants() {
-    return tenantRepository.findAll();
+    return tenantRepository.findAll().stream()
+        .filter(tenant -> !tenant.getName().equals("deleted")).toList();
   }
 
   public Tenant createTenant(Tenant tenant, MultipartFile profilePicture) {
@@ -80,34 +79,27 @@ public class TenantService extends UserService<Tenant> {
     return getUserByUsername(username).isPresent() || adminService.getUserByUsername(username).isPresent();
   }
 
-  public void delete(Long id) {
-    if (!tenantRepository.existsById(id)) {
-      throw new IllegalArgumentException("Tenant with ID " + id + " not found");
-    }
-    tenantRepository.deleteById(id);
-  }
+  public void softDeleteTenant(Long userId) {
+    Optional<Tenant> tenantOptional = tenantRepository.findById(userId);
 
-  public Tenant update(Tenant tenant, MultipartFile pictureFile) {
-    Optional<Tenant> existingTenantOptional = tenantRepository.findById(tenant.getId());
+    if (tenantOptional.isPresent()) {
 
-    if (existingTenantOptional.isPresent()) {
-      Tenant existingTenant = existingTenantOptional.get();
+      bookingService.cancelAllNonCompletedBookingsForUser(userId);
 
-      if (pictureFile != null && !pictureFile.isEmpty()) {
-        setUserProfilePicture(tenant, pictureFile);
-      }
+      Tenant tenantToBeDeleted = tenantOptional.get();
 
-      // Only hash the password if it is not null
-      if (tenant.getPassword() != null && !tenant.getPassword().isEmpty()) {
-        tenant.setPassword(passwordEncoder.encode(tenant.getPassword()));
-      } else {
-        // If the password is null or empty, retain the existing password
-        tenant.setPassword(existingTenant.getPassword());
-      }
+      tenantToBeDeleted.setName("deleted");
+      tenantToBeDeleted.setEmail("deleted@gmail.com");
+      tenantToBeDeleted.setMobileNumber("00000000");
+      tenantToBeDeleted.setUsername("deleted");
+      tenantToBeDeleted.setPassword("Deleted123");
+      tenantToBeDeleted.setProfilePictureFileName("deleted");
+      tenantToBeDeleted.setHouseAddress("deleted");
 
-      return tenantRepository.save(tenant);
+      tenantRepository.save(tenantToBeDeleted);
+
     } else {
-      throw new IllegalArgumentException("Tenant with ID " + tenant.getId() + " not found");
+      throw new IllegalArgumentException("Tenant with ID " + userId + " not found");
     }
   }
 

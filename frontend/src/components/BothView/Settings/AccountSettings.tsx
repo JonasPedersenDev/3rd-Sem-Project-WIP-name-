@@ -45,6 +45,7 @@ const SettingsForm: React.FC = () => {
   const [currentView, setCurrentView] = useState("settings");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState<string>("");
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -65,7 +66,7 @@ const SettingsForm: React.FC = () => {
         let response = await ApiService.fetchData<UserInfo>("tenant");
         console.log("User Information:", response.data);
         setUserInfo(response.data);
-        validateForm();
+        validateForm(userInfo, newPassword);
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -75,14 +76,14 @@ const SettingsForm: React.FC = () => {
 
   //used to fetch user data from the backend when cancel is clicked
   const fetchUserData = async () => {
-      try {
-        const data = await ApiService.fetchData<UserInfo>("tenant");
-        const { password, ...userInfoWithoutPassword } = data.data; // Exclude password
-        setUserInfo({ ...userInfoWithoutPassword, password: "" });
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
+    try {
+      const data = await ApiService.fetchData<UserInfo>("tenant");
+      const { password, ...userInfoWithoutPassword } = data.data; // Exclude password
+      setUserInfo({ ...userInfoWithoutPassword, password: "" });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
   const handleCancel = async () => {
     await fetchUserData();
@@ -91,6 +92,8 @@ const SettingsForm: React.FC = () => {
 
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    let updatedUserInfo = userInfo;
+    let updatedPassword = newPassword;
 
     if (e.target.type === "file") {
       const fileInput = e.target as HTMLInputElement;
@@ -108,9 +111,19 @@ const SettingsForm: React.FC = () => {
           fileInput.value = "";
         }
       }
+    } else if (name === "password") {
+      setNewPassword(value);
+      updatedPassword = value;
     } else {
       setUserInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+      updatedUserInfo = { ...userInfo, [name]: value, };
     }
+
+    //Throw error message if invalid - state updates are asynchronous, so workaround is declaring local updated versions
+    const error = validateForm(updatedUserInfo, updatedPassword)
+    if (error) {
+      setValidationError(error)
+    } else if (error == null) { setValidationError(null) }
   };
 
 
@@ -123,28 +136,30 @@ const SettingsForm: React.FC = () => {
     }
   };
 
-  const validateForm = () => {
+  const updatePassword = () => {
+    setUserInfo((prevInfo) => ({ ...prevInfo, password: newPassword }));
+  }
+
+
+  const validateForm = (userInfoLocal: UserInfo, newPasswordLocal: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     const phoneNumberRegex = /^[0-9]{8}$/;
     const hashedPasswordRegex = /^\$2[ayb]\$.{56}$/;
 
-    if (!userInfo.username || !userInfo.email || !userInfo.name || !userInfo.mobileNumber || !userInfo.houseAddress) {
+    if (!userInfoLocal.username || !userInfoLocal.email || !userInfoLocal.name || !userInfoLocal.mobileNumber || !userInfoLocal.houseAddress) {
       return "Udfyld venligst alle felter.";
     }
-    if (!emailRegex.test(userInfo.email)) {
+    if (!emailRegex.test(userInfoLocal.email)) {
       return "Indtast en gyldig email.";
     }
-    if (!phoneNumberRegex.test(userInfo.mobileNumber)) {
+    if (!phoneNumberRegex.test(userInfoLocal.mobileNumber)) {
       return "Indtast et gyldigt telefonnummer.";
     }
-    if (isEditing && !userInfo.password) {
-      return "Adgangskoden må ikke være tom.";
-    }
-    if (userInfo.password && !passwordRegex.test(userInfo.password)) {
+    if (newPasswordLocal != "" && !passwordRegex.test(newPasswordLocal)) {
       return "Adgangskoden skal være mindst 8 tegn lang og inkludere både store og små bogstaver samt et tal.";
     }
-    if (userInfo.password && hashedPasswordRegex.test(userInfo.password)) {
+    if (newPasswordLocal != "" && hashedPasswordRegex.test(newPasswordLocal)) {
       return "Adgangskoden må ikke være en hashed adgangskode.";
     }
     return null;
@@ -156,12 +171,12 @@ const SettingsForm: React.FC = () => {
   };
 
   const handleSaveChanges = async () => {
-    const error = validateForm();
+    const error = validateForm(userInfo, newPassword);
     if (error) {
       setValidationError(error);
       return;
     }
-
+    updatePassword();
     setShowWarningModal(true); // Show warning modal before saving changes
   };
 
@@ -247,27 +262,29 @@ const SettingsForm: React.FC = () => {
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">
-                  <Form.Label>Adgangskode</Form.Label>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Form.Control
-                      type={passwordVisible ? "text" : "password"}
-                      name="password"
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={{ marginRight: "10px" }}
-                    />
-                    <Button
-                      variant="secondary"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {passwordVisible ? "Skjul" : "Vis"}
-                    </Button>
-                  </div>
+                  <Form.Label>{isEditing ? "Adgangskode" : "Adgangskode..." }</Form.Label>
+                  {isEditing && (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Form.Control
+                        type={passwordVisible ? "text" : "password"}
+                        name="password"
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <Button
+                        variant="secondary"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {passwordVisible ? "Skjul" : "Vis"}
+                      </Button>
+                    </div>
+                  )}
                 </Form.Group>
                 {validationError && (
                   <p style={{ color: "red" }}>{validationError}</p>
                 )}
-                <Button variant="success" onClick={isEditing ? handleSaveChanges : handleEditToggle} disabled={isEditing && !!validateForm()}>
+                <Button variant="success" onClick={isEditing ? handleSaveChanges : handleEditToggle} disabled={isEditing && !!validateForm(userInfo, newPassword)}>
                   {isEditing ? "Gem ændringer" : "Ændre"}
                 </Button>
                 {isEditing && (

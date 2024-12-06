@@ -354,8 +354,8 @@ public class BookingService {
     bookingRepository.save(booking);
   }
 
-  public void cancelConfirmedAndPendingBookingsForResource (long resourceId, ResourceType resourceType) {
-    //Checks the given resource actually exists
+  public void cancelConfirmedAndPendingBookingsForResource(long resourceId, ResourceType resourceType) {
+    // Checks the given resource actually exists
     ResourceService<?> resourceService = resourceServiceFactory.getServiceByType(resourceType);
     Resource resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID " + resourceId));
@@ -373,6 +373,20 @@ public class BookingService {
 
     combinedBookingsList.forEach(booking -> booking.setStatus(BookingStatus.CANCELED));
     bookingRepository.saveAll(combinedBookingsList);
+  }
+
+  public void cancelAllNonCompletedBookingsForUser(long userId) {
+
+    List<Booking> userIdBookings = bookingRepository.findByUser_Id(userId).stream()
+        .filter(booking -> booking.getStatus() != BookingStatus.COMPLETED)
+        .toList();
+
+    if (userIdBookings.isEmpty()) {
+      return;
+    }
+
+    userIdBookings.forEach(booking -> booking.setStatus(BookingStatus.CANCELED));
+    bookingRepository.saveAll(userIdBookings);
   }
 
   public void deleteAllBookingsForResource(long resourceId) {

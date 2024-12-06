@@ -1,7 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -81,26 +80,5 @@ public class AdminService extends UserService<Admin> {
       throw new IllegalArgumentException("Booking details cannot be null");
     }
     return bookingService.bookResource(tenant, details);
-  }
-
-  public Admin update(Admin admin, MultipartFile pictureFile) {
-    Optional<Admin> existingAdminOptional = adminRepository.findById(admin.getId());
-
-    if (existingAdminOptional.isPresent()) {
-      Admin existingAdmin = existingAdminOptional.get();
-      if (pictureFile != null && !pictureFile.isEmpty()) {
-        setUserProfilePicture(admin, pictureFile);
-      }
-      // Only hash the password if it is not null
-      if (admin.getPassword() != null && !admin.getPassword().isEmpty()) {
-        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-    } else {
-        // If the password is null or empty, retain the existing password
-        admin.setPassword(existingAdmin.getPassword());
-    }
-      return adminRepository.save(admin);
-    } else {
-      throw new IllegalArgumentException("Admin with ID " + admin.getId() + " not found");
-    }
   }
 }

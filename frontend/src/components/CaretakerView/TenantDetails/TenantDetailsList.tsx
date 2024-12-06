@@ -116,7 +116,7 @@ const TenantDetailsList: React.FC = () => {
             <div className="tenant-info">
               <ProfilePicture imageSource={`admin/getTenant/${tenant.id}/profilePicture`} />
               <h2>{tenant.name}</h2>
-              <p>Addresse: {tenant.houseAddress}</p>
+              <p>Adresse: {tenant.houseAddress}</p>
               <p>Telefonnummer: {tenant.mobileNumber}</p>
               <p>Email: {tenant.email}</p>
             </div>

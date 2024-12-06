@@ -8,16 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
@@ -55,7 +54,7 @@ public class AdminController extends UserController<Admin> {
   @DeleteMapping(value = "/deleteTenant/{id}")
   @Operation(summary = "Delete tenant", description = "This endpoint deletes a tenant.")
   public ResponseEntity<Void> deleteTenant(@PathVariable Long id) {
-    tenantService.delete(id);
+    tenantService.softDeleteTenant(id);
     return ResponseEntity.noContent().build();
   }
 
@@ -65,7 +64,7 @@ public class AdminController extends UserController<Admin> {
       @RequestPart("user") Admin admin,
       @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
       HttpServletResponse response) {
-    Admin updatedAdmin = adminService.update(admin, profilePicture);
+    Admin updatedAdmin = adminService.updateUser(admin, profilePicture);
 
     // Clear the JWT cookie
     ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
@@ -86,7 +85,7 @@ public class AdminController extends UserController<Admin> {
   public ResponseEntity<Tenant> updateTenant(
       @RequestPart("user") Tenant tenant,
       @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
-    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
+    Tenant updatedTenant = tenantService.updateUser(tenant, profilePicture);
     return ResponseEntity.ok(updatedTenant);
   }
 

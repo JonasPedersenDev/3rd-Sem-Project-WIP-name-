@@ -33,6 +33,7 @@ const SettingsForm: React.FC = () => {
   const [currentView, setCurrentView] = useState("settings");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState<string>("");
 
   //used to fetch user data from the backend when site is loaded
   useEffect(() => {
@@ -63,25 +64,35 @@ const handleCancel = async () => {
     setIsEditing(false);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setUserInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let updatedPassword = newPassword;
+    if (name === "password") {
+      setNewPassword(value);
+      updatedPassword = value;
+    } else {
+      setUserInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+    }
+
+    //Throw error message if invalid - state updates are asynchronous, so workaround is declaring local updated version
+    const error = validateForm(updatedPassword)
+    if (error) {
+      setValidationError(error)
+    } else if (error == null) { setValidationError(null) }
   };
 
-  const validateForm = () => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    const hashedPasswordRegex = /^\$2[ayb]\$.{56}$/; // Regex for BCrypt hashed passwords
+  const updatePassword = () => {
+    setUserInfo((prevInfo) => ({ ...prevInfo, password: newPassword }));
+  }
 
-    if (!userInfo.username || !userInfo.password) {
-      return "Udfyld venligst alle felter.";
-    }
-    if (isEditing && !userInfo.password) {
-      return "Adgangskoden må ikke være tom.";
-    }
-    if (userInfo.password && !passwordRegex.test(userInfo.password)) {
+  const validateForm = (newPasswordLocal: string) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const hashedPasswordRegex = /^\$2[ayb]\$.{56}$/;
+
+    if (newPasswordLocal != "" && !passwordRegex.test(newPasswordLocal)) {
       return "Adgangskoden skal være mindst 8 tegn lang og inkludere både store og små bogstaver samt et tal.";
     }
-    if (userInfo.password && hashedPasswordRegex.test(userInfo.password)) {
+    if (newPasswordLocal != "" && hashedPasswordRegex.test(newPasswordLocal)) {
       return "Adgangskoden må ikke være en hashed adgangskode.";
     }
     return null;
@@ -93,12 +104,12 @@ const handleCancel = async () => {
   };
 
   const handleSaveChanges = async () => {
-    const error = validateForm();
+    const error = validateForm(newPassword);
     if (error) {
       setValidationError(error);
       return;
     }
-
+    updatePassword();
     setShowWarningModal(true);
   }
 
@@ -140,7 +151,8 @@ const handleCancel = async () => {
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">
-                  <Form.Label>Adgangskode</Form.Label>
+                  <Form.Label>{isEditing ? "Adgangskode" : "Adgangskode..." }</Form.Label>
+                  {isEditing && (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <Form.Control
                       type={passwordVisible ? "text" : "password"}
@@ -156,11 +168,12 @@ const handleCancel = async () => {
                       {passwordVisible ? "Skjul" : "Vis"}
                     </Button>
                   </div>
+                  )}
                 </Form.Group>
                 {validationError && (
                   <p style={{ color: "red" }}>{validationError}</p>
                 )}
-                <Button variant="success" onClick={isEditing ? handleSaveChanges : handleEditToggle} disabled={isEditing && !!validateForm()}>
+                <Button variant="success" onClick={isEditing ? handleSaveChanges : handleEditToggle} disabled={isEditing && !!validateForm(newPassword)}>
                   {isEditing ? "Gem ændringer" : "Ændre"}
                 </Button>
                 {isEditing && (

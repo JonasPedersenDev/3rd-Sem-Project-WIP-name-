@@ -78,6 +78,7 @@ const TenantBookingOverview: React.FC = () => {
       setBookings((prevBookings) =>
         prevBookings.filter((booking) => booking.id !== id)
       );
+      window.dispatchEvent(new Event("bookingCanceled"));
     } catch (error) {
       console.error("Error canceling resource:", error);
     }

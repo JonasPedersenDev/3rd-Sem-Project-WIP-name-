@@ -131,4 +131,67 @@ public abstract class UserService<T extends User> {
     return true;
   }
 
+  public boolean isValidPassword(String password) {
+
+    if (password == null || password.length() < 8) {
+      return false;
+    }
+
+    boolean hasUpper = false, hasLower = false, hasDigit = false;
+
+    for (char c : password.toCharArray()) {
+      if (Character.isUpperCase(c)) {
+        hasUpper = true;
+      } else if (Character.isLowerCase(c)) {
+        hasLower = true;
+      } else if (Character.isDigit(c)) {
+        hasDigit = true;
+      }
+    }
+    return hasUpper && hasLower && hasDigit;
+  }
+
+
+
+  public T updateUser(T user, MultipartFile pictureFile) {
+    Optional<T> existingAdminOptional = repository.findById(user.getId());
+
+    if (existingAdminOptional.isPresent()) {
+      T existingAdmin = existingAdminOptional.get();
+
+      if (pictureFile != null && !pictureFile.isEmpty()) {
+        setUserProfilePicture(user, pictureFile);
+      }
+
+      if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+
+        if (isValidPassword(user.getPassword())) {
+          user.setPassword(passwordEncoder.encode(user.getPassword()));
+        } else {
+          throw new IllegalArgumentException(
+              "Password is invalid, needs to contain atleast 8 chars, 1 digit, 1 uppercase, and 1 lowercase");
+        }
+      } else {
+        // If the password is null or empty, retain the existing password
+        user.setPassword(existingAdmin.getPassword());
+      }
+      return repository.save(user);
+    } else {
+      throw new IllegalArgumentException("User with ID " + user.getId() + " not found");
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

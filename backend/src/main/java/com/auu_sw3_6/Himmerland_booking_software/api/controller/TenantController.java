@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
-import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
@@ -59,7 +58,7 @@ public class TenantController extends UserController<Tenant> {
   @DeleteMapping(value = "/deleteTenant/{id}")
   @Operation(summary = "Delete tenant", description = "This endpoint deletes a tenant.")
   public ResponseEntity<Void> deleteTenant(@PathVariable Long id, HttpServletResponse response) {
-    tenantService.delete(id);
+    tenantService.softDeleteTenant(id);
 
     // Clear the JWT cookie
     ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
@@ -81,7 +80,7 @@ public class TenantController extends UserController<Tenant> {
     @RequestPart("user") Tenant tenant, 
     @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture, 
     HttpServletResponse response) {
-    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
+    Tenant updatedTenant = tenantService.updateUser(tenant, profilePicture);
     
     // Clear the JWT cookie
     ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
