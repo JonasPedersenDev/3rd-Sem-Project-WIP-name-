@@ -1,155 +1,191 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
-import java.io.File;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
+import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestInstance(Lifecycle.PER_CLASS)
-public class AdminControllerTest {
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-    @Autowired
-    private MockMvc mockMvc;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    @Autowired
-    private TenantService userService;
+class AdminControllerTest {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private AdminService adminService;
 
-    private Tenant testUser;
+    @Mock
+    private TenantService tenantService;
+
+    @InjectMocks
+    private AdminController adminController;
 
     @BeforeEach
-    public void setUp() {
-        // Delete the test database file before each test
-        File dbFile = new File("src/test/resources/database/TestDatabase.db");
-        if (dbFile.exists()) {
-            dbFile.delete();
-        }
-
-        // Recreate the database schema
-        // This will be handled by Spring Boot with the `create-drop` setting
-
-        testUser = new Tenant();
-        testUser.setId(1L);
-        testUser.setName("AdminControllerTest");
-        testUser.setMobileNumber("+4588888888");
-        testUser.setUsername("testAdmin");
-        testUser.setEmail("Admin@email.test");
-        testUser.setPassword("rawPassword123");
-
-        userService.createUser(testUser, null);
-    }
-    
-   /* @Test //FAIL fix
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getUser_shouldReturnCurrentUser() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/admin"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
-
-        assertEquals(testUser.getName(), responseTenant.getName());
-        assertEquals(testUser.getMobileNumber(), responseTenant.getMobileNumber());
-        assertEquals(testUser.getEmail(), responseTenant.getEmail());
-        assertEquals(testUser.getUsername(), responseTenant.getUsername());
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getAllTenants_shouldReturnAllTenants() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/admin/getAllTenants"))
-                .andExpect(status().isOk())
-                .andReturn();
+    void getAllTenants_ShouldReturnListOfTenants() {
+        List<Tenant> expectedTenants = Arrays.asList(new Tenant(), new Tenant());
+        when(tenantService.getAllTenants()).thenReturn(expectedTenants);
 
-        String jsonResponse = result.getResponse().getContentAsString();
-        Tenant[] responseTenants = objectMapper.readValue(jsonResponse, Tenant[].class);
+        ResponseEntity<List<Tenant>> response = adminController.getAllTenants();
 
-        assertNotNull(responseTenants);
-    assertTrue(responseTenants.length > 0, "Tenants list should not be empty");
-    }  
-    
-    /*@Test  //FAIL fix
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getTenant_withValidId_shouldReturnTenant() throws Exception {
-        Tenant tempTenant = new Tenant();
-        tempTenant.setId(2L);
-        tempTenant.setName("TestTenant");
-        tempTenant.setMobileNumber("+4588888888");
-        tempTenant.setUsername("testTenant");
-        tempTenant.setEmail("tempTenant@example.com");
-        tempTenant.setPassword("rawPassword123");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedTenants, response.getBody());
+    }
 
-    // userService.createUser(tempTenant, null);
+    @Test
+    void deleteTenant_ShouldReturnNoContent() {
+        Long tenantId = 1L;
 
-    // MvcResult result = mockMvc.perform(get("/api/admin/getTenant/2"))
-    // .andExpect(status().isOk())
-    // .andReturn();
+        ResponseEntity<Void> response = adminController.deleteTenant(tenantId);
 
-    // String jsonResponse = result.getResponse().getContentAsString();
-    // Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(tenantService).softDeleteTenant(tenantId);
+    }
 
-        assertNotNull(responseTenant);
-        assertEquals(tempTenant.getName(), responseTenant.getName());
-        assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
-        assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
-        assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
-    }*/
+    @Test
+    void updateAdmin_ShouldReturnUpdatedAdmin() {
+        Admin admin = new Admin();
+        MockMultipartFile profilePicture = new MockMultipartFile("profilePicture", new byte[0]);
+        MockHttpServletResponse httpResponse = new MockHttpServletResponse();
 
-    /*
-     * @Test
-     * 
-     * @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-     * public void updateTenant_shouldReturnUpdatedTenant() throws Exception {
-     * Tenant tempTenant = new Tenant();
-     * tempTenant.setId(2L);
-     * tempTenant.setName("TestTenant");
-     * tempTenant.setMobileNumber("+4588888888");
-     * tempTenant.setUsername("testTenant");
-     * tempTenant.setEmail("example@email.com");
-     * tempTenant.setPassword("rawPassword123");
-     * 
-     * userService.createUser(tempTenant, null);
-     * 
-     * tempTenant.setId(2L);
-     * tempTenant.setName("UpdatedTenant");
-     * tempTenant.setMobileNumber("+4599999999");
-     * tempTenant.setUsername("updatedTenant");
-     * tempTenant.setEmail("NewExample@email.com");
-     * tempTenant.setPassword("newrawPassword123");
-     * 
-     * 
-     * MvcResult result = mockMvc.perform(put("/api/admin/updateTenant")
-     * .contentType("multipart/form-data")
-     * .content(objectMapper.writeValueAsString(tempTenant)))
-     * .andExpect(status().isOk())
-     * .andReturn();
-     * 
-     * String jsonResponse = result.getResponse().getContentAsString();
-     * Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
-     * 
-     * assertNotNull(responseTenant);
-     * assertEquals(tempTenant.getName(), responseTenant.getName());
-     * assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
-     * assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
-     * assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
-     * assertEquals(tempTenant.getPassword(), responseTenant.getPassword());
-     * 
-     * }
-     */
+        when(adminService.updateUser(admin, profilePicture)).thenReturn(admin);
+
+        ResponseEntity<Admin> response = adminController.updateAdmin(admin, profilePicture, httpResponse);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(admin, response.getBody());
+        assertTrue(httpResponse.getHeader("Set-Cookie").contains("jwt="));
+    }
+
+    @Test
+    void updateTenant_ShouldReturnUpdatedTenant() {
+        Tenant tenant = new Tenant();
+        MockMultipartFile profilePicture = new MockMultipartFile("profilePicture", new byte[0]);
+
+        when(tenantService.updateUser(tenant, profilePicture)).thenReturn(tenant);
+
+        ResponseEntity<Tenant> response = adminController.updateTenant(tenant, profilePicture);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(tenant, response.getBody());
+    }
+
+    @Test
+    void getTenant_ShouldReturnTenant() {
+        Long tenantId = 1L;
+        Tenant expectedTenant = new Tenant();
+        when(tenantService.get(tenantId)).thenReturn(expectedTenant);
+
+        ResponseEntity<Tenant> response = adminController.getTenant(tenantId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedTenant, response.getBody());
+    }
+
+    @Test
+    void getProfilePictureByID_ShouldReturnProfilePicture() {
+        long tenantId = 1L;
+        byte[] expectedImage = new byte[] { 1, 2, 3 };
+        when(tenantService.getProfilePictureByUserId(tenantId)).thenReturn(Optional.of(expectedImage));
+
+        ResponseEntity<Object> response = adminController.getProfilePictureByID(tenantId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.IMAGE_JPEG, response.getHeaders().getContentType());
+        assertArrayEquals(expectedImage, (byte[]) response.getBody());
+    }
+
+    @Test
+    void getProfilePictureByID_ShouldReturnNotFound_WhenProfilePictureNotExists() {
+        long tenantId = 1L;
+        when(tenantService.getProfilePictureByUserId(tenantId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Object> response = adminController.getProfilePictureByID(tenantId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void addCaretakerName_ShouldReturnOk() {
+        String caretakerName = "John Doe";
+
+        ResponseEntity<Void> response = adminController.addCaretakerName(caretakerName);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(adminService).addCaretakerName(caretakerName);
+    }
+
+    @Test
+    void getAllCaretakerNames_ShouldReturnListOfNames() {
+        List<String> expectedNames = Arrays.asList("John Doe", "Jane Smith");
+        when(adminService.getAllCaretakerNames()).thenReturn(expectedNames);
+
+        ResponseEntity<List<String>> response = adminController.getAllCaretakerNames();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedNames, response.getBody());
+    }
+
+    @Test
+    void removeCaretakerName_ShouldReturnOk() {
+        String caretakerName = "John Doe";
+
+        ResponseEntity<Void> response = adminController.removeCaretakerName(caretakerName);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(adminService).removeCaretakerName(caretakerName);
+    }
+
+    @Test
+    void createBookingForTenant_ShouldReturnCreatedBooking() {
+        Long tenantId = 1L;
+        BookingDetails bookingDetails = new BookingDetails();
+        Tenant tenant = new Tenant();
+        Booking expectedBooking = new Booking();
+
+        when(tenantService.get(tenantId)).thenReturn(tenant);
+        when(adminService.bookResourceForTenant(tenant, bookingDetails)).thenReturn(expectedBooking);
+
+        ResponseEntity<Object> response = adminController.createBookingForTenant(bookingDetails, tenantId);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(expectedBooking, response.getBody());
+    }
+
+    // @Test
+    // void createBookingForTenant_ShouldReturnErrorResponse_WhenExceptionOccurs() {
+    // Long tenantId = 1L;
+    // BookingDetails bookingDetails = new BookingDetails();
+    // Tenant tenant = new Tenant();
+
+    // when(tenantService.get(tenantId)).thenReturn(tenant);
+    // when(adminService.bookResourceForTenant(tenant, bookingDetails))
+    // .thenThrow(new RuntimeException("Booking failed"));
+
+    // ResponseEntity<Object> response =
+    // adminController.createBookingForTenant(bookingDetails, tenantId);
+
+    // assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    // assertTrue(response.getBody().toString().contains("Failed to create
+    // booking"));
+    // }
 }
