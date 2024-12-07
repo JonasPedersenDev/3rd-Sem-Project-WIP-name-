@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import com.auu_sw3_6.Himmerland_booking_software.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -33,8 +34,9 @@ public class SecurityConfig {
   @Autowired
   private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+
   @Autowired
-  private UserDetailsService userDetailsService;
+  private CustomUserDetailsService customUserDetailsService;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -49,6 +51,9 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow all OPTIONS requests
             .requestMatchers("/api/tenant/register", "/api/login", "/api/logout").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+            .requestMatchers("/api/tool/update", "/api/tool/create", "/api/tool/delete").hasRole("ADMIN")
+            .requestMatchers("/api/utility/update", "/api/utility/create", "/api/utility/delete").hasRole("ADMIN")
+            .requestMatchers("/api/hospitality/update", "/api/hospitality/create", "/api/hospitality/delete").hasRole("ADMIN")
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/tenant/**").hasRole("TENANT")
             .requestMatchers("/api/booking/**").hasRole("ADMIN")
@@ -80,7 +85,7 @@ public class SecurityConfig {
   public AuthenticationManager authManager(HttpSecurity http) throws Exception {
     AuthenticationManagerBuilder authenticationManagerBuilder = http
         .getSharedObject(AuthenticationManagerBuilder.class);
-    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
     return authenticationManagerBuilder.build();
   }
 }

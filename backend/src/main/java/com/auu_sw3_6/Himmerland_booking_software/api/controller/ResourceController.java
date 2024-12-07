@@ -2,8 +2,6 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +34,6 @@ public abstract class ResourceController<T extends Resource> {
 
   protected final ResourceService<T> resourceService;
   protected final BookingService bookingService;
-  private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
   @Autowired
   public ResourceController(ResourceService<T> resourceService, BookingService bookingService) {

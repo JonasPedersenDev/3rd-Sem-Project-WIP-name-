@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,7 +67,7 @@ public class TenantController extends UserController<Tenant> {
         .secure(true)
         .path("/")
         .maxAge(0) // Expire the cookie immediately
-        .sameSite("none") // only for development, maybe
+        .sameSite("none")
         .build();
 
     response.addHeader("Set-Cookie", jwtCookie.toString());
@@ -115,6 +116,12 @@ public class TenantController extends UserController<Tenant> {
   public ResponseEntity<Void> setBookingStatusAsCanceled(@PathVariable long bookingId) {
     tenantService.setBookingStatus(bookingId, BookingStatus.CANCELED);
     return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/test")
+  @PreAuthorize("hasRole('TENANT')")
+  public ResponseEntity<String> test() {
+    return ResponseEntity.ok("Test");
   }
 
 }

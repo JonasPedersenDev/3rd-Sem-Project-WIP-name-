@@ -37,10 +37,4 @@ public class HospitalityController extends ResourceController<Hospitality> {
     return ResponseEntity.ok(createdHospitality);
   }
 
-  @GetMapping("/test")
-  @Operation(summary = "Test endpoint", description = "This endpoint is used to test the controller.")
-  public ResponseEntity<String> testEndpoint() {
-    return ResponseEntity.ok("HospitalityController is working!");
-  }
-
 }

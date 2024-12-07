@@ -5,4 +5,13 @@ import jakarta.persistence.Entity;
 @Entity
 public class Tenant extends User {
 
+  public Tenant() {
+    super();
+  }
+
+  public Tenant(Long id, String username, String email, String phoneNumber, String fullName, String password,
+      String profilePicture, String address) {
+    super(id, username, email, phoneNumber, fullName, password, profilePicture, address);
+  }
+
 }

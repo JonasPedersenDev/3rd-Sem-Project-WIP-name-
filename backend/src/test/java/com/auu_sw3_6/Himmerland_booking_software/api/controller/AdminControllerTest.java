@@ -1,155 +1,76 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
-import java.io.File;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-
+import com.auu_sw3_6.Himmerland_booking_software.api.controller.testSecurityHelpers.SecurityContextHelper;
+import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
+import com.auu_sw3_6.Himmerland_booking_software.service.AdminService;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestInstance(Lifecycle.PER_CLASS)
-public class AdminControllerTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-    @Autowired
-    private MockMvc mockMvc;
+import java.util.List;
 
-    @Autowired
-    private TenantService userService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MvcResult;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+public class AdminControllerTest extends AbstractUserControllerTest<Admin> {
 
-    private Tenant testUser;
+  @Autowired
+  private TenantService tenantService;
 
-    @BeforeEach
-    public void setUp() {
-        // Delete the test database file before each test
-        File dbFile = new File("src/test/resources/database/TestDatabase.db");
-        if (dbFile.exists()) {
-            dbFile.delete();
-        }
+  @Autowired
+  private AdminService adminService;
 
-        // Recreate the database schema
-        // This will be handled by Spring Boot with the `create-drop` setting
+  @Override
+  protected Admin createTestUser() {
+    Admin admin = new Admin();
+    admin.setId(1L);
+    admin.setUsername("adminUser");
+    admin.setPassword("rawPassword123");
+    admin.setEmail("adminEmail@mail.com");
+    admin.setMobileNumber("88888888");
+    admin.setName("adminName");
+    admin.setHouseAddress("adminAddress");
+    admin.setProfilePictureFileName("adminPicture");
 
-        testUser = new Tenant();
-        testUser.setId(1L);
-        testUser.setName("AdminControllerTest");
-        testUser.setMobileNumber("+4588888888");
-        testUser.setUsername("testAdmin");
-        testUser.setEmail("Admin@email.test");
-        testUser.setPassword("rawPassword123");
+    return adminService.createUser(admin, null);
+  }
 
-        userService.createUser(testUser, null);
-    }
-    
-   /* @Test //FAIL fix
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getUser_shouldReturnCurrentUser() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/admin"))
-                .andExpect(status().isOk())
-                .andReturn();
+  @Override
+  protected String getBasePath() {
+    return "/api/admin";
+  }
 
-        String jsonResponse = result.getResponse().getContentAsString();
-        Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
+  @Override
+  protected String getRequiredRole() {
+    return "admin";
+  }
 
-        assertEquals(testUser.getName(), responseTenant.getName());
-        assertEquals(testUser.getMobileNumber(), responseTenant.getMobileNumber());
-        assertEquals(testUser.getEmail(), responseTenant.getEmail());
-        assertEquals(testUser.getUsername(), responseTenant.getUsername());
-    }
+  @Test
+  public void getAllTenants_shouldReturnAllTenants() throws Exception {
+    Tenant tenant1 = new Tenant(2L, "tenant1", "tenant@email1.com", "11111111", "Tenant Test", "tenantPass123", "tenantpic1.png", "tenantAddress1");
+    Tenant tenant2 = new Tenant(3L, "tenant2", "tenant@email2.com", "22222222", "Tenant Test2", "tenantPass456", "tenantpic2.png", "tenantAddress2");
+    Tenant tenant3 = new Tenant(4L, "tenant3", "tenant@email3.com", "33333333", "Tenant Test3", "tenantPass789", "tenantpic3.png", "tenantAddress3");
+    tenantService.createUser(tenant1, null);
+    tenantService.createUser(tenant2, null);
+    tenantService.createUser(tenant3, null);
 
-    @Test
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getAllTenants_shouldReturnAllTenants() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/admin/getAllTenants"))
-                .andExpect(status().isOk())
-                .andReturn();
+    SecurityContextHelper.setSecurityContext(testUser, "admin");
 
-        String jsonResponse = result.getResponse().getContentAsString();
-        Tenant[] responseTenants = objectMapper.readValue(jsonResponse, Tenant[].class);
+    MvcResult result = mockMvc.perform(get(getBasePath() + "/getAllTenants"))
+        .andExpect(status().isOk())
+        .andReturn();
 
-        assertNotNull(responseTenants);
-    assertTrue(responseTenants.length > 0, "Tenants list should not be empty");
-    }  
-    
-    /*@Test  //FAIL fix
-    @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-    public void getTenant_withValidId_shouldReturnTenant() throws Exception {
-        Tenant tempTenant = new Tenant();
-        tempTenant.setId(2L);
-        tempTenant.setName("TestTenant");
-        tempTenant.setMobileNumber("+4588888888");
-        tempTenant.setUsername("testTenant");
-        tempTenant.setEmail("tempTenant@example.com");
-        tempTenant.setPassword("rawPassword123");
+    String jsonResponse = result.getResponse().getContentAsString();
+    List<Tenant> responseTenants = objectMapper.readValue(jsonResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, Tenant.class));
 
-    // userService.createUser(tempTenant, null);
+    assertEquals(3, responseTenants.size());
+    assertEquals(tenant1.getUsername(), responseTenants.get(0).getUsername());
+    assertEquals(tenant2.getUsername(), responseTenants.get(1).getUsername());
+    assertEquals(tenant3.getUsername(), responseTenants.get(2).getUsername());
+  }
 
-    // MvcResult result = mockMvc.perform(get("/api/admin/getTenant/2"))
-    // .andExpect(status().isOk())
-    // .andReturn();
-
-    // String jsonResponse = result.getResponse().getContentAsString();
-    // Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
-
-        assertNotNull(responseTenant);
-        assertEquals(tempTenant.getName(), responseTenant.getName());
-        assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
-        assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
-        assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
-    }*/
-
-    /*
-     * @Test
-     * 
-     * @WithMockUser(username = "testAdmin", roles = { "ADMIN" })
-     * public void updateTenant_shouldReturnUpdatedTenant() throws Exception {
-     * Tenant tempTenant = new Tenant();
-     * tempTenant.setId(2L);
-     * tempTenant.setName("TestTenant");
-     * tempTenant.setMobileNumber("+4588888888");
-     * tempTenant.setUsername("testTenant");
-     * tempTenant.setEmail("example@email.com");
-     * tempTenant.setPassword("rawPassword123");
-     * 
-     * userService.createUser(tempTenant, null);
-     * 
-     * tempTenant.setId(2L);
-     * tempTenant.setName("UpdatedTenant");
-     * tempTenant.setMobileNumber("+4599999999");
-     * tempTenant.setUsername("updatedTenant");
-     * tempTenant.setEmail("NewExample@email.com");
-     * tempTenant.setPassword("newrawPassword123");
-     * 
-     * 
-     * MvcResult result = mockMvc.perform(put("/api/admin/updateTenant")
-     * .contentType("multipart/form-data")
-     * .content(objectMapper.writeValueAsString(tempTenant)))
-     * .andExpect(status().isOk())
-     * .andReturn();
-     * 
-     * String jsonResponse = result.getResponse().getContentAsString();
-     * Tenant responseTenant = objectMapper.readValue(jsonResponse, Tenant.class);
-     * 
-     * assertNotNull(responseTenant);
-     * assertEquals(tempTenant.getName(), responseTenant.getName());
-     * assertEquals(tempTenant.getMobileNumber(), responseTenant.getMobileNumber());
-     * assertEquals(tempTenant.getEmail(), responseTenant.getEmail());
-     * assertEquals(tempTenant.getUsername(), responseTenant.getUsername());
-     * assertEquals(tempTenant.getPassword(), responseTenant.getPassword());
-     * 
-     * }
-     */
 }
