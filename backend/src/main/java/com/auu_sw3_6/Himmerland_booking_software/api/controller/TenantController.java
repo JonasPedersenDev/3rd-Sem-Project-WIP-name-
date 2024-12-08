@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.BookingDetails;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Tenant;
-import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.modelEnum.BookingStatus;
 import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
@@ -59,7 +59,7 @@ public class TenantController extends UserController<Tenant> {
   @DeleteMapping(value = "/deleteTenant/{id}")
   @Operation(summary = "Delete tenant", description = "This endpoint deletes a tenant.")
   public ResponseEntity<Void> deleteTenant(@PathVariable Long id, HttpServletResponse response) {
-    tenantService.delete(id);
+    tenantService.softDeleteTenant(id);
 
     // Clear the JWT cookie
     ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
@@ -67,7 +67,7 @@ public class TenantController extends UserController<Tenant> {
         .secure(true)
         .path("/")
         .maxAge(0) // Expire the cookie immediately
-        .sameSite("none") // only for development, maybe
+        .sameSite("none")
         .build();
 
     response.addHeader("Set-Cookie", jwtCookie.toString());
@@ -81,7 +81,7 @@ public class TenantController extends UserController<Tenant> {
     @RequestPart("user") Tenant tenant, 
     @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture, 
     HttpServletResponse response) {
-    Tenant updatedTenant = tenantService.update(tenant, profilePicture);
+    Tenant updatedTenant = tenantService.updateUser(tenant, profilePicture);
     
     // Clear the JWT cookie
     ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
@@ -116,6 +116,12 @@ public class TenantController extends UserController<Tenant> {
   public ResponseEntity<Void> setBookingStatusAsCanceled(@PathVariable long bookingId) {
     tenantService.setBookingStatus(bookingId, BookingStatus.CANCELED);
     return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/test")
+  @PreAuthorize("hasRole('TENANT')")
+  public ResponseEntity<String> test() {
+    return ResponseEntity.ok("Test");
   }
 
 }

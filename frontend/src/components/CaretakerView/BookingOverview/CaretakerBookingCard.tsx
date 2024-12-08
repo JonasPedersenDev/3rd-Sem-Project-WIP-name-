@@ -90,6 +90,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
           <strong>{booking.name}</strong>: {booking.resourceName}
           <div>Start: {booking.startDate.toLocaleDateString()}</div>
           <div>Slut: {booking.endDate.toLocaleDateString()}</div>
+          <div>Adresse: {booking.houseAddress}</div>
         </div>
         <div>
           <Button variant="outline-secondary" onClick={handleShow}>

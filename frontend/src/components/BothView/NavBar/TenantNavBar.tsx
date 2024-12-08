@@ -10,37 +10,54 @@ function TenantNavbar() {
   const location = useLocation();
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [bookingCount, setBookingCount] = useState<number>(0);
+  const [bookingAdded, setBookingAdded] = useState<boolean>(false);
+  const [bookingCanceled, setBookingCanceled] = useState<boolean>(false);
+  const [bookingEdited, setBookingEdited] = useState<boolean>(false);
 
   useEffect(() => {
     setBookingCount(getBookingCount());
 
     const handleBookingAdded = () => {
       setBookingCount(getBookingCount());
+      showPopupFunc(setBookingAdded);
     };
+
+    const handleBookingCanceled = () => {
+      showPopupFunc(setBookingCanceled);
+    }
+
+    const handleBookingEdited = () => {
+      showPopupFunc(setBookingEdited);
+    }
+
     window.addEventListener("bookingsUpdated", handleBookingAdded);
+    window.addEventListener("bookingCanceled", handleBookingCanceled);
+    window.addEventListener("bookingEdited", handleBookingEdited);
 
     return () => {
       window.removeEventListener("bookingsUpdated", handleBookingAdded);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleBookingAdded = () => {
-      setShowPopup(true);
-      setTimeout(() => {
-        setShowPopup(false);
-      }, 4000);
-    };
-
-    window.addEventListener("bookingsUpdated", handleBookingAdded);
-
-    return () => {
-      window.removeEventListener("bookingsUpdated", handleBookingAdded);
+      window.removeEventListener("bookingCanceled", handleBookingCanceled);
+      window.removeEventListener("bookingEdited", handleBookingEdited);
     };
   }, []);
 
  // Function to determine if the current route matches
   const isActive = (path: string) => location.pathname === path ? 'active' : '';
+
+  const showPopupFunc = (setState: React.Dispatch<React.SetStateAction<boolean>>) => {
+    setShowPopup(true);
+    setState(true);
+      setTimeout(() => {
+        setShowPopup(false);
+        setState(false);
+      }, 4000);
+  }
+
+  const getPopupText = () => {
+    if (bookingAdded) {return "Reservation oprettet"}
+    else if (bookingCanceled) {return "Reservation anulleret"}
+    else if (bookingEdited) {return "Reservation redigeret"}
+  }
 
   return (
     <>
@@ -130,7 +147,7 @@ function TenantNavbar() {
             animation: "fade-in-out 4s ease-in-out",
           }}
         >
-          Booking oprettet
+          {getPopupText()}
         </div>
       )}
 

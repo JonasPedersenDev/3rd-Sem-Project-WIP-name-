@@ -16,11 +16,11 @@ interface AddResourceModalProps {
 const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTrigger }) => {
   const [resourceData, setResourceData] = useState<Resource>({
     id: 0,
-    type: ResourceType.UTILITY,
+    type: ResourceType.TOOL,
     name: "",
     img: "",
     description: "",
-    status: "available",
+    status: "",
     capacity: 1,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -34,8 +34,15 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
   });
   const imgRef = useRef<HTMLImageElement | null>(null);
 
+  const [initialTypeValue, setInitialTypeValue] = useState<boolean>(true)
+  const [initialStatusValue, setInitialStausValue] = useState<boolean>(true)  
+
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+
+    if (name === "type") {
+      setInitialTypeValue(false);
+    } else if (name === "status") { setInitialStausValue(false); }
 
     if (e.target.type === "file") {
       const fileInput = e.target as HTMLInputElement;
@@ -83,6 +90,8 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
     });
     setImageSrc(null);
     setImageFile(null);
+    setInitialTypeValue(true);
+    setInitialStausValue(true);
   }
 
 
@@ -100,6 +109,8 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
       console.log("the resource: ", resourceData);
       resetData();
       onTrigger();
+      console.log("right bedore resourceadded dispatch");
+      window.dispatchEvent(new Event("resourceAdded"));
     } catch (error) {
       console.error("Error adding resource:", error);
     }
@@ -121,24 +132,26 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
         <Modal.Title>Tilføj Ny Ressource</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <p className="text-muted fst-italic">* Alle felter skal udfyldes *</p>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="name">
             <Form.Label>Navn:</Form.Label>
             <Form.Control type="text" name="name" value={resourceData.name} onChange={handleChange} required />
           </Form.Group>
           <Form.Group controlId="type">
-            <Form.Label>Type:</Form.Label>
-            <Form.Control
+            <Form.Label>Ressource type:</Form.Label>
+            <Form.Select
               as="select"
               name="type"
-              value={resourceData.type}
+              value={initialTypeValue ? "" : resourceData.type}
               onChange={handleChange}
               required
             >
+              {initialTypeValue === true && (<option value="">Vælg ressource type</option>)}
               <option value={ResourceType.TOOL}>Værktøj</option>
               <option value={ResourceType.HOSPITALITY}>Gæste hus</option>
               <option value={ResourceType.UTILITY}>Andet</option>
-            </Form.Control>
+            </Form.Select>
           </Form.Group>
           <Form.Group controlId="imageFile">
             <Form.Label>Billede:</Form.Label>
@@ -170,17 +183,18 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
             />
           </Form.Group>
           <Form.Group controlId="status">
-            <Form.Label>Status:</Form.Label>
-            <Form.Control
+            <Form.Label>Ressource status:</Form.Label>
+            <Form.Select
               as="select"
               name="status"
-              value={resourceData.status}
+              value={initialStatusValue ? "" : resourceData.status}
               onChange={handleChange}
               required
             >
+              {initialStatusValue === true && (<option value="">Vælg ressource status</option>)}
               <option value="available">Aktiv</option>
               <option value="maintenance">Service</option>
-            </Form.Control>
+            </Form.Select>
           </Form.Group>
           <Form.Group controlId="capacity">
             <Form.Label>Antal:</Form.Label>
@@ -189,6 +203,7 @@ const AddResourceModal: React.FC<AddResourceModalProps> = ({ show, onClose, onTr
               name="capacity"
               value={resourceData.capacity}
               onChange={handleChange}
+              min="1"
               required
             />
           </Form.Group>

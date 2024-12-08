@@ -74,6 +74,7 @@ class ApiService {
   ): Promise<AxiosResponse<any>> {
     try {
       let response;
+      console.log("user send:", data)
       const formData = new FormData();
       formData.append("user", JSON.stringify(data));
       if (profilePicture) { formData.append("profilePicture", profilePicture); }

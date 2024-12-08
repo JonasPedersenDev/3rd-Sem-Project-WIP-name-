@@ -82,6 +82,7 @@ const CaretakerBookingOverview: React.FC = () => {
     try {
       await ApiService.updateData(`booking/${id}/cancel`);
       setBookings((prevBookings) => prevBookings.filter((booking) => booking.id !== id));
+      window.dispatchEvent(new Event("bookingCanceled"));
     } catch (error) {
       console.error('Error canceling resource:', error);
     }

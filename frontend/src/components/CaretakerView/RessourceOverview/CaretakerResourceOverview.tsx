@@ -82,6 +82,7 @@ const CaretakerResourceOverview: React.FC = () => {
           resource.id === response.data.id ? response.data : resource
         )
       );
+      window.dispatchEvent(new Event("resourceEdited"));
       console.log("response:", response)
       setTrigger((prev) => !prev); //used to reload the resources
     } catch (error) {
@@ -130,6 +131,8 @@ const CaretakerResourceOverview: React.FC = () => {
     try {
       await ApiService.deleteResource(id, type);
       setResources((prevResources) => prevResources.filter((resource) => resource.id !== id));
+      console.log("right bedore resourceremoved dispatch");
+      window.dispatchEvent(new Event("resourceRemoved"));
     } catch (error) {
       console.error('Error deleting resource:', error);
     }
