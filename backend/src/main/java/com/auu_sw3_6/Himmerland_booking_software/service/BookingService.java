@@ -99,14 +99,16 @@ public class BookingService {
     }
 
     if (booking.getStatus() == BookingStatus.CONFIRMED) {
-      if (!editBookingRequest.getStartDate().equals(booking.getStartDate())) {
-        System.out.println("Start date: " + editBookingRequest.getStartDate());
-        System.out.println("Booking start date: " + booking.getStartDate());
+      if (!editBookingRequest.getStartDate().equals(booking.getStartDate()) || !editBookingRequest.getPickupTime()
+          .equals(booking.getPickupTime())) {
         throw new IllegalBookingException(BookingError.ACTIVE_BOOKING_START_EDIT);
       }
     }
 
-    checkBookingPeriodValidity(editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
+    LocalDate today = LocalDate.now();
+    LocalTime now = LocalTime.now();
+
+    checkBookingPeriodValidity(true, today, now, editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
         editBookingRequest.getPickupTime(), editBookingRequest.getDropoffTime());
 
     checkResourceAvailability(booking.getResource(), editBookingRequest.getStartDate(),
@@ -137,7 +139,10 @@ public class BookingService {
       throw new IllegalBookingException(BookingError.TOO_MANY_BOOKINGS);
     }
 
-    checkBookingPeriodValidity(startDate, endDate, details.getPickupTime(), details.getDropoffTime());
+    LocalDate today = LocalDate.now();
+    LocalTime now = LocalTime.now();
+
+    checkBookingPeriodValidity(false, today, now, startDate, endDate, details.getPickupTime(), details.getDropoffTime());
 
     checkResourceAvailability(resource, startDate, endDate, user);
 
@@ -149,20 +154,22 @@ public class BookingService {
 
   }
 
-  private void checkBookingPeriodValidity(LocalDate startDate, LocalDate endDate, TimeRange pickupTime,
+  protected void checkBookingPeriodValidity(Boolean isEdit, LocalDate today, LocalTime now, LocalDate startDate, LocalDate endDate, TimeRange pickupTime,
       TimeRange dropoffTime) {
-    LocalDate today = LocalDate.now();
-    LocalTime now = LocalTime.now();
 
     if (!startDate.isBefore(endDate) || startDate.plusDays(MAX_BOOKING_DAYS).isBefore(endDate)) {
       throw new IllegalBookingException(BookingError.INVALID_DATE_RANGE);
     }
 
-    if (startDate.isBefore(today)) {
+    if (startDate.isBefore(today) && !isEdit) {
       throw new IllegalBookingException(BookingError.START_DATE_IN_PAST);
     }
 
-    if (startDate.equals(today) && pickupTime.getStartTime().isBefore(now)) {
+    if (endDate.isBefore(today)) {
+      throw new IllegalBookingException(BookingError.END_DATE_IN_PAST);
+    }
+
+    if (startDate.equals(today) && pickupTime.getStartTime().isBefore(now) && !isEdit) {
       throw new IllegalBookingException(BookingError.PICKUP_TIME_IN_PAST);
     }
 
@@ -175,7 +182,7 @@ public class BookingService {
     }
   }
 
-  private boolean isWeekend(LocalDate date) {
+  boolean isWeekend(LocalDate date) {
     return date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
   }
 
@@ -201,7 +208,7 @@ public class BookingService {
         .collect(Collectors.toList());
   }
 
-  private boolean isResourceAvailable(List<Booking> bookings, Resource resource, LocalDate startDate,
+  protected boolean isResourceAvailable(List<Booking> bookings, Resource resource, LocalDate startDate,
       LocalDate endDate) {
     for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
       LocalDate finalDate = date;
@@ -231,7 +238,7 @@ public class BookingService {
     return totalBookedDays < MAX_BOOKING_DAYS;
   }
 
-  private long calculateOverlappingDays(LocalDate bookingStart, LocalDate bookingEnd, LocalDate rangeStart,
+  protected long calculateOverlappingDays(LocalDate bookingStart, LocalDate bookingEnd, LocalDate rangeStart,
       LocalDate rangeEnd) {
     LocalDate effectiveStart = bookingStart.isBefore(rangeStart) ? rangeStart : bookingStart;
     LocalDate effectiveEnd = bookingEnd.isAfter(rangeEnd) ? rangeEnd : bookingEnd;

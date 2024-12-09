@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.LoginRequest;
 import com.auu_sw3_6.Himmerland_booking_software.config.security.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,6 +38,7 @@ public class AuthController {
 
   @PermitAll
   @PostMapping(value = "/api/login", produces = "application/json")
+  @Operation(summary = "Login", description = "Login to the system")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
     try {
 
@@ -75,6 +77,7 @@ public class AuthController {
   }
 
   @PostMapping("/api/logout")
+  @Operation(summary = "Logout", description = "Logout from the system")
   public String logout(HttpServletRequest request, HttpServletResponse response) {
     // Invalidate the session if it exists
     HttpSession session = request.getSession(false);

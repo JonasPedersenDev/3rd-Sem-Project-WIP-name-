@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class TenantControllerTest extends AbstractUserControllerTest<Tenant> {
 
   @Autowired
-  private TenantService adminService;
+  private TenantService tenantService;
 
   @Override
   protected Tenant createTestUser() {
@@ -22,7 +22,7 @@ public class TenantControllerTest extends AbstractUserControllerTest<Tenant> {
     tenant.setHouseAddress("tenantAddress");
     tenant.setProfilePictureFileName("tenantPicture");
 
-    return adminService.createUser(tenant, null);
+    return tenantService.createUser(tenant, null);
   }
 
   @Override
