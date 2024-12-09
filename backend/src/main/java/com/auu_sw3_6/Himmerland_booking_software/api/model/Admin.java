@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.api.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.ElementCollection;
@@ -12,6 +13,7 @@ public class Admin extends User {
     private List<String> caretakerNames;
 
     public Admin() {
+        this.caretakerNames = new ArrayList<>();
     }
 
     public List<String> getCaretakerNames() {

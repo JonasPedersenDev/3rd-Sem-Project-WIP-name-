@@ -11,12 +11,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
+import com.auu_sw3_6.Himmerland_booking_software.exception.CaretakerNameConflictException;
 
 @ExtendWith(MockitoExtension.class)
 public class AdminServiceTest {
@@ -46,6 +50,7 @@ public class AdminServiceTest {
     admin.setId(1L);
     admin.setUsername("adminUser");
     admin.setPassword("Password123");
+    admin.setCaretakerNames(new ArrayList<>());
   }
 
   @Test
@@ -165,5 +170,41 @@ public class AdminServiceTest {
     assertEquals("profileImage.jpg", updatedAdmin.getProfilePictureFileName(),
         "The profile picture file name should match");
   }
+
+    @Test
+    public void testAddCaretakerName_AddsNewCaretakerName() {
+      // Arrange
+      String caretakerName = "John Doe";
+      when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
+      when(adminRepository.save(any(Admin.class))).thenReturn(admin);
+
+      // Act
+      adminService.addCaretakerName(caretakerName);
+
+      // Assert
+      assertNotNull(admin.getCaretakerNames());
+      assertEquals(1, admin.getCaretakerNames().size());
+      assertEquals("John Doe", admin.getCaretakerNames().get(0));
+      verify(adminRepository).findById(1L);
+      verify(adminRepository).save(admin);
+    }
+
+    @Test
+      public void testRemoveCaretakerName_RemovesExistingCaretakerName() {
+        // Arrange
+        String caretakerName = "John Doe";
+        admin.getCaretakerNames().add(caretakerName);
+        when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
+        when(adminRepository.save(any(Admin.class))).thenReturn(admin);
+
+        // Act
+        adminService.removeCaretakerName(caretakerName);
+
+        // Assert
+        assertNotNull(admin.getCaretakerNames());
+        assertEquals(0, admin.getCaretakerNames().size());
+        verify(adminRepository).findById(1L);
+        verify(adminRepository).save(admin);
+      }
 
 }
