@@ -8,7 +8,10 @@ import com.auu_sw3_6.Himmerland_booking_software.service.TenantService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -72,5 +75,17 @@ public class AdminControllerTest extends AbstractUserControllerTest<Admin> {
     assertEquals(tenant2.getUsername(), responseTenants.get(1).getUsername());
     assertEquals(tenant3.getUsername(), responseTenants.get(2).getUsername());
   }
+
+  @Test
+  public void addCaretakerName_shouldAddCaretakerName() throws Exception {
+  String caretakerName = "John Doe";
+
+  SecurityContextHelper.setSecurityContext(testUser, "admin");
+
+  mockMvc.perform(put(getBasePath() + "/addCaretakerName")
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(caretakerName))
+      .andExpect(status().isOk());
+}
 
 }
