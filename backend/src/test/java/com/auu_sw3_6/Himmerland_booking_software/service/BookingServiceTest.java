@@ -588,5 +588,77 @@ public class BookingServiceTest {
     bookingService.checkBookingPeriodValidity(true, today, now, startDate, endDate, pickupTime, dropoffTime);
   }
 
+  @Test
+public void setBookingStatus_shouldUpdateBookingStatus() {
+    // Arrange
+    when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+    // Act
+    bookingService.setBookingStatus(1L, BookingStatus.CONFIRMED, 1L, true);
+
+    // Assert
+    assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+    verify(bookingRepository).save(booking);
+
+    }
+
+    @Test
+    public void testSetBookingStatus_shouldThrowResourceNotFoundExceptionWhenBookingNotFound() {
+        // Arrange
+        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            bookingService.setBookingStatus(1L, BookingStatus.CONFIRMED, 1L, true);
+        });
+
+        assertEquals("Booking not found with ID: 1", exception.getMessage());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    public void testSetBookingStatus_shouldNotPublishEventWhenCanceledByNonAdmin() {
+        // Arrange
+        ApplicationEventPublisher mockEventPublisher = mock(ApplicationEventPublisher.class);
+        bookingService = new BookingService(bookingRepository, resourceServiceFactory, mockEventPublisher);
+
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+        // Act
+        bookingService.setBookingStatus(1L, BookingStatus.CANCELED, 1L, false);
+
+        // Assert
+        assertEquals(BookingStatus.CANCELED, booking.getStatus());
+        verify(bookingRepository).save(booking);
+        verify(mockEventPublisher, never()).publishEvent(any(CancelNotificationEvent.class));
+    }
+
+    @Test
+    public void testSetHandoverName_shouldUpdateHandoverName() {
+        // Arrange
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+        // Act
+        bookingService.setHandoverName(1L, "Handover Name");
+
+        // Assert
+        assertEquals("Handover Name", booking.getHandoverName());
+        assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+        verify(bookingRepository).save(booking);
+    }
+
+    @Test
+    public void testSetHandoverName_shouldThrowExceptionForInvalidName() {
+        // Arrange
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            bookingService.setHandoverName(1L, "");
+        });
+
+        assertEquals("Handover name cannot be null or empty.", exception.getMessage());
+        verify(bookingRepository, never()).save(any());
+    }
 
 }
