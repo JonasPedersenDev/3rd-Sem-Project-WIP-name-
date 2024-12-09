@@ -51,9 +51,12 @@ public class AdminControllerTest extends AbstractUserControllerTest<Admin> {
 
   @Test
   public void getAllTenants_shouldReturnAllTenants() throws Exception {
-    Tenant tenant1 = new Tenant(2L, "tenant1", "tenant@email1.com", "11111111", "Tenant Test", "tenantPass123", "tenantpic1.png", "tenantAddress1");
-    Tenant tenant2 = new Tenant(3L, "tenant2", "tenant@email2.com", "22222222", "Tenant Test2", "tenantPass456", "tenantpic2.png", "tenantAddress2");
-    Tenant tenant3 = new Tenant(4L, "tenant3", "tenant@email3.com", "33333333", "Tenant Test3", "tenantPass789", "tenantpic3.png", "tenantAddress3");
+    Tenant tenant1 = new Tenant(2L, "tenant1", "tenant@email1.com", "11111111", "Tenant Test", "tenantPass123",
+        "tenantpic1.png", "tenantAddress1");
+    Tenant tenant2 = new Tenant(3L, "tenant2", "tenant@email2.com", "22222222", "Tenant Test2", "tenantPass456",
+        "tenantpic2.png", "tenantAddress2");
+    Tenant tenant3 = new Tenant(4L, "tenant3", "tenant@email3.com", "33333333", "Tenant Test3", "tenantPass789",
+        "tenantpic3.png", "tenantAddress3");
     tenantService.createUser(tenant1, null);
     tenantService.createUser(tenant2, null);
     tenantService.createUser(tenant3, null);
@@ -65,7 +68,8 @@ public class AdminControllerTest extends AbstractUserControllerTest<Admin> {
         .andReturn();
 
     String jsonResponse = result.getResponse().getContentAsString();
-    List<Tenant> responseTenants = objectMapper.readValue(jsonResponse, objectMapper.getTypeFactory().constructCollectionType(List.class, Tenant.class));
+    List<Tenant> responseTenants = objectMapper.readValue(jsonResponse,
+        objectMapper.getTypeFactory().constructCollectionType(List.class, Tenant.class));
 
     assertEquals(3, responseTenants.size());
     assertEquals(tenant1.getUsername(), responseTenants.get(0).getUsername());

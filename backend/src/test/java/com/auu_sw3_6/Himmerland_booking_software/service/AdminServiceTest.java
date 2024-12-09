@@ -94,8 +94,7 @@ public class AdminServiceTest {
     assertEquals("Unsupported file type", exception.getMessage());
   }
 
-
-/*@Test      //ALLE TESTS MED UPDATEUSER ER FCKED PGA isValidPassword -> fix
+  @Test // ALLE TESTS MED UPDATEUSER ER FCKED PGA isValidPassword -> fix
   public void testUpdateAdmin_InteractsWithDependencies() {
     // Arrange
     when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
@@ -113,7 +112,7 @@ public class AdminServiceTest {
     verify(passwordEncoder).encode("Password123");
   }
 
-  @Test
+  @Test // Update user happens in UserService, not AdminService
   public void testUpdateAdmin_ThrowsExceptionWhenAdminNotFound() {
     // Arrange
     when(adminRepository.findById(1L)).thenReturn(java.util.Optional.empty());
@@ -122,7 +121,9 @@ public class AdminServiceTest {
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       adminService.updateUser(admin, profileImage);
     });
-    assertEquals("Admin with ID 1 not found", exception.getMessage());
+    assertEquals("User with ID 1 not found", exception.getMessage());
+    // User with ID 1 not found / Admin with ID 1 not found
+    // It can only be User since AdminService extends UserService
   }
 
   @Test
@@ -132,7 +133,8 @@ public class AdminServiceTest {
     Admin existingAdmin = new Admin();
     existingAdmin.setId(1L);
     existingAdmin.setPassword("existingPassword");
-    when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(existingAdmin));
+    when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(
+        existingAdmin));
     when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
     // Act
@@ -148,17 +150,20 @@ public class AdminServiceTest {
   public void testUpdateAdmin_ReturnsUpdatedAdminWithCorrectDetails() {
     // Arrange
     when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
-    when(pictureService.savePicture(profileImage, isProfilePicture)).thenReturn("profileImage.jpg");
+    when(pictureService.savePicture(profileImage,
+        isProfilePicture)).thenReturn("profileImage.jpg");
     when(passwordEncoder.encode("Password123")).thenReturn("encryptedPassword123");
     when(adminRepository.save(any(Admin.class))).thenReturn(admin);
 
     // Act
-    Admin updatedAdmin = adminService.update(admin, profileImage);
+    Admin updatedAdmin = adminService.updateUser(admin, profileImage);
 
     // Assert
     assertNotNull(updatedAdmin, "The updated admin should not be null");
-    assertEquals("encryptedPassword123", updatedAdmin.getPassword(), "The password should be encrypted");
+    assertEquals("encryptedPassword123", updatedAdmin.getPassword(),
+        "The password should be encrypted");
     assertEquals("profileImage.jpg", updatedAdmin.getProfilePictureFileName(),
         "The profile picture file name should match");
-  } */
+  }
+
 }
