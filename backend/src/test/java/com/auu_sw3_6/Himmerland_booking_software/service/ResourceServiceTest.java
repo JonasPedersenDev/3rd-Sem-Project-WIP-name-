@@ -1,34 +1,24 @@
-/* package com.auu_sw3_6.Himmerland_booking_software.service;
+package com.auu_sw3_6.Himmerland_booking_software.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
+import com.auu_sw3_6.Himmerland_booking_software.exception.ResourceNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class ResourceServiceTest {
@@ -37,41 +27,44 @@ public class ResourceServiceTest {
     private JpaRepository<Resource, Long> repository;
 
     @Mock
+    private PictureService pictureService;
+
+    @Mock
     private MultipartFile resourcePicture;
 
     @InjectMocks
-    private final ResourceService<Resource> resourceService = new ResourceService<Resource>(repository) {};
+    private TestResourceService resourceService;
 
     private ConcreteResource resource;
 
     private static class ConcreteResource extends Resource {
-        // Implement any abstract methods if there are any
+        // Implement any abstract methods if necessary
+    }
+
+    private static class TestResourceService extends ResourceService<Resource> {
+        public TestResourceService(JpaRepository<Resource, Long> repository, PictureService pictureService) {
+            super(repository, pictureService);
+        }
     }
 
     @BeforeEach
     public void setUp() {
+        resourceService = new TestResourceService(repository, pictureService);
+
         resource = new ConcreteResource();
         resource.setId(1L);
         resource.setName("TestResource");
+        resource.setResourcePictureFileName("nonexistent.jpg");
     }
+
     @Test
-    public void testCreateResource_ShouldSaveResourceWithPicture() throws Exception {
+    public void testCreateResource_ShouldSaveResourceWithPicture() {
         // Arrange
-        when(resourcePicture.getOriginalFilename()).thenReturn("picture.jpg");
         when(resourcePicture.isEmpty()).thenReturn(false);
 
         String uniqueFileName = UUID.randomUUID().toString() + ".jpg";
-        String directoryPath = Paths.get("src", "main", "resources", "database", "img", "resourcePicturess").toAbsolutePath().toString();
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-        
-        Path imagePath = Paths.get(directoryPath, uniqueFileName);
-        doAnswer(invocation -> {
-            Files.createFile(imagePath);  // Simulerer lagring af billedet
-            return null;
-        }).when(resourcePicture).transferTo(any(File.class));
+        when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class)))
+                .thenReturn(uniqueFileName);
 
         when(repository.save(any(Resource.class))).thenReturn(resource);
 
@@ -79,24 +72,24 @@ public class ResourceServiceTest {
         Resource createdResource = resourceService.createResource(resource, resourcePicture);
 
         // Assert
-        assertNotNull(createdResource.getResourcePictureFileName(), "Ressourcebilledet burde være gemt med et unikt filnavn.");
-        assertTrue(new File(imagePath.toString()).exists(), "Fil burde eksistere på den angivne sti.");
-        
-        // Cleanup
-        Files.deleteIfExists(imagePath);
+        assertNotNull(createdResource.getResourcePictureFileName(),
+                "Resource picture should be saved with a unique filename.");
+        assertEquals(uniqueFileName, createdResource.getResourcePictureFileName(),
+                "The saved filename should match the generated unique filename.");
     }
 
     @Test
-    public void testCreateResource_ShouldThrowExceptionWhenSavingPictureFails() throws IOException {
+    public void testCreateResource_ShouldThrowExceptionWhenSavingPictureFails() {
         // Arrange
         when(resourcePicture.isEmpty()).thenReturn(false);
-        doThrow(new IOException("Disk fejl")).when(resourcePicture).transferTo(any(File.class));
+        when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class)))
+                .thenThrow(new RuntimeException("Disk error"));
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             resourceService.createResource(resource, resourcePicture);
         });
-        assertEquals("Failed to save resource picture", exception.getMessage(), "Fejlbeskeden burde matche forventet besked.");
+        assertEquals("Disk error", exception.getMessage(), "Exception message should match.");
     }
 
     @Test
@@ -109,7 +102,7 @@ public class ResourceServiceTest {
         List<Resource> result = resourceService.getAllResources();
 
         // Assert
-        assertEquals(2, result.size(), "Skal returnere alle ressourcer fra databasen.");
+        assertEquals(2, result.size(), "Should return all resources from the database.");
     }
 
     @Test
@@ -121,29 +114,67 @@ public class ResourceServiceTest {
         Optional<Resource> result = resourceService.getResourceById(1L);
 
         // Assert
-        assertTrue(result.isPresent(), "Skal returnere ressourcen hvis fundet.");
-        assertEquals("TestResource", result.get().getName(), "Navnet på ressourcen skal matche.");
+        assertTrue(result.isPresent(), "Should return the resource if found.");
+        assertEquals("TestResource", result.get().getName(), "Resource name should match.");
     }
 
     @Test
     public void testGetResourcePictureByResourceId_ShouldReturnEmptyIfPictureNotFound() {
         // Arrange
         when(repository.findById(1L)).thenReturn(Optional.of(resource));
+        when(pictureService.readPicture(eq("nonexistent.jpg"), eq(false))).thenReturn(Optional.empty());
 
         // Act
         Optional<byte[]> result = resourceService.getresourcePicturesByResourceId(1L);
 
         // Assert
-        assertFalse(result.isPresent(), "Skal returnere en tom Optional hvis billedet ikke findes.");
+        assertFalse(result.isPresent(), "Should return an empty Optional if the picture is not found.");
     }
 
     @Test
-    public void testDeleteResource_ShouldRemoveResource() {
+    public void testUpdateResource_ShouldUpdateResourceWithNewPicture() {
+        // Arrange
+        when(repository.findById(1L)).thenReturn(Optional.of(resource));
+        when(resourcePicture.isEmpty()).thenReturn(false);
+
+        String uniqueFileName = UUID.randomUUID().toString() + ".jpg";
+        when(pictureService.savePicture(any(MultipartFile.class), any(Boolean.class)))
+                .thenReturn(uniqueFileName);
+
+        when(repository.save(any(Resource.class))).thenReturn(resource);
+
+        resource.setName("UpdatedName");
+
         // Act
-        resourceService.deleteResource(1L);
+        Resource updatedResource = resourceService.updateResource(resource, resourcePicture);
 
         // Assert
-        verify(repository).deleteById(1L);
+        assertEquals("UpdatedName", updatedResource.getName(), "Resource name should be updated.");
+        assertEquals(uniqueFileName, updatedResource.getResourcePictureFileName(),
+                "Resource picture filename should be updated.");
+    }
+
+    @Test
+    public void testSoftDeleteResource_ShouldSetStatusToDeleted() {
+        // Arrange
+        when(repository.findById(1L)).thenReturn(Optional.of(resource));
+        when(repository.save(any(Resource.class))).thenReturn(resource);
+
+        // Act
+        boolean result = resourceService.softDeleteResource(1L);
+
+        // Assert
+        assertTrue(result, "Soft delete should return true.");
+        assertEquals("deleted", resource.getStatus(), "Resource status should be set to 'deleted'.");
+    }
+
+    @Test
+    public void testSoftDeleteResource_ShouldThrowExceptionIfNotFound() {
+        // Arrange
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> resourceService.softDeleteResource(1L),
+                "Should throw ResourceNotFoundException if resource is not found.");
     }
 }
- */
