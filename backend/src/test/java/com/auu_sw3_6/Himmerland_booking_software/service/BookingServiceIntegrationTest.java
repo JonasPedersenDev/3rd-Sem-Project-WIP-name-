@@ -35,11 +35,7 @@ public class BookingServiceIntegrationTest {
     @Autowired
     private ToolService toolService;
 
-<<<<<<< HEAD
     @Test //FAIL FIX
-=======
-    @Test // FAIL FIX
->>>>>>> 4e5a6ab7f260c412f6b0575b0d21b1b470a1b347
     public void testBookResource_ConfirmBookingLink() {
         // Arrange:
         Tenant user = new Tenant();
@@ -81,7 +77,6 @@ public class BookingServiceIntegrationTest {
         assertEquals(bookingDetails.getReceiverName(), booking.getReceiverName());
         assertEquals(bookingDetails.getHandoverName(), booking.getHandoverName());
         assertTrue(bookingRepository.existsById(booking.getId()));
-<<<<<<< HEAD
     } */
     /*
     @Test
@@ -133,56 +128,3 @@ public class BookingServiceIntegrationTest {
 }
 
 */
-=======
-    }
-    /*
-     * @Test
-     * public void testBookResource_unavailableResource() {
-     * // Arrange:
-     * Tenant user = new Tenant();
-     * user.setId(1L);
-     * user.setName("John Doe");
-     * user.setEmail("johndoe@example.com");
-     * user.setMobileNumber("+123456789");
-     * user.setUsername("johndoe");
-     * user.setPassword("password123");
-     * user.setHouseAddress("123 Main Street");
-     * 
-     * // Step 2: Create tool
-     * Tool tool = new Tool();
-     * tool.setName("Hammer");
-     * tool.setDescription("Heavy-duty hammer");
-     * tool.setType(ResourceType.TOOL);
-     * tool.setCapacity(2);
-     * tool.setStatus("active");
-     * 
-     * Tool savedTool = toolService.createTool(tool, null);
-     * 
-     * BookingDetails bookingDetails = new BookingDetails();
-     * bookingDetails.setResourceID(savedTool.getId());
-     * bookingDetails.setResourceType(ResourceType.TOOL);
-     * bookingDetails.setStartDate(startDate);
-     * bookingDetails.setEndDate(endDate);
-     * bookingDetails.setPickupTime(TimeRange.EARLY);
-     * bookingDetails.setDropoffTime(TimeRange.LATE);
-     * bookingDetails.setReceiverName("John Doe");
-     * bookingDetails.setHandoverName("John Doe");
-     * 
-     * // Step 4: Create booking
-     * Booking booking = bookingService.bookResource(user, bookingDetails);
-     * assertNotNull(booking);
-     * assertEquals(BookingStatus.PENDING, booking.getStatus());
-     * 
-     * // Step 5: Confirm booking
-     * bookingService.setHandoverName(booking.getId(), "Caretaker Name");
-     * Booking confirmedBooking = bookingService.getBookingById(booking.getId());
-     * assertEquals(BookingStatus.CONFIRMED, confirmedBooking.getStatus());
-     * 
-     * // Assert:
-     * assertEquals(BookingError.TOO_MANY_BOOKINGS.getErrorMessage(),
-     * exception.getMessage());
-     * 
-     * }
-     */
-}
->>>>>>> 4e5a6ab7f260c412f6b0575b0d21b1b470a1b347
