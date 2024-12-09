@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -176,5 +177,32 @@ public class ResourceServiceTest {
         // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> resourceService.softDeleteResource(1L),
                 "Should throw ResourceNotFoundException if resource is not found.");
+    }
+
+    @Test
+    public void testGetResourceByResourceName_ShouldReturnResourceIfFound() {
+        // Arrange
+        String resourceName = "TestResource";
+        when(repository.findAll()).thenReturn(List.of(resource));
+
+        // Act
+        Optional<Resource> result = resourceService.getResourceByResourceName(resourceName);
+
+        // Assert
+        assertTrue(result.isPresent(), "Should return the resource if found");
+        assertEquals(resourceName, result.get().getName(), "Resource name should match");
+    }
+
+    @Test
+    public void testGetResourceByResourceName_ShouldReturnEmptyIfNotFound() {
+        // Arrange
+        String resourceName = "NonexistentResource";
+        when(repository.findAll()).thenReturn(List.of(resource));
+
+        // Act
+        Optional<Resource> result = resourceService.getResourceByResourceName(resourceName);
+
+        // Assert
+        assertFalse(result.isPresent(), "Should return an empty Optional if the resource is not found.");
     }
 }
