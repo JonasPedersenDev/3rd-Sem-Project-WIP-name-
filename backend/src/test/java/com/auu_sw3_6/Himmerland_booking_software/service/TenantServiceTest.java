@@ -50,8 +50,12 @@ public class TenantServiceTest {
     public void setUp() {
         tenant = new Tenant();
         tenant.setId(1L);
-        tenant.setUsername("tenantUser");
-        tenant.setPassword("password123");
+        tenant.setName("John Doe");
+        tenant.setEmail("johndoe@example.com");
+        tenant.setMobileNumber("+123456789");
+        tenant.setUsername("johndoe");
+        tenant.setPassword("Password123"); // Ensure the password meets the criteria
+        tenant.setHouseAddress("123 Main Street");
 
         tenantService.setRestrictedUsernamesSet(new HashSet<>(Arrays.asList("administrator", "root")));
     }
@@ -100,9 +104,10 @@ public class TenantServiceTest {
     @Test
     public void testCreateTenant_EncodesPassword() {
         // Arrange
-        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword123");
+        when(passwordEncoder.encode("Password123")).thenReturn("encodedPassword123");
         when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
-        when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(Optional.empty());
+        when(adminService.getUserByUsername(tenant.getUsername())).thenReturn(
+                Optional.empty());
 
         // Act
         Tenant createdTenant = tenantService.createTenant(tenant, profilePicture);
@@ -142,23 +147,22 @@ public class TenantServiceTest {
                 "Should throw an exception with the correct message for unsupported file type");
     }
 
-
-    /*@Test
+    @Test
     public void testUpdateTenant_InteractsWithDependencies() {
-        // Arrange:
+        // Arrange
         when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
         when(profilePictureService.savePicture(profilePicture, true)).thenReturn("profilePicture.jpg");
-        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword123");
+        when(passwordEncoder.encode("Password123")).thenReturn("encodedPassword123");
         when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
 
-        // Act:
+        // Act
         tenantService.updateUser(tenant, profilePicture);
 
-        // Assert:
+        // Assert
         verify(tenantRepository).findById(tenant.getId());
         verify(tenantRepository).save(tenant);
         verify(profilePictureService).savePicture(profilePicture, true);
-        verify(passwordEncoder).encode("password123");
+        verify(passwordEncoder).encode("Password123");
     }
 
     @Test
@@ -172,7 +176,7 @@ public class TenantServiceTest {
         });
 
         // Assert:
-        assertEquals("Tenant with ID 1 not found", exception.getMessage(),
+        assertEquals("User with ID 1 not found", exception.getMessage(),
                 "Should throw an exception with the correct message when tenant is not found");
     }
 
@@ -203,19 +207,21 @@ public class TenantServiceTest {
         existingTenant.setId(1L);
         existingTenant.setProfilePictureFileName("existingProfilePicture.jpg");
         when(tenantRepository.findById(1L)).thenReturn(Optional.of(existingTenant));
-        when(profilePictureService.savePicture(profilePicture, true)).thenReturn("newProfilePicture.jpg");
+        when(profilePictureService.savePicture(profilePicture,
+                true)).thenReturn("newProfilePicture.jpg");
         when(tenantRepository.save(any(Tenant.class))).thenReturn(tenant);
 
         // Act:
         Tenant updatedTenant = tenantService.updateUser(tenant, profilePicture);
 
         // Assert:
-        assertEquals("newProfilePicture.jpg", updatedTenant.getProfilePictureFileName(),
+        assertEquals("newProfilePicture.jpg",
+                updatedTenant.getProfilePictureFileName(),
                 "Should update the profile picture when the new profile picture is not null");
         verify(tenantRepository).findById(1L);
         verify(tenantRepository).save(tenant);
         verify(profilePictureService).savePicture(profilePicture, true);
-    } */
+    }
 
     @Test
     public void testgetTenantById_shouldReturnTenantIfFound() {
@@ -243,30 +249,35 @@ public class TenantServiceTest {
         assertEquals("Tenant with id 1 does not exist.", exception.getMessage());
     }
 
-   /* @Test
-    public void testDeleteUser_shouldDeleteUser() {
-        // Arrange
-        when(tenantRepository.existsById(1L)).thenReturn(true);
-
-        // Act
-        tenantService.softDeleteTenant(1L);
-
-        // Assert
-        verify(tenantRepository).deleteById(1L);
-    }
-
-    @Test
-    public void testDeleteUser_userNotFound() {
-        // Arrange
-        when(tenantRepository.existsById(2L)).thenReturn(false);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            tenantService.softDeleteTenant(2L);
-        });
-
-        // Assert
-        assertEquals("Tenant with ID 2 not found", exception.getMessage());
-    } */
+    /*
+     * @Test
+     * public void testDeleteUser_shouldDeleteUser() {
+     * // Arrange
+     * when(tenantRepository.existsById(1L)).thenReturn(true);
+     * 
+     * // Act
+     * tenantService.softDeleteTenant(1L);
+     * 
+     * // Assert
+     * verify(tenantRepository).deleteById(1L);
+     * }
+     * 
+     * /*
+     * 
+     * @Test
+     * public void testDeleteUser_userNotFound() {
+     * // Arrange
+     * when(tenantRepository.existsById(2L)).thenReturn(false);
+     * 
+     * // Act & Assert
+     * IllegalArgumentException exception =
+     * assertThrows(IllegalArgumentException.class, () -> {
+     * tenantService.softDeleteTenant(2L);
+     * });
+     * 
+     * // Assert
+     * assertEquals("Tenant with ID 2 not found", exception.getMessage());
+     * }
+     */
 
 }

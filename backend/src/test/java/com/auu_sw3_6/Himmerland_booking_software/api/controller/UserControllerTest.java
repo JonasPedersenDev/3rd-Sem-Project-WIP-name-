@@ -26,7 +26,7 @@ class UserControllerTest {
 
     // Concrete implementation of User for testing
     private static class TestUser extends User {
-        // Add any necessary implementations
+
     }
 
     @Mock
