@@ -15,8 +15,11 @@ class BookingErrorTest {
         assertEquals("Startdato kan ikke være tidligere end dags dato.", BookingError.START_DATE_IN_PAST.getErrorMessage());
         assertEquals(1002, BookingError.START_DATE_IN_PAST.getErrorCode());
 
+        assertEquals("Slutdato kan ikke være tidligere end dags dato.", BookingError.END_DATE_IN_PAST.getErrorMessage());
+        assertEquals(1003, BookingError.END_DATE_IN_PAST.getErrorCode());
+
         assertEquals("Afhentningstidspunkt skal være i fremtiden for startdatoen.", BookingError.PICKUP_TIME_IN_PAST.getErrorMessage());
-        assertEquals(1003, BookingError.PICKUP_TIME_IN_PAST.getErrorCode());
+        assertEquals(1006, BookingError.PICKUP_TIME_IN_PAST.getErrorCode());
 
         assertEquals("Afleveringstidspunkt skal være i fremtiden for slutdatoen.", BookingError.DROPOFF_TIME_IN_PAST.getErrorMessage());
         assertEquals(1004, BookingError.DROPOFF_TIME_IN_PAST.getErrorCode());
@@ -42,7 +45,7 @@ class BookingErrorTest {
         assertEquals("Kan ikke redigere forpasset booking.", BookingError.LATE_BOOKING_EDIT.getErrorMessage());
         assertEquals(2006, BookingError.LATE_BOOKING_EDIT.getErrorCode());
 
-        assertEquals("Kan ikke ændre startdatoen for aktiv booking.", BookingError.ACTIVE_BOOKING_START_EDIT.getErrorMessage());
+        assertEquals("Kan ikke ændre starttiden for aktiv booking.", BookingError.ACTIVE_BOOKING_START_EDIT.getErrorMessage());
         assertEquals(2007, BookingError.ACTIVE_BOOKING_START_EDIT.getErrorCode());
 
         assertEquals("Ressourcen er ikke tilgængelig for de valgte datoer.", BookingError.DEFAULT_ERROR.getErrorMessage());
