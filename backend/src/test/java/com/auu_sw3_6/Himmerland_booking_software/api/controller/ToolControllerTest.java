@@ -45,36 +45,37 @@ public class ToolControllerTest extends AbstractResourceControllerTest<Tool> {
     return "/api/tool";
   }
 
-  @Test
-  public void addResource_ShouldReturnResource() throws Exception {
-    SecurityContextHelper.setSecurityContext("admin");
+  //        Har fjernet add endpoint, da det ikke var i brug. Testen er derfor kun til eksempel til andre post endpoints tests.
+  // @Test
+  // public void addResource_ShouldReturnResource() throws Exception {
+  //   SecurityContextHelper.setSecurityContext("admin");
 
-    Tool tool = new Tool();
-    tool.setName("Test Tool 2");
-    tool.setDescription("Test Description 2");
-    tool.setCapacity(2);
-    tool.setStatus("Available");
-    tool.setType(ResourceType.TOOL);
+  //   Tool tool = new Tool();
+  //   tool.setName("Test Tool 2");
+  //   tool.setDescription("Test Description 2");
+  //   tool.setCapacity(2);
+  //   tool.setStatus("Available");
+  //   tool.setType(ResourceType.TOOL);
 
-    String toolJson = objectMapper.writeValueAsString(tool);
+  //   String toolJson = objectMapper.writeValueAsString(tool);
 
-    MvcResult result = mockMvc.perform(post(getBasePath() + "/add")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(toolJson))
-        .andExpect(status().isCreated())
-        .andReturn();
+  //   MvcResult result = mockMvc.perform(post(getBasePath() + "/add")
+  //       .contentType(MediaType.APPLICATION_JSON)
+  //       .content(toolJson))
+  //       .andExpect(status().isCreated())
+  //       .andReturn();
 
-    String jsonResponse = result.getResponse().getContentAsString();
-    Tool responseTool = objectMapper.readValue(jsonResponse, Tool.class);
+  //   String jsonResponse = result.getResponse().getContentAsString();
+  //   Tool responseTool = objectMapper.readValue(jsonResponse, Tool.class);
 
-    System.out.println("Response: " + jsonResponse);
+  //   System.out.println("Response: " + jsonResponse);
 
-    assertEquals(tool.getName(), responseTool.getName());
-    assertEquals(tool.getDescription(), responseTool.getDescription());
-    assertEquals(tool.getCapacity(), responseTool.getCapacity());
-    assertEquals(tool.getStatus(), responseTool.getStatus());
-    assertEquals(tool.getType(), responseTool.getType());
-  }
+  //   assertEquals(tool.getName(), responseTool.getName());
+  //   assertEquals(tool.getDescription(), responseTool.getDescription());
+  //   assertEquals(tool.getCapacity(), responseTool.getCapacity());
+  //   assertEquals(tool.getStatus(), responseTool.getStatus());
+  //   assertEquals(tool.getType(), responseTool.getType());
+  // }
 
   @Test
   public void createTool_shouldReturnTool() throws Exception {

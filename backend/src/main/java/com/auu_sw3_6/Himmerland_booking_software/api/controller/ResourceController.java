@@ -68,13 +68,6 @@ public abstract class ResourceController<T extends Resource> {
     }
   }
 
-  @Operation(summary = "Add a new resource", description = "Create and add a new resource to the system")
-  @PostMapping(value = "/add", produces = "application/json")
-  public ResponseEntity<T> addResource(@RequestBody T resource) {
-    resourceService.createResource(resource, null);
-    return ResponseEntity.status(HttpStatus.CREATED).body(resource);
-  }
-
   @Operation(summary = "Get confirmed booked dates for a resource", description = "Retrieve an array of dates, along with the amount booked on that date when a specific resource is booked")
   @GetMapping(value = "/{id}/booked-dates", produces = "application/json")
   public ResponseEntity<List<BookingDate>> getReservedDates(@PathVariable Long id) {
