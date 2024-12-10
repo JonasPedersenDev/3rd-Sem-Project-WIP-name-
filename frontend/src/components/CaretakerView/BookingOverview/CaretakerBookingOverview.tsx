@@ -197,7 +197,7 @@ const CaretakerBookingOverview: React.FC = () => {
             aria-expanded={showActive}
             className="fs-5"
           >
-            Nuverænde reservationer
+            Nuværende reservationer
           </Button>
         </h3> <hr />
         <Collapse in={showActive}>
