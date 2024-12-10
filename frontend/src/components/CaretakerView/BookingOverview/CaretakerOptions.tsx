@@ -54,7 +54,7 @@ const CaretakerOptions = () => {
         data-bs-target="#offcanvasExample"
         aria-controls="offcanvasExample"
       >
-        Indstillinger
+        Medarbejder liste
       </button>
 
       <div
@@ -65,7 +65,7 @@ const CaretakerOptions = () => {
       >
         <div className="offcanvas-header">
           <h5 className="offcanvas-title" id="offcanvasExampleLabel">
-            Indstillinger
+            Medarbejder liste
           </h5>
           <button
             type="button"
@@ -126,9 +126,10 @@ const CaretakerOptions = () => {
                   />
                 </Form.Group>
                 <Button
-                  variant="outline-secondary"
+                  variant={newCaretakerName == "" ? "outline-secondary" : "outline-success"}
                   onClick={handleAddCaretakerName}
                   className="mt-3"
+                  disabled={newCaretakerName == ""}
                 >
                   Bekræft
                 </Button>

@@ -59,7 +59,7 @@ const SettingsForm: React.FC = () => {
     }
   };
 
-const handleCancel = async () => {
+  const handleCancel = async () => {
     await fetchUserData();
     setIsEditing(false);
   };
@@ -151,14 +151,14 @@ const handleCancel = async () => {
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">
-                  <Form.Label>{isEditing ? "Adgangskode" : "Adgangskode..." }</Form.Label>
-                  {isEditing && (
+                  <Form.Label>Adgangskode</Form.Label>
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <Form.Control
                       type={passwordVisible ? "text" : "password"}
                       name="password"
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      value={isEditing ? newPassword : "*******************"}
                       style={{ marginRight: "10px" }}
                     />
                     <Button
@@ -168,7 +168,6 @@ const handleCancel = async () => {
                       {passwordVisible ? "Skjul" : "Vis"}
                     </Button>
                   </div>
-                  )}
                 </Form.Group>
                 {validationError && (
                   <p style={{ color: "red" }}>{validationError}</p>
@@ -185,8 +184,6 @@ const handleCancel = async () => {
             </Col>
           </Row>
         );
-      case "text":
-        return <div>"Et eller andet tekst IDK"</div>;
       case "notifications":
         return (
           <div>
@@ -221,19 +218,12 @@ const handleCancel = async () => {
             marginRight: "20px",
           }}
         >
-            <Button
+          <Button
             onClick={() => setCurrentView("settings")}
             style={{ marginBottom: "10px" }}
             variant="success"
-            >
-            Din bruger
-            </Button>
-          <Button
-            onClick={() => setCurrentView("text")}
-            style={{ marginBottom: "10px" }}
-            variant="success"
           >
-            Samtykke
+            Din bruger
           </Button>
           <Button
             onClick={() => setCurrentView("notifications")}
@@ -242,8 +232,7 @@ const handleCancel = async () => {
           >
             Notifikationer
           </Button>
-          <LogoutButton/>
-          <DeleteUserButton userId={userInfo.id} />
+          <LogoutButton />
         </Col>
         <Col
           md={8}

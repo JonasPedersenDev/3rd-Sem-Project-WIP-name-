@@ -262,24 +262,23 @@ const SettingsForm: React.FC = () => {
                   />
                 </Form.Group>
                 <Form.Group controlId="formPassword">
-                  <Form.Label>{isEditing ? "Adgangskode" : "Adgangskode..." }</Form.Label>
-                  {isEditing && (
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <Form.Control
-                        type={passwordVisible ? "text" : "password"}
-                        name="password"
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <Button
-                        variant="secondary"
-                        onClick={togglePasswordVisibility}
-                      >
-                        {passwordVisible ? "Skjul" : "Vis"}
-                      </Button>
-                    </div>
-                  )}
+                  <Form.Label>Adgangskode</Form.Label>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Form.Control
+                      type={passwordVisible ? "text" : "password"}
+                      name="password"
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      value={isEditing ? newPassword : "*******************"} 
+                      style={{ marginRight: "10px" }}
+                    />
+                    <Button
+                      variant="secondary"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {passwordVisible ? "Skjul" : "Vis"}
+                    </Button>
+                  </div>
                 </Form.Group>
                 {validationError && (
                   <p style={{ color: "red" }}>{validationError}</p>
