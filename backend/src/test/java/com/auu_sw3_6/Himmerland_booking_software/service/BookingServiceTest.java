@@ -7,15 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -587,6 +583,134 @@ public class BookingServiceTest {
     // Act & Assert
     bookingService.checkBookingPeriodValidity(true, today, now, startDate, endDate, pickupTime, dropoffTime);
   }
+
+  @Test
+public void testUpdateBooking_shouldSaveAndReturnUpdatedBooking() {
+    // Arrange
+    Booking updatedBooking = new Booking();
+    updatedBooking.setId(1L);
+    updatedBooking.setUser(user);
+    updatedBooking.setResource(resource);
+    updatedBooking.setStartDate(today.plusDays(2));
+    updatedBooking.setEndDate(today.plusDays(4));
+    updatedBooking.setStatus(BookingStatus.CONFIRMED);
+
+    when(bookingRepository.save(any(Booking.class))).thenReturn(updatedBooking);
+
+    // Act
+    Booking result = bookingService.updateBooking(updatedBooking);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    assertEquals(BookingStatus.CONFIRMED, result.getStatus());
+    verify(bookingRepository).save(updatedBooking);
+}
+  
+  @Test
+  public void testUpdateBooking_shouldThrowResourceNotFoundExceptionWhenBookingNotFound() {
+      // Arrange
+      Booking nonExistentBooking = new Booking();
+      nonExistentBooking.setId(99L);
+      nonExistentBooking.setUser(user);
+      nonExistentBooking.setResource(resource);
+      nonExistentBooking.setStartDate(today.plusDays(2));
+      nonExistentBooking.setEndDate(today.plusDays(4));
+      nonExistentBooking.setStatus(BookingStatus.CONFIRMED);
+  
+      when(bookingRepository.save(any(Booking.class))).thenThrow(new ResourceNotFoundException("Booking not found"));
+  
+      // Act & Assert
+      ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+          bookingService.updateBooking(nonExistentBooking);
+      });
+  
+      assertEquals("Booking not found", exception.getMessage());
+      verify(bookingRepository).save(nonExistentBooking);
+  }
+  
+  @Test
+public void testUpdateBooking_shouldUpdateBookingDetailsSuccessfully() {
+    // Arrange
+    Booking updatedBooking = new Booking();
+    updatedBooking.setId(1L);
+    updatedBooking.setUser(user);
+    updatedBooking.setResource(resource);
+    updatedBooking.setStartDate(today.plusDays(5));
+    updatedBooking.setEndDate(today.plusDays(7));
+    updatedBooking.setStatus(BookingStatus.PENDING);
+
+    when(bookingRepository.save(any(Booking.class))).thenReturn(updatedBooking);
+
+    // Act
+    Booking result = bookingService.updateBooking(updatedBooking);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    assertEquals(today.plusDays(5), result.getStartDate());
+    assertEquals(today.plusDays(7), result.getEndDate());
+    assertEquals(BookingStatus.PENDING, result.getStatus());
+    verify(bookingRepository).save(updatedBooking);
+}
+
+@Test
+public void testUpdateBooking_shouldThrowResourceNotFoundExceptionForNonExistentBooking() {
+    // Arrange
+    when(bookingRepository.save(any(Booking.class))).thenThrow(new ResourceNotFoundException("Booking not found"));
+
+    // Act & Assert
+    ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+        bookingService.updateBooking(booking);
+    });
+    assertEquals("Booking not found", exception.getMessage());
+}
+
+@Test
+public void testCreateBooking_shouldHandleEdgeCaseDates() {
+    // Arrange
+    LocalDate startDate = today.withDayOfMonth(1);
+    LocalDate endDate = today.withDayOfMonth(today.lengthOfMonth());
+    booking.setStartDate(startDate);
+    booking.setEndDate(endDate);
+
+    when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    Booking result = bookingService.createBooking(booking);
+
+    // Assert
+    assertEquals(startDate, result.getStartDate());
+    assertEquals(endDate, result.getEndDate());
+    verify(bookingRepository).save(booking);
+}
+
+@Test
+public void testCreateBooking_shouldAllowOverlappingBookingsForDifferentResources() {
+    // Arrange
+    Resource resource2 = new TestResource();
+    resource2.setId(2L);
+    resource2.setCapacity(5);
+
+    Booking booking2 = new Booking();
+    booking2.setId(2L);
+    booking2.setUser(user);
+    booking2.setResource(resource2);
+    booking2.setStartDate(booking.getStartDate());
+    booking2.setEndDate(booking.getEndDate());
+
+    when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    Booking result1 = bookingService.createBooking(booking);
+    Booking result2 = bookingService.createBooking(booking2);
+
+    // Assert
+    assertNotNull(result1);
+    assertNotNull(result2);
+    assertNotEquals(result1.getResource(), result2.getResource());
+    verify(bookingRepository, times(2)).save(any(Booking.class));
+}
 
 
 }
