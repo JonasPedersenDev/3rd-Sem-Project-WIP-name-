@@ -75,7 +75,6 @@ public class AuthControllerTest {
     tenant.setProfilePictureFileName("tenantPicture");
 
     tenantService.createUser(tenant, null);
-
   }
 
   @Test

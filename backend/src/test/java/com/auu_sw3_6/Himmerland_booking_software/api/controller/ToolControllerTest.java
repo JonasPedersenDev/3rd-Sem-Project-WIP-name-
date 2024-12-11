@@ -2,7 +2,6 @@ package com.auu_sw3_6.Himmerland_booking_software.api.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.file.Files;
@@ -44,38 +43,6 @@ public class ToolControllerTest extends AbstractResourceControllerTest<Tool> {
   protected String getBasePath() {
     return "/api/tool";
   }
-
-  //        Har fjernet add endpoint, da det ikke var i brug. Testen er derfor kun til eksempel til andre post endpoints tests.
-  // @Test
-  // public void addResource_ShouldReturnResource() throws Exception {
-  //   SecurityContextHelper.setSecurityContext("admin");
-
-  //   Tool tool = new Tool();
-  //   tool.setName("Test Tool 2");
-  //   tool.setDescription("Test Description 2");
-  //   tool.setCapacity(2);
-  //   tool.setStatus("Available");
-  //   tool.setType(ResourceType.TOOL);
-
-  //   String toolJson = objectMapper.writeValueAsString(tool);
-
-  //   MvcResult result = mockMvc.perform(post(getBasePath() + "/add")
-  //       .contentType(MediaType.APPLICATION_JSON)
-  //       .content(toolJson))
-  //       .andExpect(status().isCreated())
-  //       .andReturn();
-
-  //   String jsonResponse = result.getResponse().getContentAsString();
-  //   Tool responseTool = objectMapper.readValue(jsonResponse, Tool.class);
-
-  //   System.out.println("Response: " + jsonResponse);
-
-  //   assertEquals(tool.getName(), responseTool.getName());
-  //   assertEquals(tool.getDescription(), responseTool.getDescription());
-  //   assertEquals(tool.getCapacity(), responseTool.getCapacity());
-  //   assertEquals(tool.getStatus(), responseTool.getStatus());
-  //   assertEquals(tool.getType(), responseTool.getType());
-  // }
 
   @Test
   public void createTool_shouldReturnTool() throws Exception {

@@ -1,5 +1,7 @@
 package com.auu_sw3_6.Himmerland_booking_software.config;
 
+import java.time.Clock;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,11 @@ public class AppConfig {
   @Autowired
   public AppConfig(JobService jobService) {
     this.jobService = jobService;
+  }
+
+  @Bean
+  public Clock clock() {
+    return Clock.systemDefaultZone();
   }
 
   @Bean

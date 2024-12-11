@@ -23,8 +23,12 @@ import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Import;
 
+import com.auu_sw3_6.Himmerland_booking_software.api.controller.testSecurityHelpers.TestTimeProviderConfig;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;
@@ -38,6 +42,9 @@ import com.auu_sw3_6.Himmerland_booking_software.service.event.CancelNotificatio
 
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
+
+  @Mock
+  protected TimeProvider timeProvider;
 
   @Mock
   private BookingRepository bookingRepository;
@@ -57,7 +64,6 @@ public class BookingServiceTest {
   private LocalDate today;
   private LocalTime now;
 
-
   private static class TestUser extends User {
 
   }
@@ -69,9 +75,8 @@ public class BookingServiceTest {
   @BeforeEach
   public void setUp() {
 
-    today = LocalDate.of(2021, 9, 6);
-    now = LocalTime.of(10, 0, 0);
-
+    today = LocalDate.of(2024, 11, 4);
+    now = LocalTime.of(10, 5);
     user = new TestUser();
     user.setId(1L);
 
@@ -217,8 +222,10 @@ public class BookingServiceTest {
   @Test
   public void testCancelPendingBookings_shouldCancelPendingBookingsWhenCapacityExceeded() {
     // Arrange
+    when(timeProvider.getToday()).thenReturn(today);
+
     ApplicationEventPublisher mockEventPublisher = mock(ApplicationEventPublisher.class);
-    bookingService = new BookingService(bookingRepository, resourceServiceFactory, mockEventPublisher);
+    bookingService = new BookingService(bookingRepository, resourceServiceFactory, mockEventPublisher, timeProvider);
 
     resource.setCapacity(1);
 
@@ -230,7 +237,8 @@ public class BookingServiceTest {
     Booking pendingBooking = new Booking();
     pendingBooking.setId(3L);
     pendingBooking.setResource(resource);
-    pendingBooking.setStartDate(LocalDate.now());
+    pendingBooking.setStartDate(today);
+    pendingBooking.setEndDate(today.plusDays(2));
     pendingBooking.setStatus(BookingStatus.PENDING);
 
     Booking confirmedBooking = new Booking();
@@ -256,6 +264,9 @@ public class BookingServiceTest {
   @Test
   public void testCancelPendingBookings_shouldNotCancelPendingBookingsWhenCapacityNotExceeded() {
     // Arrange
+
+    when(timeProvider.getToday()).thenReturn(today);
+
     Booking pendingBooking = new Booking();
     pendingBooking.setId(3L);
     pendingBooking.setResource(resource);
@@ -589,7 +600,7 @@ public class BookingServiceTest {
   }
 
   @Test
-public void setBookingStatus_shouldUpdateBookingStatus() {
+  public void setBookingStatus_shouldUpdateBookingStatus() {
     // Arrange
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
@@ -600,65 +611,65 @@ public void setBookingStatus_shouldUpdateBookingStatus() {
     assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
     verify(bookingRepository).save(booking);
 
-    }
+  }
 
-    @Test
-    public void testSetBookingStatus_shouldThrowResourceNotFoundExceptionWhenBookingNotFound() {
-        // Arrange
-        when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  public void testSetBookingStatus_shouldThrowResourceNotFoundExceptionWhenBookingNotFound() {
+    // Arrange
+    when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            bookingService.setBookingStatus(1L, BookingStatus.CONFIRMED, 1L, true);
-        });
+    // Act & Assert
+    ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+      bookingService.setBookingStatus(1L, BookingStatus.CONFIRMED, 1L, true);
+    });
 
-        assertEquals("Booking not found with ID: 1", exception.getMessage());
-        verify(bookingRepository, never()).save(any());
-    }
+    assertEquals("Booking not found with ID: 1", exception.getMessage());
+    verify(bookingRepository, never()).save(any());
+  }
 
-    @Test
-    public void testSetBookingStatus_shouldNotPublishEventWhenCanceledByNonAdmin() {
-        // Arrange
-        ApplicationEventPublisher mockEventPublisher = mock(ApplicationEventPublisher.class);
-        bookingService = new BookingService(bookingRepository, resourceServiceFactory, mockEventPublisher);
+  @Test
+  public void testSetBookingStatus_shouldNotPublishEventWhenCanceledByNonAdmin() {
+    // Arrange
+    ApplicationEventPublisher mockEventPublisher = mock(ApplicationEventPublisher.class);
+    bookingService = new BookingService(bookingRepository, resourceServiceFactory, mockEventPublisher, timeProvider);
 
-        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+    when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        // Act
-        bookingService.setBookingStatus(1L, BookingStatus.CANCELED, 1L, false);
+    // Act
+    bookingService.setBookingStatus(1L, BookingStatus.CANCELED, 1L, false);
 
-        // Assert
-        assertEquals(BookingStatus.CANCELED, booking.getStatus());
-        verify(bookingRepository).save(booking);
-        verify(mockEventPublisher, never()).publishEvent(any(CancelNotificationEvent.class));
-    }
+    // Assert
+    assertEquals(BookingStatus.CANCELED, booking.getStatus());
+    verify(bookingRepository).save(booking);
+    verify(mockEventPublisher, never()).publishEvent(any(CancelNotificationEvent.class));
+  }
 
-    @Test
-    public void testSetHandoverName_shouldUpdateHandoverName() {
-        // Arrange
-        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+  @Test
+  public void testSetHandoverName_shouldUpdateHandoverName() {
+    // Arrange
+    when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        // Act
-        bookingService.setHandoverName(1L, "Handover Name");
+    // Act
+    bookingService.setHandoverName(1L, "Handover Name");
 
-        // Assert
-        assertEquals("Handover Name", booking.getHandoverName());
-        assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
-        verify(bookingRepository).save(booking);
-    }
+    // Assert
+    assertEquals("Handover Name", booking.getHandoverName());
+    assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+    verify(bookingRepository).save(booking);
+  }
 
-    @Test
-    public void testSetHandoverName_shouldThrowExceptionForInvalidName() {
-        // Arrange
-        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
-        
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            bookingService.setHandoverName(1L, "");
-        });
+  @Test
+  public void testSetHandoverName_shouldThrowExceptionForInvalidName() {
+    // Arrange
+    when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        assertEquals("Handover name cannot be null or empty.", exception.getMessage());
-        verify(bookingRepository, never()).save(any());
-    }
+    // Act & Assert
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      bookingService.setHandoverName(1L, "");
+    });
+
+    assertEquals("Handover name cannot be null or empty.", exception.getMessage());
+    verify(bookingRepository, never()).save(any());
+  }
 
 }

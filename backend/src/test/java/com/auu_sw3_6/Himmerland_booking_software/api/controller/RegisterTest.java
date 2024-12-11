@@ -49,7 +49,7 @@ import java.util.List;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class TenantControllerIntegrationTest {
+public class RegisterTest {
 
     @Autowired
     private MockMvc mockMvc;
