@@ -3,7 +3,6 @@ import ApiService from "../../../utils/ApiService";
 import Tenant from "../../modelInterfaces/Tenant";
 import BookForTenant from "../../CaretakerView/TenantDetails/BookForTenant";
 import { Modal, Button } from "react-bootstrap";
-import BookingDate from "../../modelInterfaces/BookingDate";
 import FilterSearch from "./FilterSearch";
 import DeleteUser from "./DeleteUser";
 import EditTenantDetails from "./EditTenantDetails";
@@ -16,7 +15,6 @@ const TenantDetailsList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
-  const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -42,13 +40,6 @@ const TenantDetailsList: React.FC = () => {
 
   const handleBookClick = async (tenant: Tenant) => {
     setSelectedTenant(tenant);
-    try {
-      const response = await ApiService.fetchData("booking/get-all");
-      setBookedDates(response.data as BookingDate[]);
-      console.log(tenant);
-    } catch (error) {
-      console.error("Failed to fetch booked dates:", error);
-    }
     setShowModal(true);
   };
 
@@ -139,13 +130,7 @@ const TenantDetailsList: React.FC = () => {
         <Modal.Body>
           {selectedTenant && (
             <BookForTenant
-              bookedDates={bookedDates}
-              onDateChange={(start, end) => console.log("Date range selected:", start, end)}
-              resourceCapacity={10} 
-              onBookingComplete={() => {
-                console.log("Booking complete");
-                handleCloseModal(); 
-              }}
+              onClose={() => handleCloseModal()}
               selectedTenant={selectedTenant}
             />
           )}

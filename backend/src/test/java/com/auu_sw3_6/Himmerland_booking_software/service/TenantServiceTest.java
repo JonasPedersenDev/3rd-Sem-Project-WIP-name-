@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -43,6 +44,9 @@ public class TenantServiceTest {
 
     @InjectMocks
     private TenantService tenantService;
+
+    @Mock
+    private BookingService bookingService;
 
     private Tenant tenant;
 
@@ -249,35 +253,52 @@ public class TenantServiceTest {
         assertEquals("Tenant with id 1 does not exist.", exception.getMessage());
     }
 
-    /*
-     * @Test
-     * public void testDeleteUser_shouldDeleteUser() {
-     * // Arrange
-     * when(tenantRepository.existsById(1L)).thenReturn(true);
-     * 
-     * // Act
-     * tenantService.softDeleteTenant(1L);
-     * 
-     * // Assert
-     * verify(tenantRepository).deleteById(1L);
-     * }
-     * 
-     * /*
-     * 
-     * @Test
-     * public void testDeleteUser_userNotFound() {
-     * // Arrange
-     * when(tenantRepository.existsById(2L)).thenReturn(false);
-     * 
-     * // Act & Assert
-     * IllegalArgumentException exception =
-     * assertThrows(IllegalArgumentException.class, () -> {
-     * tenantService.softDeleteTenant(2L);
-     * });
-     * 
-     * // Assert
-     * assertEquals("Tenant with ID 2 not found", exception.getMessage());
-     * }
-     */
+    @Test
+    public void testSoftDeleteTenant_Success() {
+        // Arrange
+        Long userId = 1L;
+        Tenant tenant = new Tenant();
+        tenant.setId(userId);
+        tenant.setName("John Doe");
+        tenant.setEmail("john@example.com");
+        tenant.setMobileNumber("1234567890");
+        tenant.setUsername("johndoe");
+        tenant.setPassword("password");
+        tenant.setProfilePictureFileName("profile.jpg");
+        tenant.setHouseAddress("123 Main St");
+
+        when(tenantRepository.findById(userId)).thenReturn(Optional.of(tenant));
+
+        // Act
+        tenantService.softDeleteTenant(userId);
+
+        // Assert
+        verify(bookingService).cancelAllNonCompletedBookingsForUser(userId);
+        verify(tenantRepository).save(tenant);
+
+        assertEquals("deleted", tenant.getName());
+        assertEquals("deleted@gmail.com", tenant.getEmail());
+        assertEquals("00000000", tenant.getMobileNumber());
+        assertEquals("deleted", tenant.getUsername());
+        assertEquals("Deleted123", tenant.getPassword());
+        assertEquals("deleted", tenant.getProfilePictureFileName());
+        assertEquals("deleted", tenant.getHouseAddress());
+    }
+
+    @Test
+    public void testSoftDeleteTenant_TenantNotFound() {
+        // Arrange
+        Long userId = 1L;
+        when(tenantRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            tenantService.softDeleteTenant(userId);
+        });
+
+        assertEquals("Tenant with ID 1 not found", exception.getMessage());
+        verify(bookingService, never()).cancelAllNonCompletedBookingsForUser(userId);
+        verify(tenantRepository, never()).save(any(Tenant.class));
+    }
 
 }

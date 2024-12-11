@@ -20,6 +20,10 @@ public class UtilityService extends ResourceService<Utility> {
       throw new IllegalArgumentException("Name cannot be null or empty.");
     }
 
+    if (utility.getCapacity() < 0) {
+        throw new IllegalArgumentException("Capacity must be greater than 0.");
+    }
+
     return createResource(utility, resourcePictures);
   }
 

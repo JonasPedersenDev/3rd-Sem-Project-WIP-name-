@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
+import com.auu_sw3_6.Himmerland_booking_software.exception.AdminNotFouldException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.CaretakerNameConflictException;
 
 @ExtendWith(MockitoExtension.class)
@@ -190,6 +191,23 @@ public class AdminServiceTest {
     }
 
     @Test
+    public void testAddCaretakerName_ThrowsExceptionForInvalidName() {
+    // Arrange
+    String caretakerName = "John Doe";
+    admin.getCaretakerNames().add(caretakerName);
+    when(adminRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
+
+    // Act & Assert
+    CaretakerNameConflictException exception = assertThrows(CaretakerNameConflictException.class, () -> {
+        adminService.addCaretakerName(caretakerName);
+    });
+    assertEquals("Caretaker name: \"John Doe\" already exists", exception.getMessage());
+    verify(adminRepository).findById(1L);
+}
+
+    
+
+    @Test
       public void testRemoveCaretakerName_RemovesExistingCaretakerName() {
         // Arrange
         String caretakerName = "John Doe";
@@ -206,5 +224,22 @@ public class AdminServiceTest {
         verify(adminRepository).findById(1L);
         verify(adminRepository).save(admin);
       }
+
+      @Test
+      public void testRemoveCaretakerName_ThrowsExceptionForAdminNotFound() {
+          // Arrange
+          String caretakerName = "John Doe";
+          when(adminRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+      
+          // Act & Assert
+          IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+              adminService.removeCaretakerName(caretakerName);
+          });
+      
+          assertEquals("Admin not found with ID: 1", exception.getMessage());
+          verify(adminRepository).findById(1L);
+      }
+      
+
 
 }

@@ -4,6 +4,7 @@ import BookingModalCalendar from "./BookingModalCalendar";
 import ApiService from "../../../utils/ApiService";
 import Resource from "../../modelInterfaces/Resource";
 import Booking from "../../modelInterfaces/Booking";
+import Tenant from "../../modelInterfaces/Tenant";
 import BookingDate from "../../modelInterfaces/BookingDate";
 import { isValidDateRange } from "../../../utils/BookingSupport";
 import { TimeRange } from "../../modelInterfaces/TimeRange";
@@ -15,6 +16,7 @@ interface CreateBookingModalProps {
   onBookingAdded: () => void;
   onClose: () => void;
   editBooking?: boolean;
+  tenant?: Tenant;
 }
 
 const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
@@ -24,6 +26,7 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
   onBookingAdded,
   onClose,
   editBooking,
+  tenant
 }) => {
   const [bookedDates, setBookedDates] = useState<BookingDate[]>([]);
   const [bookingFormData, setBookingData] = useState<Booking>(
@@ -87,12 +90,16 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
           transformedBooking
         );
         window.dispatchEvent(new Event("bookingEdited"));
+      } else if (tenant) {
+        response = await ApiService.createBookingForTenant(transformedBooking, tenant.id);
+        console.log("testresponse", response)
+        window.dispatchEvent(new Event("bookingsUpdated"));
       } else {
         response = await ApiService.createBooking(transformedBooking);
         window.dispatchEvent(new Event("bookingsUpdated"));
       }
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         await fetchBookedDates();
         onBookingAdded();
         setNotification({ message: "Reservering gennemført!", type: "success" });
@@ -152,10 +159,17 @@ const CreateBookingModal: React.FC<CreateBookingModalProps> = ({
     return booking.status === "COMPLETED" || booking.status === "CANCELLED";
   };
 
+  const getModalTitle = () => {
+    if (editBooking) { return `Rediger ${resource.name} Reservering` }
+    else if (tenant) { return `Reserver ${resource.name} for ${tenant.name}` }
+    else { return `Reserver ${resource.name}` }
+  }
+
+
   return (
     <Modal show={show} onHide={onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Reserver {resource.name}</Modal.Title>
+        <Modal.Title>{getModalTitle()}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {notification && (

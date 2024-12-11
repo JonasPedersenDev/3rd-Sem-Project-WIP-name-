@@ -1,5 +1,6 @@
 package com.auu_sw3_6.Himmerland_booking_software.service;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -39,12 +40,14 @@ public class BookingService {
   private static final int MAX_BOOKING_DAYS = 5;
   private static final int COOLDOWN_DAYS = 15;
   private static final int MAX_ACTIVE_PER_RESOURCE = 5;
+  private final TimeProvider timeProvider;
 
   public BookingService(BookingRepository bookingRepository, ResourceServiceFactory resourceServiceFactory,
-      ApplicationEventPublisher eventPublisher) {
+      ApplicationEventPublisher eventPublisher, TimeProvider timeProvider) {
     this.bookingRepository = bookingRepository;
     this.resourceServiceFactory = resourceServiceFactory;
     this.eventPublisher = eventPublisher;
+    this.timeProvider = timeProvider;
   }
 
   public Booking createBooking(Booking booking) {
@@ -105,10 +108,7 @@ public class BookingService {
       }
     }
 
-    LocalDate today = LocalDate.now();
-    LocalTime now = LocalTime.now();
-
-    checkBookingPeriodValidity(true, today, now, editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
+    checkBookingPeriodValidity(true, timeProvider.getToday(), timeProvider.getNow(), editBookingRequest.getStartDate(), editBookingRequest.getEndDate(),
         editBookingRequest.getPickupTime(), editBookingRequest.getDropoffTime());
 
     checkResourceAvailability(booking.getResource(), editBookingRequest.getStartDate(),
@@ -139,10 +139,7 @@ public class BookingService {
       throw new IllegalBookingException(BookingError.TOO_MANY_BOOKINGS);
     }
 
-    LocalDate today = LocalDate.now();
-    LocalTime now = LocalTime.now();
-
-    checkBookingPeriodValidity(false, today, now, startDate, endDate, details.getPickupTime(), details.getDropoffTime());
+    checkBookingPeriodValidity(false, timeProvider.getToday(), timeProvider.getNow(), startDate, endDate, details.getPickupTime(), details.getDropoffTime());
 
     checkResourceAvailability(resource, startDate, endDate, user);
 
@@ -255,7 +252,7 @@ public class BookingService {
     List<Booking> upcomingBookings = new ArrayList<>();
 
     for (Booking booking : bookings) {
-      if (booking.getStartDate().isEqual(LocalDate.now()) && booking.getPickupTime() == timeRange) {
+      if (booking.getStartDate().isEqual(timeProvider.getToday()) && booking.getPickupTime() == timeRange) {
         upcomingBookings.add(booking);
       }
     }
@@ -268,7 +265,7 @@ public class BookingService {
     List<Booking> upcomingBookings = new ArrayList<>();
 
     for (Booking booking : bookings) {
-      if (booking.getEndDate().isEqual(LocalDate.now()) && booking.getDropoffTime() == timeRange) {
+      if (booking.getEndDate().isEqual(timeProvider.getToday()) && booking.getDropoffTime() == timeRange) {
         upcomingBookings.add(booking);
       }
     }
@@ -426,7 +423,7 @@ public class BookingService {
       usedCapacityMap.put(resource, usedCapacityMap.getOrDefault(resource, 0) + 1);
     }
 
-    LocalDate currentDate = LocalDate.now();
+    LocalDate currentDate = timeProvider.getToday();
     for (Booking pendingBooking : pendingBookings) {
       if (!pendingBooking.getStartDate().isEqual(currentDate)) {
         continue;
