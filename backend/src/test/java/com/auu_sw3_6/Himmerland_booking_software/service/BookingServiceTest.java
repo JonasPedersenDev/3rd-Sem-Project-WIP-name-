@@ -596,7 +596,6 @@ public class BookingServiceTest {
   }
 
   @Test
-<<<<<<< HEAD
 public void testUpdateBooking_shouldSaveAndReturnUpdatedBooking() {
     // Arrange
     Booking updatedBooking = new Booking();
@@ -724,7 +723,6 @@ public void testCreateBooking_shouldAllowOverlappingBookingsForDifferentResource
     verify(bookingRepository, times(2)).save(any(Booking.class));
 }
 
-=======
   public void setBookingStatus_shouldUpdateBookingStatus() {
     // Arrange
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
@@ -796,6 +794,5 @@ public void testCreateBooking_shouldAllowOverlappingBookingsForDifferentResource
     assertEquals("Handover name cannot be null or empty.", exception.getMessage());
     verify(bookingRepository, never()).save(any());
   }
->>>>>>> 42427e2baa9dc67c23a920d7aeb7646fef8a4d38
 
 }
