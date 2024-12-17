@@ -90,42 +90,4 @@ public class UtilityControllerTest extends AbstractResourceControllerTest<Utilit
     assertEquals(utility.getType(), responseUtility.getType());
   }
 
- /*  @Test
-public void createUtility_shouldThrowExceptionWhenCapacityIsNegative() throws Exception {
-    Utility utility = new Utility();
-    utility.setName("Test Utility");
-    utility.setDescription("Test Description");
-    utility.setCapacity(-10); // Negative capacity
-    utility.setStatus("Available");
-    utility.setType(ResourceType.UTILITY);
-
-    String utilityJson = objectMapper.writeValueAsString(utility);
-
-    Path imagePath = Paths.get(getClass().getClassLoader().getResource("300x300-test-image.png").toURI());
-    byte[] imageBytes = Files.readAllBytes(imagePath);
-
-    MockMultipartFile imageFile = new MockMultipartFile(
-        "resourcePictures",
-        "300x300-test-image.png",
-        MediaType.IMAGE_PNG_VALUE,
-        imageBytes);
-
-    MockMultipartFile utilityPart = new MockMultipartFile(
-        "utility",
-        "utility.json",
-        MediaType.APPLICATION_JSON_VALUE,
-        utilityJson.getBytes());
-
-    SecurityContextHelper.setSecurityContext("admin");
-
-    MvcResult result = mockMvc.perform(multipart(getBasePath() + "/create")
-        .file(imageFile)
-        .file(utilityPart)
-        .contentType(MediaType.MULTIPART_FORM_DATA))
-        .andExpect(status().isBadRequest())
-        .andReturn();
-
-    String jsonResponse = result.getResponse().getContentAsString();
-    System.out.println("Response: " + jsonResponse);
-} */
 }

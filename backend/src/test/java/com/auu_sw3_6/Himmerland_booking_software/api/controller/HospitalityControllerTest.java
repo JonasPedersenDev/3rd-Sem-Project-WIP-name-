@@ -90,32 +90,4 @@ public class HospitalityControllerTest extends AbstractResourceControllerTest<Ho
     assertEquals(hospitality.getType(), responseHospitality.getType());
   }
 
-  /* @Test
-      public void createHospitality_shouldThrowExceptionWhenTypeIsNull() throws Exception {
-        SecurityContextHelper.setSecurityContext("admin");
-        Hospitality hospitality = new Hospitality();
-        hospitality.setName("Test Hospitality");
-        hospitality.setDescription("Test Description");
-        hospitality.setCapacity(10);
-        hospitality.setStatus("Available");
-        hospitality.setType(null);
-
-        String hospitalityJson = objectMapper.writeValueAsString(hospitality);
-
-        MockMultipartFile hospitalityPart = new MockMultipartFile(
-            "hospitality",
-            "hospitality.json",
-            MediaType.APPLICATION_JSON_VALUE,
-            hospitalityJson.getBytes());
-
-        MvcResult result = mockMvc.perform(multipart(getBasePath() + "/create")
-            .file(hospitalityPart)
-            .contentType(MediaType.MULTIPART_FORM_DATA))
-            .andExpect(status().isBadRequest())
-            .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        System.out.println("Response: " + jsonResponse);
-      } */
-
 }

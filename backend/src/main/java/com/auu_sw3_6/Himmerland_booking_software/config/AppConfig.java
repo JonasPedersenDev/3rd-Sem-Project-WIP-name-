@@ -114,11 +114,4 @@ public class AppConfig {
     };
   }
 
-  // @Bean
-  // public CommandLineRunner sendTestEmail() {
-  //   return args -> {
-  //     EmailService.sendPickupNotification("test@gmail.com", "Jonas P", "Festlokale", TimeRange.EARLY.getTimeSlot());
-  //   };
-  // }
-
 }

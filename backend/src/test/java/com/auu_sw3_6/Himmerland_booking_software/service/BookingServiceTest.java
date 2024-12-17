@@ -19,12 +19,8 @@ import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Import;
 
-import com.auu_sw3_6.Himmerland_booking_software.api.controller.testSecurityHelpers.TestTimeProviderConfig;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Booking;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Resource;
 import com.auu_sw3_6.Himmerland_booking_software.api.model.User;

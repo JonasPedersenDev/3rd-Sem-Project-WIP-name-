@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.auu_sw3_6.Himmerland_booking_software.api.model.Admin;
 import com.auu_sw3_6.Himmerland_booking_software.api.repository.AdminRepository;
-import com.auu_sw3_6.Himmerland_booking_software.exception.AdminNotFouldException;
 import com.auu_sw3_6.Himmerland_booking_software.exception.CaretakerNameConflictException;
 
 @ExtendWith(MockitoExtension.class)
