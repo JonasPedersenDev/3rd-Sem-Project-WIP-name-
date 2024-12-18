@@ -24,14 +24,16 @@ interface CaretakerBookingCardProps {
   booking: CaretakerBooking;
   onCancel: (id: number) => void;
   onComplete: (id: number) => void;
+  trigger: () => void
 }
 
-const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel, onComplete }) => {
+const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, onCancel, onComplete, trigger }) => {
   const [showModal, setShowModal] = useState(false);
   const [showModalNames, setShowModalNames] = useState(false);
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [showConfirmButton, setShowConfirmButton] = useState(false);
   const [caretakers, setCaretakers] = useState<string[]>([]);
+  const [trigger2, setTrigger2] = useState(false);
 
   useEffect(() => {
     const fetchCaretakerNames = async () => {
@@ -44,7 +46,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
     };
 
     fetchCaretakerNames();
-  }, []);
+  }, [trigger2]);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
@@ -54,7 +56,10 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
     setSelectedName(null);
     setShowConfirmButton(false);
   };
-  const handleShowNames = () => setShowModalNames(true);
+  const handleShowNames = () => {
+    setTrigger2((prev) => !prev);
+    setShowModalNames(true);
+  }
 
   const handleNameSelect = (name: string) => {
     setSelectedName(name);
@@ -73,6 +78,7 @@ const CaretakerBookingCard: React.FC<CaretakerBookingCardProps> = ({ booking, on
         }
 
         onComplete(booking.id);
+        trigger();
       } catch (error) {
         console.error("Error handling caretaker name:", error);
       }

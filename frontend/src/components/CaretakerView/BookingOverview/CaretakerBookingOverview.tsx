@@ -28,6 +28,7 @@ const CaretakerBookingOverview: React.FC = () => {
   const [showActive, setShowActive] = useState(true);
   const [showFuture, setShowFuture] = useState(true);
   const [showPast, setShowPast] = useState(true);
+  const [trigger, setTrigger] = useState(false);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -68,14 +69,7 @@ const CaretakerBookingOverview: React.FC = () => {
     };
 
     fetchBookings();
-
-    const intervalId = setInterval(() => {
-      console.log("Refreshing bookings...");
-      fetchBookings();
-    }, 60000); // 1 minute
-
-    return () => clearInterval(intervalId);
-  }, []);
+  }, [trigger]);
 
 
   const handleCancel = async (id: number) => {
@@ -205,7 +199,7 @@ const CaretakerBookingOverview: React.FC = () => {
             {activeBookings.length === 0 ? (
               <p>Ingen nuværende reservationer</p>
             ) : (
-              activeBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
+              activeBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} trigger={() => setTrigger((prev) => !prev)} />))
             )}
           </div>
         </Collapse>
@@ -227,7 +221,7 @@ const CaretakerBookingOverview: React.FC = () => {
             {futureBookings.length === 0 ? (
               <p>Ingen kommende reservationer</p>
             ) : (
-              futureBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
+              futureBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} trigger={() => setTrigger((prev) => !prev)} />))
             )}
           </div>
         </Collapse>
@@ -249,7 +243,7 @@ const CaretakerBookingOverview: React.FC = () => {
             {pastBookings.length === 0 ? (
               <p>Ingen tidligere reservationer</p>
             ) : (
-              pastBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} />))
+              pastBookings.map((booking) => (<CaretakerBookingCard key={booking.id} booking={booking} onCancel={handleCancel} onComplete={onBookingComplete} trigger={() => setTrigger((prev) => !prev)} />))
             )}
           </div>
         </Collapse>

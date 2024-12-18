@@ -42,7 +42,7 @@ const BookForTenant: React.FC<BookForTenantProps> = ({
     }, []);
 
     const filterAndSetResources = (resourceList: Resource[]) => {
-        const filteredResourceList = resourceList.filter((resource) => resource.status !== "deleted");
+        const filteredResourceList = resourceList.filter((resource) => resource.status !== "deleted" && resource.status !== "maintenance");
         setResources(filteredResourceList)
     }
 
